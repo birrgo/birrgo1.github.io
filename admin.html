@@ -455,7 +455,6 @@
         </div>
     </div>
 
-    <!-- ECOSYSTEM MATRIX OVERLAY WITH INTEGRATED SEARCH SEARCH FILTER -->
     <div class="role-modal-overlay" id="modal-ecosystem">
         <div class="workspace-card wide-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-ecosystem')">✕</button>
@@ -486,7 +485,6 @@
         </div>
     </div>
 
-    <!-- MONEY CONTROLLER OVERLAY -->
     <div class="role-modal-overlay" id="modal-money">
         <div class="workspace-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-money')">✕</button>
@@ -509,7 +507,6 @@
         </div>
     </div>
 
-    <!-- BROADCAST PUBLISHER OVERLAY -->
     <div class="role-modal-overlay" id="modal-news">
         <div class="workspace-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-news')">✕</button>
@@ -529,7 +526,6 @@
         </div>
     </div>
 
-    <!-- TASK CONFIGURATION OVERLAY -->
     <div class="role-modal-overlay" id="modal-tasks">
         <div class="workspace-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-tasks')">✕</button>
@@ -546,12 +542,10 @@
         </div>
     </div>
 
-    <!-- SYSTEM SECURITY OVERLAY -->
     <div class="role-modal-overlay" id="modal-secure">
         <div class="workspace-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-secure')">✕</button>
             
-            <!-- EXTERMINATE USER BLOCK -->
             <div style="display:flex; flex-direction:column; gap:16px;">
                 <h3 class="section-title title-dark">Account Sweeper Role</h3>
                 <p style="font-size:13px;color:var(--text-muted);margin-top:-10px;">Permanently terminate storage records nodes via identifiers.</p>
@@ -559,7 +553,6 @@
                 <button class="btn-admin-action btn-delete" id="deleteAccountBtn">Expunge Account Node</button>
             </div>
 
-            <!-- AUXILIARY ACTIVE ADMINISTRATIVE CONTROL MATRIX -->
             <div style="display:flex; flex-direction:column; gap:14px; border-top: 1px dashed var(--border-light); padding-top:20px;">
                 <h3 class="section-title title-dark">Manage Extra Admins</h3>
                 <p style="font-size:13px;color:var(--text-muted);margin-top:-10px;">Monitor currently registered auxiliary accounts and clear access.</p>
@@ -576,7 +569,6 @@
                 </div>
             </div>
 
-            <!-- REGISTER NEW SUB-ADMIN USER MODULE -->
             <div style="display:flex; flex-direction:column; gap:14px; border-top: 1px dashed var(--border-light); padding-top:20px;">
                 <h3 class="section-title title-dark">Create Extra Admin User</h3>
                 <input type="text" id="newAdminUser" class="admin-input" placeholder="New Extra Username">
@@ -584,7 +576,6 @@
                 <button class="btn-admin-action btn-save-gold" id="updateAdminCredsBtn">Register Extra Admin Account</button>
             </div>
 
-            <!-- CORE PRIMARY SYSTEM OVERWRITE PROTECTION -->
             <div style="display:flex; flex-direction:column; gap:14px; border-top: 1px dashed var(--border-light); padding-top:20px;">
                 <h3 class="section-title title-dark">Change Main Admin Password</h3>
                 <input type="text" id="mainAdminUser" class="admin-input" placeholder="Main Admin Username (e.g. admin)">
@@ -594,7 +585,6 @@
         </div>
     </div>
 
-    <!-- MAIN INTERACTIVE DASHBOARD BASE CONTAINER LAYER -->
     <div class="admin-container">
         <div class="admin-header">
             <h1>BirrGo Admin Dashboard</h1>
@@ -918,33 +908,21 @@
             const link4 = document.getElementById('taskLink4').value.trim();
             const link5 = document.getElementById('taskLink5').value.trim();
 
-            const newIncomingLink = link5; 
-            if (!newIncomingLink) {
-                triggerAdminAlert("Please enter a new link in the Task 5 field to cycle the links.", false);
-                return;
-            }
-
             try {
-                const shiftedMatrix = {
-                    task1: link2 || "",
-                    task2: link3 || "",
-                    task3: link4 || "",
-                    task4: link5 || "",         
-                    task5: newIncomingLink      
+                const updatedTasks = {
+                    task1: link1,
+                    task2: link2,
+                    task3: link3,
+                    task4: link4,         
+                    task5: link5      
                 };
 
-                await set(ref(db, 'task'), shiftedMatrix);
+                await set(ref(db, 'task'), updatedTasks);
 
-                document.getElementById('taskLink1').value = shiftedMatrix.task1;
-                document.getElementById('taskLink2').value = shiftedMatrix.task2;
-                document.getElementById('taskLink3').value = shiftedMatrix.task3;
-                document.getElementById('taskLink4').value = shiftedMatrix.task4;
-                document.getElementById('taskLink5').value = ""; 
-
-                triggerAdminAlert("First link removed! Matrix shifted up successfully.", true);
+                triggerAdminAlert("Tasks Matrix updated successfully!", true);
                 closeRoleModal('modal-tasks');
             } catch (err) {
-                triggerAdminAlert("Link matrix rotation failed.", false);
+                triggerAdminAlert("Link matrix update failed.", false);
             }
         });
 

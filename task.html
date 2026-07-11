@@ -66,7 +66,6 @@
         }
         .app-content::-webkit-scrollbar { display: none; }
 
-        /* Premium Header Styling */
         .brand-header {
             display: flex;
             align-items: center;
@@ -81,7 +80,6 @@
             object-fit: contain;
         }
 
-        /* Profile Avatar Button Setup */
         .profile-btn {
             width: 42px;
             height: 42px;
@@ -473,7 +471,6 @@
             stroke-width: 2.4;
         }
 
-        /* Immersive Overlay Window Framework */
         .immersive-overlay {
             position: absolute;
             top: 0;
@@ -488,7 +485,6 @@
             flex-direction: column;
         }
         
-        /* ADJUSTED VIEWPORT LAYOUT FOR CLEAN BOTTOM 40% RECOGNITION */
         .split-media-viewport {
             flex: 1;
             display: flex;
@@ -501,7 +497,6 @@
             overflow: hidden;
         }
 
-        /* CLEANLY CONSTRAINED TO THE LOWER 40% HEIGHT OF THE SCREEN */
         .youtube-player-box {
             width: 100%;
             max-width: 410px;
@@ -529,7 +524,6 @@
             align-items: center !important;
         }
 
-        /* PREMIUM CONTROLS BAR AT THE BOTTOM OF THE SCREEN */
         .overlay-navbar {
             height: calc(76px + env(safe-area-inset-bottom));
             padding-bottom: env(safe-area-inset-bottom);
@@ -574,7 +568,6 @@
             transform: scale(0.96);
         }
         
-        /* FORCE EVERY ELEMENT INJECTED BY MONETAG SCRIPT TO ABSOLUTE CENTER AT MICROSECOND ONE */
         .force-ad-center {
             position: absolute !important;
             top: 50% !important;
@@ -1010,13 +1003,11 @@
             adContainer.appendChild(monetagScript);
         }
 
-        /* NEW UNIVERSAL LINK INTERCEPTOR SYSTEM ENGINE */
         function injectUniversalMediaFrame(targetUrl) {
             if (!targetUrl) targetUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ";
             
             let structuredUrl = targetUrl.trim();
             
-            // Auto-convert standard watch links into responsive video embeds if it's a YouTube link
             if (structuredUrl.includes("youtube.com") || structuredUrl.includes("youtu.be")) {
                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                 const match = structuredUrl.match(regExp);
@@ -1024,7 +1015,6 @@
                 structuredUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0`;
             }
 
-            // Injects any custom Admin Link (YouTube, FB, TikTok, IG, Website) flawlessly 
             youtubePlayerContainer.innerHTML = `
                 <iframe 
                     src="${structuredUrl}" 
@@ -1051,14 +1041,14 @@
             btn.disabled = true;
 
             try {
-                const videoLinkRef = ref(db, `admin/tasks/video${id}`);
+                /* FIXED DATABASE REFERENCE MATCHING THE ADMIN CONFIGURATION MATRIX PATH */
+                const videoLinkRef = ref(db, `task/task${id}`);
                 const snapshot = await get(videoLinkRef);
                 const fetchedUrl = snapshot.exists() ? snapshot.val() : "";
                 
                 adViewerOverlay.style.display = "flex";
                 closeOverlayBtn.style.display = "none"; 
                 
-                // Renders any platform video link saved by your Admin panel seamlessly
                 injectUniversalMediaFrame(fetchedUrl);
                 loadMonetagAd();
 
