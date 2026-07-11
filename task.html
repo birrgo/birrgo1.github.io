@@ -489,18 +489,18 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; 
+            justify-content: center; 
             align-items: center;
             width: 100%;
-            padding: 16px 16px 24px 16px; 
-            gap: 16px;
+            padding: 10px;
+            gap: 12px;
             overflow: hidden;
         }
 
         .youtube-player-box {
             width: 100%;
-            max-width: 410px;
-            height: 40dvh;
+            max-width: 360px;
+            height: 64dvh;
             background: #000000;
             border-radius: 16px;
             overflow: hidden;
@@ -1012,12 +1012,21 @@
             let structuredUrl = targetUrl.trim();
             let videoId = "";
             
-            // Clean dynamic YouTube structures including short formats
-            const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(mbed)?)\/|shorts\/|user\/[^\/]+\/|embed\/|watch\?(?:.*&)?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-            const match = structuredUrl.match(regExp);
+            // Fixed extraction logic to correctly target the ID before query tags like ?si=
+            if (structuredUrl.includes("shorts/")) {
+                const parts = structuredUrl.split("shorts/");
+                if (parts[1]) {
+                    videoId = parts[1].split(/[?#]/)[0];
+                }
+            } else {
+                const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(mbed)?)\/|user\/[^\/]+\/|embed\/|watch\?(?:.*&)?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+                const match = structuredUrl.match(regExp);
+                if (match && match[1]) {
+                    videoId = match[1];
+                }
+            }
 
-            if (match && match[1]) {
-                videoId = match[1];
+            if (videoId && videoId.length === 11) {
                 youtubePlayerContainer.innerHTML = `
                     <iframe 
                         src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0" 
