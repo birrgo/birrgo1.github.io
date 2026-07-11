@@ -309,7 +309,7 @@
 
         .sub-header-row {
             display: flex;
-            justify-between: space-between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
             padding: 0 2px;
@@ -1004,31 +1004,30 @@
         }
 
         function injectUniversalMediaFrame(targetUrl) {
-            if (!targetUrl) {
-                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:20px; text-align:center; font-weight:700;">No video configured.</div>`;
+            if (!targetUrl || targetUrl.trim() === "") {
+                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px 20px; text-align:center; font-weight:700;">Error: Video URL is empty in Database.</div>`;
                 return;
             }
             
             let structuredUrl = targetUrl.trim();
             let videoId = "";
             
-            // Advanced universal expression filtering out any dynamic YouTube stream URL context cleanly
+            // Clean dynamic YouTube structures including short formats
             const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(mbed)?)\/|shorts\/|user\/[^\/]+\/|embed\/|watch\?(?:.*&)?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
             const match = structuredUrl.match(regExp);
 
             if (match && match[1]) {
                 videoId = match[1];
+                youtubePlayerContainer.innerHTML = `
+                    <iframe 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                `;
             } else {
-                videoId = "dQw4w9WgXcQ"; // Ultimate strict structural boundary safety fallback
+                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px 20px; text-align:center; font-weight:700;">Error: Invalid YouTube link structure.</div>`;
             }
-
-            youtubePlayerContainer.innerHTML = `
-                <iframe 
-                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowfullscreen>
-                </iframe>
-            `;
         }
 
         function clearInjectedAds() {
