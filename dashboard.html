@@ -6,7 +6,7 @@
     <title>BirrGo - Premium Dashboard Hub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -68,12 +68,11 @@
         }
         .app-content::-webkit-scrollbar { display: none; }
 
-        /* Premium Header Styling */
         .brand-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 8px; /* Reduced margin to pull up the content below */
             padding: 4px 2px;
         }
 
@@ -97,7 +96,52 @@
             cursor: pointer;
         }
 
-        /* High-End Wallet Card */
+        /* Adjusted position upward and bumped text sizing */
+        .news-container {
+            display: flex;
+            margin-top: -4px;   /* Pulls the pill slightly upward towards the header */
+            margin-bottom: 18px; 
+        }
+
+        .news-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(128, 0, 32, 0.06);
+            color: var(--primary-burgundy);
+            padding: 8px 16px; /* Enhanced internal sizing padding */
+            border-radius: 20px;
+            font-size: 13px; /* Increased font scale from 11px to 13px */
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid rgba(128, 0, 32, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .news-pill:all {
+            transform: translateY(-1px);
+        }
+
+        .news-pill:active {
+            transform: scale(0.95);
+            background: rgba(128, 0, 32, 0.12);
+        }
+
+        .news-dot {
+            width: 7px; /* Scaled up micro indicator node slightly to balance */
+            height: 7px;
+            background-color: var(--danger-red);
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-notification 1.5s infinite;
+        }
+
+        @keyframes pulse-notification {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.4; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
         .balance-card {
             background: var(--primary-gradient);
             border-radius: var(--border-radius-lg);
@@ -110,7 +154,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Ambient Glass Graphic Layer */
         .balance-card::before {
             content: '';
             position: absolute;
@@ -138,6 +181,7 @@
 
         .balance-meta {
             display: flex;
+            justify-open: space-between;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
@@ -195,7 +239,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Micro-Metrics Matrix Row */
         .metrics-matrix {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -228,7 +271,6 @@
             color: var(--text-dark);
         }
 
-        /* Quick Utilities Grid */
         .action-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -274,6 +316,10 @@
             box-shadow: 0 10px 20px var(--accent-glow);
         }
 
+        .action-item:active {
+            transform: scale(0.95);
+        }
+
         .action-label {
             font-size: 12px;
             font-weight: 700;
@@ -281,7 +327,6 @@
             text-align: center;
         }
 
-        /* Fixed Navigation Framework */
         .bottom-nav-bar {
             position: absolute;
             bottom: 0;
@@ -339,7 +384,6 @@
             stroke-width: 2.4;
         }
 
-        /* Premium Custom Dialog Overlay Layout Matrix */
         .custom-popup-backdrop {
             position: absolute;
             top: 0;
@@ -430,7 +474,6 @@
             transform: scale(0.98);
         }
 
-        /* Twin Button Layout for Confirmation Modals */
         .modal-action-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -462,6 +505,14 @@
             <div class="brand-header">
                 <img class="logo-image" src="birrgo-logo.png" alt="BirrGo Logo">
                 <div class="profile-badge" id="profileBadgeNode">👤</div>
+            </div>
+
+            <!-- Micro Utility News Pill Framework Component Link -->
+            <div class="news-container">
+                <div class="news-pill" id="dashboardNewsPill">
+                    <span class="news-dot"></span>
+                    <span>What's new today?</span>
+                </div>
             </div>
 
             <div class="balance-card">
@@ -590,8 +641,8 @@
 
         let activeUserPhone = "";
         const totalVideos = 5;
+        const cooldownDuration = 3600000; // 1 Hour
 
-        // Custom Modals Core Selectors
         const customPopup = document.getElementById('customPopup');
         const popupMessage = document.getElementById('popupMessage');
         const popupConfirmBtn = document.getElementById('popupConfirmBtn');
@@ -610,10 +661,10 @@
             }
 
             streamLiveDashboardMetrics();
+            updateLocalTaskMetrics();
             setupInterfaceActions();
         });
 
-        // App Framework Locked Features Popup
         function displayAppModal(message) {
             popupMessage.innerText = message;
             customPopup.style.display = 'flex';
@@ -625,7 +676,6 @@
             setTimeout(() => { customPopup.style.display = 'none'; }, 300);
         });
 
-        // Logout Custom UI Toggle Framework Operations
         function openLogoutDialog() {
             logoutPopup.style.display = 'flex';
             setTimeout(() => logoutPopup.classList.add('show-modal'), 10);
@@ -643,8 +693,20 @@
             window.location.href = "login.html";
         });
 
+        function updateLocalTaskMetrics() {
+            let currentlyClaimed = 0;
+            const now = Date.now();
+
+            for (let i = 1; i <= totalVideos; i++) {
+                const lastWatched = localStorage.getItem(`video_cooldown_${i}`);
+                if (lastWatched && (now - lastWatched < cooldownDuration)) {
+                    currentlyClaimed++;
+                }
+            }
+            document.getElementById('completed-count').innerText = `${currentlyClaimed} / ${totalVideos}`;
+        }
+
         function streamLiveDashboardMetrics() {
-            // 1. Keep card display calculation local for cosmetic display only
             const cleanPhone = activeUserPhone.replace(/\D/g, '');
             const final6Reversed = cleanPhone.slice(-6).split('').reverse().join('');
             const completeRawCardSequence = cleanPhone + final6Reversed;
@@ -652,7 +714,6 @@
             
             document.getElementById('displayWalletId').innerText = `ID: •••• ${cardLast4Digits}`;
 
-            // 2. Fetch User Identity using the active plain phone path node
             const userProfileRef = ref(db, `users/${activeUserPhone}`);
             onValue(userProfileRef, (snapshot) => {
                 const data = snapshot.val();
@@ -669,7 +730,6 @@
                 }
             });
 
-            // 3. Live stream real-time database balances cleanly from the primary user node
             const balanceRef = ref(db, `users/${activeUserPhone}/walletBalance`);
             onValue(balanceRef, (snapshot) => {
                 const currentVal = snapshot.val();
@@ -678,24 +738,14 @@
                 document.getElementById('dashboard-balance').innerText = parsedBalance.toFixed(2);
             });
 
-            // 4. Live stream referral metric data counts safely from user phone path
-            const referredRef = ref(db, `users/${activeUserPhone}/referredCount`);
+            const referredRef = ref(db, `users/${activeUserPhone}/referredUsers`);
             onValue(referredRef, (snapshot) => {
-                const currentVal = snapshot.val();
-                let invitedCount = parseInt(currentVal);
-                if (currentVal === null || isNaN(invitedCount)) invitedCount = 0;
-                document.getElementById('invited-count-metric').innerText = `${invitedCount} ${invitedCount === 1 ? 'Member' : 'Members'}`;
-            });
-
-            // 5. Stream video metrics statuses from the active user profile path node
-            const tasksRef = ref(db, `users/${activeUserPhone}/completedTasks`);
-            onValue(tasksRef, (snapshot) => {
-                const tasksData = snapshot.val();
-                let count = 0;
-                if (tasksData) {
-                    count = Object.keys(tasksData).length; 
+                if (snapshot.exists()) {
+                    const totalInvited = Object.keys(snapshot.val()).length;
+                    document.getElementById('invited-count-metric').innerText = `${totalInvited} ${totalInvited === 1 ? 'Member' : 'Members'}`;
+                } else {
+                    document.getElementById('invited-count-metric').innerText = "0 Members";
                 }
-                document.getElementById('completed-count').innerText = `${count} / ${totalVideos}`;
             });
         }
 
@@ -716,8 +766,11 @@
                 displayAppModal("Telebirr automatic instant gateway settlement withdrawal systems are processing setup and coming soon.");
             });
 
-            // Trigger elegant custom popup modal framework instead of default alert blocks
             document.getElementById('profileBadgeNode').addEventListener('click', openLogoutDialog);
+
+            document.getElementById('dashboardNewsPill').addEventListener('click', () => {
+                window.location.href = "news.html";
+            });
         }
     </script>
 </body>

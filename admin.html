@@ -6,438 +6,9 @@
     <title>BirrGo - Premium Core Matrix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&family=Space+Grotesk:wght=500;700&display=swap" rel="stylesheet">
     
-    <style>
-        :root {
-            --primary-burgundy: #800020;
-            --primary-gradient: linear-gradient(135deg, #bd0a36 0%, #4a0000 100%);
-            --accent-gold: #f59e0b;
-            --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-            --success-gradient: linear-gradient(135deg, #10b981 0%, #047857 100%);
-            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
-            --blue-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            --purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%);
-            --dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --bg-light: #f8fafc;
-            --border-light: #e2e8f0;
-            --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(226, 232, 240, 0.8);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            letter-spacing: -0.2px;
-        }
-
-        body {
-            background-color: var(--bg-light);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(128, 0, 32, 0.04) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.03) 0px, transparent 50%);
-            color: var(--text-dark);
-            padding: 40px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .admin-container {
-            width: 100%;
-            max-width: 1100px;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--border-light);
-        }
-
-        .admin-header h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .btn-logout {
-            background: white;
-            border: 1px solid var(--border-light);
-            padding: 12px 24px;
-            font-weight: 700;
-            font-size: 13px;
-            border-radius: 16px;
-            cursor: pointer;
-            color: var(--text-dark);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-            transition: all 0.2s ease;
-        }
-
-        .btn-logout:hover {
-            background: var(--text-dark);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .role-control-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-            margin-bottom: 8px;
-        }
-
-        .role-nav-btn {
-            border: none;
-            border-radius: 24px;
-            padding: 24px 16px;
-            color: white;
-            font-size: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            text-align: center;
-        }
-
-        .role-nav-btn span.icon {
-            font-size: 24px;
-            background: rgba(255, 255, 255, 0.2);
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .role-nav-btn:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-        }
-
-        .btn-role-stats { background: var(--purple-gradient); }
-        .btn-role-money { background: var(--gold-gradient); }
-        .btn-role-tasks { background: var(--blue-gradient); }
-        .btn-role-news { background: var(--primary-gradient); }
-        .btn-role-secure { background: var(--dark-gradient); }
-        .btn-role-ecosystem { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .metric-card {
-            background: white;
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: var(--card-shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background: var(--purple-gradient);
-        }
-        .metric-card.vault::before { background: var(--gold-gradient); }
-        .metric-card.lottery::before { background: var(--success-gradient); }
-
-        .metric-card p {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 6px;
-        }
-
-        .metric-card h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .role-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 20px;
-        }
-
-        .role-modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .workspace-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 32px;
-            padding: 32px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            width: 100%;
-            max-width: 540px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .workspace-card.wide-card { max-width: 1000px; }
-
-        .btn-close-modal {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            background: #f1f5f9;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-weight: 800;
-            cursor: pointer;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            transition: background 0.2s;
-        }
-
-        .btn-close-modal:hover { background: #e2e8f0; }
-
-        .section-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-title::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 22px;
-            border-radius: 4px;
-        }
-        .title-purple::before { background: var(--purple-gradient); }
-        .title-gold::before { background: var(--gold-gradient); }
-        .title-blue::before { background: var(--blue-gradient); }
-        .title-burgundy::before { background: var(--primary-gradient); }
-        .title-dark::before { background: var(--dark-gradient); }
-        .title-pink::before { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
-
-        .input-field-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .input-field-wrapper label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .admin-input {
-            width: 100%;
-            height: 56px;
-            background: #ffffff;
-            border: 1.5px solid var(--border-light);
-            border-radius: 16px;
-            padding: 0 20px;
-            font-size: 15px;
-            font-weight: 600;
-            outline: none;
-            transition: all 0.25s ease;
-            color: var(--text-dark);
-        }
-
-        .admin-input:focus {
-            border-color: var(--text-dark);
-            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08);
-        }
-
-        textarea.admin-input {
-            height: 100px;
-            padding: 16px 20px;
-            resize: none;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 16px;
-        }
-
-        .btn-admin-action {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            height: 56px;
-            border: none;
-            border-radius: 18px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            color: #ffffff;
-            transition: all 0.2s ease;
-        }
-
-        .btn-admin-action:hover {
-            transform: translateY(-2px);
-            opacity: 0.95;
-        }
-        
-        .btn-credit { background: var(--success-gradient); }
-        .btn-debit { background: var(--danger-gradient); }
-        .btn-broadcast { background: var(--primary-gradient); }
-        .btn-delete { background: var(--dark-gradient); }
-        .btn-update { background: var(--blue-gradient); }
-        .btn-save-gold { background: var(--gold-gradient); }
-
-        .task-input-group {
-            background: rgba(255,255,255,0.6);
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .table-scroll-container {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-light);
-            border-radius: 24px;
-            background: #ffffff;
-            box-shadow: var(--card-shadow);
-        }
-
-        .directory-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        .directory-table th {
-            background: #f8fafc;
-            padding: 18px 24px;
-            font-weight: 700;
-            color: var(--text-dark);
-            border-bottom: 2px solid var(--border-light);
-        }
-
-        .directory-table td {
-            padding: 18px 24px;
-            border-bottom: 1px solid var(--border-light);
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .id-badge { background: #f1f5f9; color: var(--text-dark); font-weight: 700; padding: 6px 12px; border-radius: 8px; font-size: 12px; }
-
-        .toast-banner {
-            position: fixed;
-            top: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 16px 32px;
-            border-radius: 20px;
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
-            z-index: 10001;
-            display: none;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-box {
-            background: #ffffff;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 32px;
-            padding: 32px;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; }
-        .modal-content-details { background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .modal-data-row { display: flex; justify-content: space-between; font-size: 14px; }
-        .modal-data-label { font-weight: 600; color: var(--text-muted); }
-        .modal-data-value { font-weight: 700; color: var(--text-dark); }
-        .btn-modal-close { background: #e2e8f0; color: var(--text-dark); }
-    </style>
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
@@ -451,6 +22,89 @@
             <div class="btn-row" style="margin-top: 10px;">
                 <button class="btn-admin-action btn-modal-close" id="modalCancelBtn">Cancel</button>
                 <button class="btn-admin-action" id="modalConfirmBtn">Proceed Execution</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="role-modal-overlay" id="modal-news">
+        <div class="workspace-card wide-card" style="max-height: 85vh; overflow-y: auto;">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-news')">✕</button>
+            <h3 class="section-title title-burgundy" id="panelTitle">News Broadcast Center</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:-14px;">Select targets to push notifications feeds, update voucher limits instantly, or manage running entries.</p>
+            
+            <div class="input-field-wrapper">
+                <label>Action Target Category</label>
+                <select class="form-select" id="postCategory">
+                    <option value="All Updates">All Updates (General Feed Post)</option>
+                    <option value="System Releases">System Releases (Version Update Feed Post)</option>
+                    <option value="Promo Rewards">Promo Rewards (Voucher Rules Setup)</option>
+                </select>
+            </div>
+
+            <div id="broadcastFormFields">
+                <div class="input-field-wrapper">
+                    <label id="titleInputLabel">Broadcast Title</label>
+                    <input class="admin-input" type="text" id="newsTitle" placeholder="e.g., Massive Bonus Event!" autocomplete="off">
+                </div>
+
+                <div class="input-field-wrapper">
+                    <label id="imageInputLabel">Attach Announcement Photo (Optional)</label>
+                    <div class="file-upload-wrapper">
+                        <span class="file-upload-label-text" id="fileNameDisplay">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            Choose Image from Device
+                        </span>
+                        <input class="file-upload-input" type="file" id="newsImageFile" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="input-field-wrapper">
+                    <label id="messageInputLabel">Broadcast Message Content</label>
+                    <textarea class="admin-input" id="newsMessage" placeholder="Type what you want your app users to read today..."></textarea>
+                </div>
+            </div>
+
+            <div class="custom-fields-container" id="promoRewardsFields" style="display: none;">
+                <div class="input-field-wrapper">
+                    <label>Promo Code String</label>
+                    <input class="admin-input" type="text" id="promoCode" placeholder="e.g., BIRR1000BONUS" style="text-transform: uppercase;">
+                </div>
+                <div class="input-field-wrapper">
+                    <label>Number of First Users Limit</label>
+                    <input class="admin-input" type="number" id="promoMaxClaims" placeholder="e.g., 10" min="1">
+                </div>
+                <div class="input-field-wrapper">
+                    <label>Reward Amount (Birr)</label>
+                    <input class="admin-input" type="number" id="promoRewardAmount" placeholder="e.g., 1000" min="1">
+                </div>
+            </div>
+
+            <div class="btn-row" style="margin-bottom: 20px; gap: 10px;">
+                <button class="btn-admin-action btn-broadcast" id="publishNewsBtn" style="flex: 1;">
+                    <span id="buttonText">Publish Feed Post</span>
+                </button>
+                <button class="btn-admin-action btn-delete" id="deleteAllCategoriesBtn" style="width: auto; padding: 0 15px; font-size: 13px;">
+                    Delete All Categories
+                </button>
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-light); padding-top:20px; margin-top:10px;">
+                <h3 class="section-title title-dark" style="font-size: 16px;">Active Feeds & Engine Formats</h3>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:-10px;">Review live feed deployments or purge existing entries instantly from the pipeline database.</p>
+                
+                <div class="table-scroll-container" style="max-height: 250px; overflow-y: auto;">
+                    <table class="directory-table" style="font-size: 13px;">
+                        <thead>
+                            <tr>
+                                <th>Category / Code</th>
+                                <th>Details / Parameters</th>
+                                <th style="text-align: right;">Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liveNewsRecordsBody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -504,25 +158,6 @@
                 <button class="btn-admin-action btn-credit" id="idCreditBtn">Deposit Funds</button>
                 <button class="btn-admin-action btn-debit" id="idDebitBtn">Withdraw Funds</button>
             </div>
-        </div>
-    </div>
-
-    <div class="role-modal-overlay" id="modal-news">
-        <div class="workspace-card">
-            <button class="btn-close-modal" onclick="closeRoleModal('modal-news')">✕</button>
-            <h3 class="section-title title-burgundy">Broadcast Publisher Role</h3>
-            <p style="font-size:13px;color:var(--text-muted);margin-top:-14px;">Push promotional alert notifications globally across client terminals.</p>
-            
-            <div class="input-field-wrapper">
-                <label>News Header Headline</label>
-                <input type="text" id="newsTitle" class="admin-input" placeholder="Enter notification headline...">
-            </div>
-            <div class="input-field-wrapper">
-                <label>Message Transcript Context Body</label>
-                <textarea id="newsContent" class="admin-input" placeholder="Provide clear alert details text body..."></textarea>
-            </div>
-
-            <button class="btn-admin-action btn-broadcast" id="publishNewsBtn">Publish Broadcast</button>
         </div>
     </div>
 
@@ -605,7 +240,7 @@
                 <span class="icon">🔗</span> Enter Tasks
             </button>
             <button class="role-nav-btn btn-role-news" onclick="openRoleModal('modal-news')">
-                <span class="icon">📢</span> Publish Broadcasts
+                <span class="icon">📢</span> Broadcast & Promos
             </button>
             <button class="role-nav-btn btn-role-secure" onclick="openRoleModal('modal-secure')">
                 <span class="icon">🛡️</span> System Security
@@ -631,6 +266,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, onValue, runTransaction, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
             window.location.href = "admin_login.html";
@@ -649,6 +285,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const storage = getStorage(app);
 
         // SYSTEM MODAL PANEL HOOKS
         window.openRoleModal = (id) => document.getElementById(id).classList.add('active');
@@ -708,10 +345,8 @@
             return cleanPhone + final6Reversed;
         }
 
-        // BACKEND CACHE MEMORY SYSTEM OBJECTS FOR SEARCH FILTER PIPELINE
         let localUserDirectoryCache = {};
 
-        // RUN REALTIME SYNCHRONIZATION FROM DATABASE PIPELINE WITH LIVE LOOKUP
         onValue(ref(db, 'users'), (snapshot) => {
             if (!snapshot.exists()) {
                 document.getElementById('directory-table-body').innerHTML = '';
@@ -746,14 +381,13 @@
                     totalVaultLiabilities += balance;
                 }
 
-                // Query match operations logic
                 const matchPhone = phoneKey.toLowerCase().includes(parsedQuery);
                 const matchCard = displayCard.toLowerCase().includes(parsedQuery);
                 const matchFirstName = (profile.firstName || '').toLowerCase().includes(parsedQuery);
                 const matchFullName = (profile.fullName || '').toLowerCase().includes(parsedQuery);
 
                 if (parsedQuery !== '' && !matchPhone && !matchCard && !matchFirstName && !matchFullName) {
-                    return; // Skip rendering row node if search doesn't match entries
+                    return; 
                 }
 
                 let dateFormatted = "N/A";
@@ -780,12 +414,10 @@
             document.getElementById('metric-lottery-vault').innerText = foundAdminBalance.toFixed(2);
         }
 
-        // BIND EVENT WATCHER FOR INSTANT USER ARCHIVE QUERIES 
         document.getElementById('ecosystemSearchInput').addEventListener('input', (e) => {
             processAndRenderEcosystemTable(e.target.value);
         });
 
-        // LOAD DYNAMIC ADMISSION MATRIX PARAMS
         get(ref(db, 'task')).then((snapshot) => {
             if (snapshot.exists()) {
                 const taskData = snapshot.val();
@@ -876,28 +508,277 @@
             }
         }
 
-        document.getElementById('publishNewsBtn').addEventListener('click', async () => {
-            const titleText = document.getElementById('newsTitle').value.trim();
-            const contentText = document.getElementById('newsContent').value.trim();
+        // FIXED: DYNAMIC PREVIEW, DELETION & CATEGORY PURGE ENGINE
+        const categorySelector = document.getElementById('postCategory');
+        const broadcastFormFields = document.getElementById('broadcastFormFields');
+        const promoRewardsFields = document.getElementById('promoRewardsFields');
+        const titleInputLabel = document.getElementById('titleInputLabel');
+        const newsTitleInput = document.getElementById('newsTitle');
+        const messageInputLabel = document.getElementById('messageInputLabel');
+        const newsMessageInput = document.getElementById('newsMessage');
+        const fileInputElement = document.getElementById('newsImageFile');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const publishNewsBtn = document.getElementById('publishNewsBtn');
+        const buttonText = document.getElementById('buttonText');
+        const panelTitle = document.getElementById('panelTitle');
+        const liveNewsRecordsBody = document.getElementById('liveNewsRecordsBody');
 
-            if (!titleText || !contentText) {
-                triggerAdminAlert("Fields require inputs.", false);
+        let globalNewsState = null;
+        let globalPromoState = null;
+
+        function setupNewsAndPromoSync() {
+            onValue(ref(db, 'adminNews'), (snapshot) => {
+                globalNewsState = snapshot.val();
+                renderCombinedManagementTable();
+            });
+
+            onValue(ref(db, 'globalPromoCampaign'), (snapshot) => {
+                globalPromoState = snapshot.val();
+                renderCombinedManagementTable();
+            });
+        }
+        setupNewsAndPromoSync();
+
+        function renderCombinedManagementTable() {
+            liveNewsRecordsBody.innerHTML = '';
+            let rowsCount = 0;
+
+            if (globalPromoState && globalPromoState.code) {
+                rowsCount++;
+                const promoRowHtml = `
+                    <tr style="background: rgba(212, 175, 55, 0.05);">
+                        <td>
+                            <span class="id-badge" style="background:linear-gradient(135deg, #d4af37, #aa7c11);">PROMO</span><br>
+                            <strong style="font-family:monospace; font-size:14px; color:var(--primary-burgundy);">${globalPromoState.code}</strong>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;">Reward: ${parseFloat(globalPromoState.rewardAmount || 0).toFixed(2)} ETB</div>
+                            <div style="font-size:11px; color:var(--text-muted);">Pool Claims Limit: ${globalPromoState.currentClaimCount || 0} / ${globalPromoState.maxClaims || 0}</div>
+                        </td>
+                        <td style="text-align: right; vertical-align: middle;">
+                            <button class="btn-admin-action btn-debit delete-news-btn" 
+                                    style="height:30px; width:85px; font-size:11px; border-radius:8px;" 
+                                    data-type="promo" data-key="globalPromoCampaign">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                liveNewsRecordsBody.insertAdjacentHTML('beforeend', promoRowHtml);
+            }
+
+            if (globalNewsState) {
+                Object.keys(globalNewsState).forEach((key) => {
+                    rowsCount++;
+                    const item = globalNewsState[key];
+                    const isSystem = item.category === "System Releases";
+                    const badgeStyle = isSystem ? 'background:linear-gradient(135deg, #007bff, #0056b3);' : 'background:linear-gradient(135deg, #800020, #4a0012);';
+                    
+                    const newsRowHtml = `
+                        <tr>
+                            <td>
+                                <span class="id-badge" style="${badgeStyle}">${isSystem ? 'PATCH' : 'FEED'}</span><br>
+                                <span style="font-size:11px; color:var(--text-muted);">${item.date || ''}</span>
+                            </td>
+                            <td>
+                                <div style="font-weight:700; color:var(--text-dark);">${item.title || ''}</div>
+                                <div style="font-size:12px; color:var(--text-muted); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.content || ''}</div>
+                                ${item.imageUrl ? `<div style="font-size:11px; color:var(--primary-pink)">🖼️ Media Asset Linked</div>` : ''}
+                            </td>
+                            <td style="text-align: right; vertical-align: middle;">
+                                <button class="btn-admin-action btn-debit delete-news-btn" 
+                                        style="height:30px; width:85px; font-size:11px; border-radius:8px;" 
+                                        data-type="news" data-key="${key}">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    liveNewsRecordsBody.insertAdjacentHTML('beforeend', newsRowHtml);
+                });
+            }
+
+            if (rowsCount === 0) {
+                liveNewsRecordsBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">No dynamic feeds found across system metrics.</td></tr>`;
                 return;
             }
 
-            try {
-                await set(push(ref(db, 'news')), {
-                    title: titleText,
-                    content: contentText,
-                    dateStamp: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                    createdAtTimestamp: Date.now()
+            // RE-BIND DELETE HANDLERS
+            liveNewsRecordsBody.querySelectorAll('.delete-news-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const type = btn.getAttribute('data-type');
+                    const key = btn.getAttribute('data-key');
+
+                    const confirmed = await openCustomModal(
+                        "Confirm Action Deletion",
+                        "Are you certain you want to remove this record parameter cluster?",
+                        [{ label: "Database Route:", value: type === 'news' ? `adminNews/${key}` : 'globalPromoCampaign' }],
+                        "btn-delete",
+                        "Wipe Node Record"
+                    );
+
+                    if (!confirmed) return;
+
+                    try {
+                        if (type === 'news') {
+                            await remove(ref(db, `adminNews/${key}`));
+                        } else {
+                            await remove(ref(db, 'globalPromoCampaign'));
+                        }
+                        triggerAdminAlert("Broadcast entry updated out of matrix successfully!", true);
+                    } catch (e) {
+                        triggerAdminAlert("Failed to alter remote structural assets.", false);
+                    }
                 });
-                triggerAdminAlert("Broadcast pushed live!", true);
+            });
+        }
+
+        // PURGE ALL CATEGORIES HANDLER
+        document.getElementById('deleteAllCategoriesBtn').addEventListener('click', async () => {
+            const confirmed = await openCustomModal(
+                "CRITICAL: Wipe All Categories",
+                "This action clears all active Feeds, System Patches, and Promotional Engine parameters across the database layout.",
+                [
+                    { label: "Target Nodes:", value: "adminNews & globalPromoCampaign" },
+                    { label: "Operational Risk:", value: "PERMANENT DATA LOSS" }
+                ],
+                "btn-delete",
+                "Wipe All Categories"
+            );
+
+            if (!confirmed) return;
+
+            try {
+                await remove(ref(db, 'adminNews'));
+                await remove(ref(db, 'globalPromoCampaign'));
+                triggerAdminAlert("All system application categories flushed completely!", true);
                 closeRoleModal('modal-news');
-                document.getElementById('newsTitle').value = '';
-                document.getElementById('newsContent').value = '';
             } catch (err) {
-                triggerAdminAlert("Broadcast payload delivery failure.", false);
+                triggerAdminAlert("Failed to delete network directory categories.", false);
+            }
+        });
+
+        categorySelector.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === "All Updates") {
+                broadcastFormFields.style.display = "block";
+                promoRewardsFields.style.display = "none";
+                titleInputLabel.innerText = "Broadcast Title";
+                newsTitleInput.placeholder = "e.g., Massive Bonus Event!";
+                messageInputLabel.innerText = "Broadcast Message Content";
+                newsMessageInput.placeholder = "Type what you want your app users to read today...";
+                buttonText.innerText = "Publish Feed Post";
+                panelTitle.innerText = "News Broadcast Center";
+            } else if (val === "System Releases") {
+                broadcastFormFields.style.display = "block";
+                promoRewardsFields.style.display = "none";
+                titleInputLabel.innerText = "Release Version Title";
+                newsTitleInput.placeholder = "e.g., Version Upgrade v3.4.0 Live!";
+                messageInputLabel.innerText = "Release Technical Details & Changelog";
+                newsMessageInput.placeholder = "Specify what code additions, fixes or optimizations are deployed...";
+                buttonText.innerText = "Publish System Release";
+                panelTitle.innerText = "System Patch Core";
+            } else if (val === "Promo Rewards") {
+                broadcastFormFields.style.display = "none";
+                promoRewardsFields.style.display = "flex";
+                buttonText.innerText = "Activate Engine Promo";
+                panelTitle.innerText = "Promo Configuration Router";
+            }
+        });
+
+        fileInputElement.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.innerHTML = `🖼️ Selected: <strong>${e.target.files[0].name}</strong>`;
+            } else {
+                fileNameDisplay.innerHTML = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Choose Image from Device`;
+            }
+        });
+
+        publishNewsBtn.addEventListener('click', async () => {
+            const selectedCategory = categorySelector.value;
+            const formattedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const adminNewsListRef = ref(db, 'adminNews');
+
+            if (selectedCategory === "All Updates" || selectedCategory === "System Releases") {
+                const enteredTitle = newsTitleInput.value.trim();
+                const enteredMessage = newsMessageInput.value.trim();
+                const chosenFile = fileInputElement.files[0];
+
+                if (!enteredTitle || !enteredMessage) {
+                    triggerAdminAlert("Please supply complete Title and Message context targets.", false);
+                    return;
+                }
+
+                publishNewsBtn.disabled = true;
+                const originalText = buttonText.innerText;
+                buttonText.innerText = "Uploading asset components...";
+
+                try {
+                    let finalStorageImageUrl = "";
+                    if (chosenFile) {
+                        const ext = chosenFile.name.split('.').pop();
+                        const targetFileRef = storageRef(storage, `admin_news_images/broadcast_${Date.now()}.${ext}`);
+                        const uploadSnapshot = await uploadBytes(targetFileRef, chosenFile);
+                        finalStorageImageUrl = await getDownloadURL(uploadSnapshot.ref);
+                    }
+
+                    await set(push(adminNewsListRef), {
+                        category: selectedCategory, 
+                        title: enteredTitle,
+                        imageUrl: finalStorageImageUrl,
+                        content: enteredMessage,
+                        date: formattedDate,
+                        createdAtTimestamp: Date.now()
+                    });
+
+                    triggerAdminAlert(`Broadcast published live under ${selectedCategory}!`, true);
+                    newsTitleInput.value = '';
+                    newsMessageInput.value = '';
+                    fileInputElement.value = '';
+                    fileNameDisplay.innerHTML = `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Choose Image from Device`;
+                    closeRoleModal('modal-news');
+                } catch (err) {
+                    triggerAdminAlert("Broadcast payload delivery failure.", false);
+                } finally {
+                    publishNewsBtn.disabled = false;
+                    buttonText.innerText = originalText;
+                    categorySelector.dispatchEvent(new Event('change'));
+                }
+
+            } else if (selectedCategory === "Promo Rewards") {
+                const codeVal = document.getElementById('promoCode').value.trim().toUpperCase();
+                const maxClaimsVal = parseInt(document.getElementById('promoMaxClaims').value);
+                const rewardAmountVal = parseFloat(document.getElementById('promoRewardAmount').value);
+
+                if (!codeVal || isNaN(maxClaimsVal) || isNaN(rewardAmountVal)) {
+                    triggerAdminAlert("Please supply valid configuration values inside forms.", false);
+                    return;
+                }
+
+                publishNewsBtn.disabled = true;
+                const originalText = buttonText.innerText;
+                buttonText.innerText = "Synchronizing criteria values...";
+
+                try {
+                    const promoCampaignRef = ref(db, 'globalPromoCampaign');
+                    await set(promoCampaignRef, {
+                        code: codeVal,
+                        maxClaims: maxClaimsVal,
+                        rewardAmount: rewardAmountVal,
+                        currentClaimCount: 0 
+                    });
+                    triggerAdminAlert("Campaign parameter controls are updated running live instantly!", true);
+                    document.getElementById('promoCode').value = '';
+                    document.getElementById('promoMaxClaims').value = '';
+                    document.getElementById('promoRewardAmount').value = '';
+                    closeRoleModal('modal-news');
+                } catch (err) {
+                    triggerAdminAlert("The database connection setup rejected validations.", false);
+                } finally {
+                    publishNewsBtn.disabled = false;
+                    buttonText.innerText = originalText;
+                    categorySelector.dispatchEvent(new Event('change'));
+                }
             }
         });
 
@@ -910,15 +791,9 @@
 
             try {
                 const updatedTasks = {
-                    task1: link1,
-                    task2: link2,
-                    task3: link3,
-                    task4: link4,         
-                    task5: link5      
+                    task1: link1, task2: link2, task3: link3, task4: link4, task5: link5      
                 };
-
                 await set(ref(db, 'task'), updatedTasks);
-
                 triggerAdminAlert("Tasks Matrix updated successfully!", true);
                 closeRoleModal('modal-tasks');
             } catch (err) {
@@ -926,7 +801,6 @@
             }
         });
 
-        // REALTIME SUB-ADMINS PIPELINE DIRECTORY TRACKING
         onValue(ref(db, 'admin/sub_credentials'), (snapshot) => {
             const listBody = document.getElementById('subAdminsListBody');
             listBody.innerHTML = '';
@@ -991,10 +865,7 @@
 
             try {
                 await set(ref(db, `admin/sub_credentials/${user}`), { 
-                    username: user, 
-                    password: pass,
-                    role: "sub_admin",
-                    addedAt: Date.now()
+                    username: user, password: pass, role: "sub_admin", addedAt: Date.now()
                 });
                 triggerAdminAlert("Extra admin account registered safely!", true);
                 document.getElementById('newAdminUser').value = '';

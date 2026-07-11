@@ -386,7 +386,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, set, runTransaction, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, set, runTransaction, push, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
@@ -402,14 +402,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let referrerPhone = "";
+        let referrerAccountId = "";
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const refParam = urlParams.get('ref');
             if (refParam) {
-                referrerPhone = refParam.trim().replace(/\D/g, '').slice(-9);
-                if (referrerPhone) {
-                    document.getElementById('referrer-label').innerHTML = `Invited by: <span style="color:var(--primary-burgundy);font-weight:700;">+251${referrerPhone}</span>`;
+                // Captures strings like "BG-1000" safely 
+                referrerAccountId = refParam.trim();
+                if (referrerAccountId) {
+                    document.getElementById('referrer-label').innerHTML = `Invited by User: <span style="color:var(--primary-burgundy);font-weight:700;">${referrerAccountId}</span>`;
                 }
             }
         });
@@ -460,7 +461,6 @@
             const formatGlobalPhone = "+251" + cleanPhone;
             const firstNameOnly = nameParts[0];
 
-            // Calculate the 15-digit card number right here before saving
             const final6Reversed = cleanPhone.slice(-6).split('').reverse().join('');
             const computedCardNumber = cleanPhone + final6Reversed;
 
@@ -479,14 +479,14 @@
 
                 submitBtn.innerText = "Saving Profile...";
 
-                // Incremental transaction logic to dynamically generate and track unique incremental user sequential structures
-                let finalizedUserNumber = 1001; 
+                // Fixed: Incremental logic configured to start at baseline 1000
+                let finalizedUserNumber = 1000; 
                 try {
                     const globalCounterRef = ref(db, 'admin/globalUserCounter');
                     await runTransaction(globalCounterRef, (currentValue) => {
                         let parsedValue = parseInt(currentValue);
-                        if (isNaN(parsedValue) || parsedValue < 1001) {
-                            return 1002;
+                        if (isNaN(parsedValue) || parsedValue < 1000) {
+                            return 1001;
                         }
                         finalizedUserNumber = parsedValue;
                         return parsedValue + 1;
@@ -495,6 +495,7 @@
                     console.error("Counter generation latency override fallback applied.", counterErr);
                 }
 
+                // Fixed: Saves accountId formatted explicitly as BG-1000, BG-1001, etc.
                 const userPayload = {
                     phoneNumber: formatGlobalPhone,
                     localPhoneRef: cleanPhone,
@@ -503,36 +504,59 @@
                     securityPin: pin,
                     walletBalance: 0.00,
                     userNumber: finalizedUserNumber,
-                    cardNumber: computedCardNumber, // Explicitly saved to Firebase here!
+                    accountId: "BG-" + finalizedUserNumber, 
+                    cardNumber: computedCardNumber, 
                     createdAt: new Date().toISOString()
                 };
 
                 await set(ref(db, 'users/' + cleanPhone), userPayload);
 
-                if (referrerPhone && referrerPhone !== cleanPhone) {
-                    const inviterBalanceRef = ref(db, `users/${referrerPhone}/walletBalance`);
-                    const inviterTxRef = ref(db, `users/${referrerPhone}/transactions`);
-                    
-                    const fixedBonus = 20.00; 
-
+                // Look up inviter via the clean "BG-XXXX" accountId text string
+                if (referrerAccountId) {
                     try {
-                        await runTransaction(inviterBalanceRef, (currentBalance) => {
-                            let parsedBalance = parseFloat(currentBalance);
-                            if (isNaN(parsedBalance)) parsedBalance = 0;
-                            return parsedBalance + fixedBonus;
-                        });
+                        const usersRef = ref(db, 'users');
+                        const referralQuery = query(usersRef, orderByChild('accountId'), equalTo(referrerAccountId));
+                        const querySnapshot = await get(referralQuery);
 
-                        const now = new Date();
-                        const walletFormattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
-                                                   now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                        if (querySnapshot.exists()) {
+                            let inviterPhoneNode = "";
+                            querySnapshot.forEach((child) => {
+                                inviterPhoneNode = child.key; 
+                            });
 
-                        const newTxNode = push(inviterTxRef);
-                        await set(newTxNode, {
-                            title: `Referral Bonus (${firstNameOnly})`,
-                            amount: fixedBonus,
-                            type: "income",
-                            timestamp: walletFormattedTime
-                        });
+                            if (inviterPhoneNode && inviterPhoneNode !== cleanPhone) {
+                                const inviterBalanceRef = ref(db, `users/${inviterPhoneNode}/walletBalance`);
+                                const inviterTxRef = ref(db, `users/${inviterPhoneNode}/transactions`);
+                                const referredHistoryRef = ref(db, `users/${inviterPhoneNode}/referredUsers`);
+                                
+                                const fixedBonus = 50.00; 
+
+                                await runTransaction(inviterBalanceRef, (currentBalance) => {
+                                    let parsedBalance = parseFloat(currentBalance);
+                                    if (isNaN(parsedBalance)) parsedBalance = 0;
+                                    return parsedBalance + fixedBonus;
+                                });
+
+                                const now = new Date();
+                                const walletFormattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
+                                                           now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+                                const newTxNode = push(inviterTxRef);
+                                await set(newTxNode, {
+                                    title: `Referral Bonus (${firstNameOnly})`,
+                                    amount: fixedBonus,
+                                    type: "income",
+                                    timestamp: walletFormattedTime
+                                });
+
+                                const historyLogNode = push(referredHistoryRef);
+                                await set(historyLogNode, {
+                                    fullName: fullName,
+                                    phone: cleanPhone,
+                                    timestamp: walletFormattedTime
+                                });
+                            }
+                        }
                     } catch (referralError) {
                         console.error("Referral processing error: ", referralError);
                     }

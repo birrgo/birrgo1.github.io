@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -70,7 +70,6 @@
         }
         .app-content::-webkit-scrollbar { display: none; }
 
-        /* Premium Header Styling */
         .brand-header {
             display: flex;
             align-items: center;
@@ -93,7 +92,6 @@
             letter-spacing: -0.6px;
         }
 
-        /* High-End Digital Card Visual */
         .digital-card {
             background: var(--primary-gradient);
             border-radius: var(--border-radius-lg);
@@ -128,7 +126,6 @@
             align-items: flex-start;
         }
 
-        /* High-End Realistic Gold SIM Chip */
         .card-chip {
             width: 44px;
             height: 32px;
@@ -140,7 +137,6 @@
             overflow: hidden;
         }
 
-        /* Microchip Circuit Internal Lines */
         .card-chip::before {
             content: '';
             position: absolute;
@@ -165,7 +161,6 @@
             pointer-events: none;
         }
 
-        /* Identity Eye Box styling */
         .card-identity-box {
             display: flex;
             align-items: center;
@@ -233,7 +228,6 @@
             color: #ffffff;
         }
 
-        /* Asset Breakdown Stack */
         .section-heading {
             font-size: 19px;
             font-weight: 800;
@@ -302,7 +296,6 @@
             margin-bottom: 2px;
         }
 
-        /* Specialized Real-Time Transaction Log Colors */
         .history-amount.income {
             color: var(--success-green);
         }
@@ -311,7 +304,6 @@
             color: var(--primary-burgundy);
         }
 
-        /* Large Action Controls */
         .wallet-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -350,7 +342,6 @@
             transform: scale(0.97);
         }
 
-        /* Navigation Layout Bar */
         .bottom-nav-bar {
             position: absolute;
             bottom: 0;
@@ -408,7 +399,6 @@
             stroke-width: 2.4;
         }
 
-        /* Premium Security Dialog Input Popups Layout Structural Nodes */
         .security-modal-backdrop {
             position: absolute;
             top: 0;
@@ -482,7 +472,6 @@
             margin-bottom: 20px;
         }
         
-        /* New Embedded Error UI Styling */
         .modal-error-banner {
             display: none;
             background: #fef2f2;
@@ -521,7 +510,6 @@
             border-color: var(--primary-burgundy);
         }
         
-        /* Interactive dynamic error state variations */
         .security-modal-card.has-error .security-password-input {
             border-color: #dc2626;
             background-color: #fffafb;
@@ -872,7 +860,6 @@
             onValue(balanceRef, (snapshot) => {
                 const balanceVal = snapshot.val();
                 
-                // Real-time provisioning check for missing user nodes
                 if (balanceVal === null) {
                     set(balanceRef, 0);
                     document.getElementById('wallet-total-balance').innerText = "0.00 Birr";
@@ -883,30 +870,71 @@
                 document.getElementById('wallet-total-balance').innerText = `${numericTotal.toFixed(2)} Birr`;
             });
 
-            const historyRef = ref(db, `users/${activeUserPhone}/transactions`);
+            // COMPREHENSIVE COMBINED REALTIME STREAM LISTENER FOR TRANSACTIONS
             const historyContainer = document.getElementById('transaction-history-container');
+            const userRef = ref(db, `users/${activeUserPhone}`);
 
-            onValue(historyRef, (snapshot) => {
-                const data = snapshot.val();
+            onValue(userRef, (snapshot) => {
                 historyContainer.innerHTML = ''; 
+                let masterTransactionList = [];
 
-                if (!data) {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+
+                    // Load type 1: Standard transactions node
+                    if (userData.transactions) {
+                        Object.keys(userData.transactions).forEach(key => {
+                            const tx = userData.transactions[key];
+                            masterTransactionList.push({
+                                title: tx.title || 'Wallet Activity',
+                                timestamp: tx.timestamp || 'Just now',
+                                amount: parseFloat(tx.amount) || 0,
+                                type: tx.type || (tx.amount > 0 ? 'income' : 'expense'),
+                                sortingValue: tx.sortingTime || Date.now()
+                            });
+                        });
+                    }
+
+                    // Load type 2: Claimed promo voucher configurations
+                    if (userData.claimedPromos) {
+                        Object.keys(userData.claimedPromos).forEach(codeKey => {
+                            const promo = userData.claimedPromos[codeKey];
+                            
+                            // Human format calculation
+                            let dateLabel = 'Just now';
+                            if (promo.claimedAt) {
+                                const d = new Date(promo.claimedAt);
+                                dateLabel = d.toLocaleDateString([], {month:'short', day:'numeric'}) + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                            }
+
+                            masterTransactionList.push({
+                                title: `🎁 Promo Reward Claim [${codeKey}]`,
+                                timestamp: dateLabel,
+                                amount: parseFloat(promo.amountClaimed) || 0, 
+                                type: 'income',
+                                sortingValue: promo.claimedAt || 0
+                            });
+                        });
+                    }
+                }
+
+                if (masterTransactionList.length === 0) {
                     historyContainer.innerHTML = `
                         <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px;">
-                            No account activity tracked yet. Complete a task video to see it pop here!
+                            No account activity tracked yet. Complete a task video or activate promo rewards to see them pop here!
                         </div>`;
                     return;
                 }
 
-                const transactionList = Object.keys(data).map(key => data[key]);
-                transactionList.reverse(); 
+                // Chronological descending listing sort logic
+                masterTransactionList.sort((a, b) => b.sortingValue - a.sortingValue);
 
-                transactionList.forEach(tx => {
+                masterTransactionList.forEach(tx => {
                     const cardRow = document.createElement('div');
                     cardRow.className = 'history-card';
 
                     const isIncome = tx.type === 'income' || tx.amount > 0;
-                    const visualSymbol = isIncome ? '⚡' : '🎟️';
+                    const visualSymbol = tx.title.includes('🎁') ? '🎁' : (isIncome ? '⚡' : '🎟️');
                     const stylingClass = isIncome ? 'income' : 'expense';
                     const prefixMathSign = isIncome ? '+' : '-';
 
@@ -914,8 +942,8 @@
                         <div class="history-left">
                             <div class="history-icon-box">${visualSymbol}</div>
                             <div class="history-info">
-                                <h4>${tx.title || 'Wallet Activity'}</h4>
-                                <p>${tx.timestamp || 'Just now'}</p>
+                                <h4>${tx.title}</h4>
+                                <p>${tx.timestamp}</p>
                             </div>
                         </div>
                         <div class="history-right">
