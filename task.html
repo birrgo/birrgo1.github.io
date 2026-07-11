@@ -499,7 +499,7 @@
 
         .ad-container-frame {
             width: 100%;
-            height: 30dvh; /* Allocates exactly 30% of height for overlay ads */
+            height: 30dvh;
             position: relative !important;
             display: flex !important;
             justify-content: center !important;
@@ -509,7 +509,7 @@
 
         .youtube-player-box {
             width: 100%;
-            height: 70dvh; /* Devotes the remaining 70% to full screen video space */
+            height: 70dvh;
             background: #000000;
             overflow: hidden;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -590,7 +590,7 @@
             justify-content: center;
             align-items: center;
             padding: 24px;
-            z-index: 5000;
+            z-index: 999999 !important; /* Pushed extremely high so it blocks all underlying third-party ad layers */
             opacity: 0;
             transition: opacity 0.25s ease;
         }
@@ -1047,12 +1047,15 @@
         }
 
         function clearInjectedAds() {
-            const floatingDivs = document.querySelectorAll('body > div[style*="position: fixed"], body > div[style*="top: 0"]');
-            floatingDivs.forEach(div => {
-                if(div.id !== 'customPopup' && div.id !== 'adViewerOverlay') {
-                    div.remove();
+            adContainer.innerHTML = "";
+            // Aggressively targets all Monetag dynamic floating banners and scripts injected inside the document body root
+            const elements = document.body.children;
+            for (let i = elements.length - 1; i >= 0; i--) {
+                const el = elements[i];
+                if (el.id !== 'customPopup' && el.id !== 'adViewerOverlay' && !el.classList.contains('app-view') && el.id !== 'toast' && el.tagName !== 'SCRIPT') {
+                    el.remove();
                 }
-            });
+            }
         }
 
         async function handleTask(id) {
@@ -1128,6 +1131,7 @@
                                 'Task Completed', 
                                 'Your money is added to wallet.',
                                 () => {
+                                    clearInjectedAds(); // Clears all remaining Monetag floating elements instantly when the user finishes
                                     adViewerOverlay.style.display = "none";
                                     initTasks();
                                 }
