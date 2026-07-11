@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BirrGo - Premium Core Matrix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-burgundy: #800020;
+            --primary-gradient: linear-gradient(135deg, #bd0a36 0%, #4a0000 100%);
+            --accent-gold: #f59e0b;
+            --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+            --blue-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%);
+            --dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(226, 232, 240, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.2px;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(128, 0, 32, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.03) 0px, transparent 50%);
+            color: var(--text-dark);
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .admin-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-logout {
+            background: white;
+            border: 1px solid var(--border-light);
+            padding: 12px 24px;
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 16px;
+            cursor: pointer;
+            color: var(--text-dark);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--text-dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .role-control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .role-nav-btn {
+            border: none;
+            border-radius: 24px;
+            padding: 24px 16px;
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .role-nav-btn span.icon {
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .role-nav-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .btn-role-stats { background: var(--purple-gradient); }
+        .btn-role-money { background: var(--gold-gradient); }
+        .btn-role-tasks { background: var(--blue-gradient); }
+        .btn-role-news { background: var(--primary-gradient); }
+        .btn-role-secure { background: var(--dark-gradient); }
+        .btn-role-ecosystem { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--purple-gradient);
+        }
+        .metric-card.vault::before { background: var(--gold-gradient); }
+        .metric-card.lottery::before { background: var(--success-gradient); }
+
+        .metric-card p {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+
+        .metric-card h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .role-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+
+        .role-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .workspace-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 32px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            max-width: 540px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .workspace-card.wide-card { max-width: 1000px; }
+
+        .btn-close-modal {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: 800;
+            cursor: pointer;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+
+        .btn-close-modal:hover { background: #e2e8f0; }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 22px;
+            border-radius: 4px;
+        }
+        .title-purple::before { background: var(--purple-gradient); }
+        .title-gold::before { background: var(--gold-gradient); }
+        .title-blue::before { background: var(--blue-gradient); }
+        .title-burgundy::before { background: var(--primary-gradient); }
+        .title-dark::before { background: var(--dark-gradient); }
+        .title-pink::before { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
+
+        .input-field-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-field-wrapper label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .admin-input {
+            width: 100%;
+            height: 56px;
+            background: #ffffff;
+            border: 1.5px solid var(--border-light);
+            border-radius: 16px;
+            padding: 0 20px;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.25s ease;
+            color: var(--text-dark);
+        }
+
+        .admin-input:focus {
+            border-color: var(--text-dark);
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08);
+        }
+
+        textarea.admin-input {
+            height: 100px;
+            padding: 16px 20px;
+            resize: none;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-admin-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 56px;
+            border: none;
+            border-radius: 18px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .btn-admin-action:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+        
+        .btn-credit { background: var(--success-gradient); }
+        .btn-debit { background: var(--danger-gradient); }
+        .btn-broadcast { background: var(--primary-gradient); }
+        .btn-delete { background: var(--dark-gradient); }
+        .btn-update { background: var(--blue-gradient); }
+        .btn-save-gold { background: var(--gold-gradient); }
+
+        .task-input-group {
+            background: rgba(255,255,255,0.6);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .table-scroll-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            background: #ffffff;
+            box-shadow: var(--card-shadow);
+        }
+
+        .directory-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .directory-table th {
+            background: #f8fafc;
+            padding: 18px 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .directory-table td {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-light);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .id-badge { background: #f1f5f9; color: var(--text-dark); font-weight: 700; padding: 6px 12px; border-radius: 8px; font-size: 12px; }
+
+        .toast-banner {
+            position: fixed;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 16px 32px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            z-index: 10001;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: #ffffff;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 32px;
+            padding: 32px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; }
+        .modal-content-details { background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .modal-data-row { display: flex; justify-content: space-between; font-size: 14px; }
+        .modal-data-label { font-weight: 600; color: var(--text-muted); }
+        .modal-data-value { font-weight: 700; color: var(--text-dark); }
+        .btn-modal-close { background: #e2e8f0; color: var(--text-dark); }
+    </style>
+</head>
+<body>
+
+    <div class="toast-banner" id="adminToast">Action Completed Successfully</div>
+
+    <div class="modal-overlay" id="customConfirmModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitleDisplay">Confirm Operational Request</h3>
+            <p id="modalDescriptionDisplay" style="font-size:14px; color:var(--text-muted); margin-top:-8px;"></p>
+            <div class="modal-content-details" id="modalDynamicDetails"></div>
+            <div class="btn-row" style="margin-top: 10px;">
+                <button class="btn-admin-action btn-modal-close" id="modalCancelBtn">Cancel</button>
+                <button class="btn-admin-action" id="modalConfirmBtn">Proceed Execution</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ECOSYSTEM MATRIX OVERLAY WITH INTEGRATED SEARCH SEARCH FILTER -->
+    <div class="role-modal-overlay" id="modal-ecosystem">
+        <div class="workspace-card wide-card">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-ecosystem')">✕</button>
+            <h3 class="section-title title-pink">Ecosystem Matrix Structural Records Mappings</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:-14px;">Real-time node queries tracking active ledger details, parameters, and balances.</p>
+            
+            <div class="input-field-wrapper" style="margin-bottom: 8px;">
+                <label>Realtime Directory Filter</label>
+                <input type="text" id="ecosystemSearchInput" class="admin-input" placeholder="Search cleanly by Mobile number (+251...), Card references, or Name fields...">
+            </div>
+
+            <div class="table-scroll-container">
+                <table class="directory-table">
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Card Record Token</th>
+                            <th>First Name</th>
+                            <th>Full Profile Name</th>
+                            <th>Phone Identity</th>
+                            <th>Wallet Balances</th>
+                            <th>Created Stamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="directory-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MONEY CONTROLLER OVERLAY -->
+    <div class="role-modal-overlay" id="modal-money">
+        <div class="workspace-card">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-money')">✕</button>
+            <h3 class="section-title title-gold">Money Controller Role</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:-14px;">Modify wallet balances instantly using card or phone configurations.</p>
+            
+            <div class="input-field-wrapper">
+                <label>Target 15-Digit Card Number / Phone</label>
+                <input type="text" id="targetIdNumber" class="admin-input" placeholder="e.g. 914447872278441">
+            </div>
+            <div class="input-field-wrapper">
+                <label>Amount (ETB)</label>
+                <input type="number" id="targetFinancialValue" class="admin-input" placeholder="0.00" step="0.01">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-admin-action btn-credit" id="idCreditBtn">Deposit Funds</button>
+                <button class="btn-admin-action btn-debit" id="idDebitBtn">Withdraw Funds</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BROADCAST PUBLISHER OVERLAY -->
+    <div class="role-modal-overlay" id="modal-news">
+        <div class="workspace-card">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-news')">✕</button>
+            <h3 class="section-title title-burgundy">Broadcast Publisher Role</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:-14px;">Push promotional alert notifications globally across client terminals.</p>
+            
+            <div class="input-field-wrapper">
+                <label>News Header Headline</label>
+                <input type="text" id="newsTitle" class="admin-input" placeholder="Enter notification headline...">
+            </div>
+            <div class="input-field-wrapper">
+                <label>Message Transcript Context Body</label>
+                <textarea id="newsContent" class="admin-input" placeholder="Provide clear alert details text body..."></textarea>
+            </div>
+
+            <button class="btn-admin-action btn-broadcast" id="publishNewsBtn">Publish Broadcast</button>
+        </div>
+    </div>
+
+    <!-- TASK CONFIGURATION OVERLAY -->
+    <div class="role-modal-overlay" id="modal-tasks">
+        <div class="workspace-card">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-tasks')">✕</button>
+            <h3 class="section-title title-blue">Task Link Manager</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:-10px;">Assign 5 separate dynamic destinations for independent paths.</p>
+            <div class="task-input-group">
+                <input type="text" id="taskLink1" class="admin-input" placeholder="Task 1 URL">
+                <input type="text" id="taskLink2" class="admin-input" placeholder="Task 2 URL">
+                <input type="text" id="taskLink3" class="admin-input" placeholder="Task 3 URL">
+                <input type="text" id="taskLink4" class="admin-input" placeholder="Task 4 URL">
+                <input type="text" id="taskLink5" class="admin-input" placeholder="Task 5 URL">
+            </div>
+            <button class="btn-admin-action btn-update" id="updateAllTasksBtn">Update Tasks Matrix</button>
+        </div>
+    </div>
+
+    <!-- SYSTEM SECURITY OVERLAY -->
+    <div class="role-modal-overlay" id="modal-secure">
+        <div class="workspace-card">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-secure')">✕</button>
+            
+            <!-- EXTERMINATE USER BLOCK -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                <h3 class="section-title title-dark">Account Sweeper Role</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin-top:-10px;">Permanently terminate storage records nodes via identifiers.</p>
+                <input type="text" id="deleteTargetInput" class="admin-input" placeholder="Card number or phone reference...">
+                <button class="btn-admin-action btn-delete" id="deleteAccountBtn">Expunge Account Node</button>
+            </div>
+
+            <!-- AUXILIARY ACTIVE ADMINISTRATIVE CONTROL MATRIX -->
+            <div style="display:flex; flex-direction:column; gap:14px; border-top: 1px dashed var(--border-light); padding-top:20px;">
+                <h3 class="section-title title-dark">Manage Extra Admins</h3>
+                <p style="font-size:13px;color:var(--text-muted);margin-top:-10px;">Monitor currently registered auxiliary accounts and clear access.</p>
+                <div class="table-scroll-container" style="max-height: 180px; overflow-y: auto;">
+                    <table class="directory-table" style="font-size: 13px;">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subAdminsListBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REGISTER NEW SUB-ADMIN USER MODULE -->
+            <div style="display:flex; flex-direction:column; gap:14px; border-top: 1px dashed var(--border-light); padding-top:20px;">
+                <h3 class="section-title title-dark">Create Extra Admin User</h3>
+                <input type="text" id="newAdminUser" class="admin-input" placeholder="New Extra Username">
+                <input type="text" id="newAdminPass" class="admin-input" placeholder="New Extra Passphrase Key">
+                <button class="btn-admin-action btn-save-gold" id="updateAdminCredsBtn">Register Extra Admin Account</button>
+            </div>
+
+            <!-- CORE PRIMARY SYSTEM OVERWRITE PROTECTION -->
+            <div style="display:flex; flex-direction:column; gap:14px; border-top: 1px dashed var(--border-light); padding-top:20px;">
+                <h3 class="section-title title-dark">Change Main Admin Password</h3>
+                <input type="text" id="mainAdminUser" class="admin-input" placeholder="Main Admin Username (e.g. admin)">
+                <input type="password" id="mainAdminPass" class="admin-input" placeholder="New Root System Password">
+                <button class="btn-admin-action btn-broadcast" id="changeMainAdminBtn">Update Core Root Credentials</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE DASHBOARD BASE CONTAINER LAYER -->
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>BirrGo Admin Dashboard</h1>
+            <button class="btn-logout" id="exitAdminBtn">Logout Engine</button>
+        </div>
+
+        <div class="role-control-grid">
+            <button class="role-nav-btn btn-role-stats" id="btn-toggle-stats">
+                <span class="icon">📊</span> Toggle Stats View
+            </button>
+            <button class="role-nav-btn btn-role-ecosystem" onclick="openRoleModal('modal-ecosystem')">
+                <span class="icon">🌐</span> Ecosystem Matrix
+            </button>
+            <button class="role-nav-btn btn-role-money" onclick="openRoleModal('modal-money')">
+                <span class="icon">💰</span> Money Controller
+            </button>
+            <button class="role-nav-btn btn-role-tasks" onclick="openRoleModal('modal-tasks')">
+                <span class="icon">🔗</span> Enter Tasks
+            </button>
+            <button class="role-nav-btn btn-role-news" onclick="openRoleModal('modal-news')">
+                <span class="icon">📢</span> Publish Broadcasts
+            </button>
+            <button class="role-nav-btn btn-role-secure" onclick="openRoleModal('modal-secure')">
+                <span class="icon">🛡️</span> System Security
+            </button>
+        </div>
+
+        <div id="stats-panel" class="metrics-grid">
+            <div class="metric-card">
+                <p>Global Active Users</p>
+                <h2 id="metric-total-users">0</h2>
+            </div>
+            <div class="metric-card vault">
+                <p>Total User Liabilities balance</p>
+                <h2><span id="metric-total-vault">0.00</span> ETB</h2>
+            </div>
+            <div class="metric-card lottery">
+                <p>Admin Capital Pool Balance</p>
+                <h2><span id="metric-lottery-vault">0.00</span> ETB</h2>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, onValue, runTransaction, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
+            window.location.href = "admin_login.html";
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
+            authDomain: "birrgo-fdf7e.firebaseapp.com",
+            databaseURL: "https://birrgo-fdf7e-default-rtdb.firebaseio.com",
+            projectId: "birrgo-fdf7e",
+            storageBucket: "birrgo-fdf7e.firebasestorage.app",
+            messagingSenderId: "2317445154",
+            appId: "1:2317445154:web:4275cbb0f46b28f64f827b",
+            measurementId: "G-24X13TZ43D"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // SYSTEM MODAL PANEL HOOKS
+        window.openRoleModal = (id) => document.getElementById(id).classList.add('active');
+        window.closeRoleModal = (id) => document.getElementById(id).classList.remove('active');
+
+        document.getElementById('btn-toggle-stats').addEventListener('click', () => {
+            const panel = document.getElementById('stats-panel');
+            panel.style.display = (panel.style.display === 'none') ? 'grid' : 'none';
+        });
+
+        let currentModalResolver = null;
+
+        function openCustomModal(title, desc, detailsArray, actionClass, actionText) {
+            document.getElementById('modalTitleDisplay').innerText = title;
+            document.getElementById('modalDescriptionDisplay').innerText = desc;
+            
+            const dynamicContainer = document.getElementById('modalDynamicDetails');
+            dynamicContainer.innerHTML = '';
+            
+            detailsArray.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'modal-data-row';
+                row.innerHTML = `<span class="modal-data-label">${item.label}</span><span class="modal-data-value">${item.value}</span>`;
+                dynamicContainer.appendChild(row);
+            });
+
+            const actionBtn = document.getElementById('modalConfirmBtn');
+            actionBtn.className = "btn-admin-action " + actionClass;
+            actionBtn.innerText = actionText;
+
+            document.getElementById('customConfirmModal').classList.add('active');
+
+            return new Promise((resolve) => { currentModalResolver = resolve; });
+        }
+
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+            if (currentModalResolver) currentModalResolver(true);
+            document.getElementById('customConfirmModal').classList.remove('active');
+        });
+
+        document.getElementById('modalCancelBtn').addEventListener('click', () => {
+            if (currentModalResolver) currentModalResolver(false);
+            document.getElementById('customConfirmModal').classList.remove('active');
+        });
+
+        function triggerAdminAlert(msg, isSuccess = true) {
+            const toast = document.getElementById('adminToast');
+            toast.innerText = msg;
+            toast.style.background = isSuccess ? 'var(--success-gradient)' : 'var(--danger-gradient)';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        function generate15DigitCard(phoneStr) {
+            const cleanPhone = phoneStr.replace(/\D/g, '');
+            const final6Reversed = cleanPhone.slice(-6).split('').reverse().join('');
+            return cleanPhone + final6Reversed;
+        }
+
+        // BACKEND CACHE MEMORY SYSTEM OBJECTS FOR SEARCH FILTER PIPELINE
+        let localUserDirectoryCache = {};
+
+        // RUN REALTIME SYNCHRONIZATION FROM DATABASE PIPELINE WITH LIVE LOOKUP
+        onValue(ref(db, 'users'), (snapshot) => {
+            if (!snapshot.exists()) {
+                document.getElementById('directory-table-body').innerHTML = '';
+                document.getElementById('metric-total-users').innerText = '0';
+                document.getElementById('metric-total-vault').innerText = '0.00';
+                document.getElementById('metric-lottery-vault').innerText = '0.00';
+                localUserDirectoryCache = {};
+                return;
+            }
+            localUserDirectoryCache = snapshot.val();
+            processAndRenderEcosystemTable();
+        });
+
+        function processAndRenderEcosystemTable(searchQueryString = '') {
+            const tableBody = document.getElementById('directory-table-body');
+            tableBody.innerHTML = '';
+
+            let totalUsers = 0;
+            let totalVaultLiabilities = 0;
+            let foundAdminBalance = 0;
+            const parsedQuery = searchQueryString.toLowerCase().trim().replace(/\s/g, '');
+
+            Object.keys(localUserDirectoryCache).forEach((phoneKey) => {
+                totalUsers++;
+                const profile = localUserDirectoryCache[phoneKey];
+                const balance = parseFloat(profile.walletBalance) || 0;
+                const displayCard = profile.cardNumber || generate15DigitCard(phoneKey);
+
+                if (phoneKey.includes("000000") || displayCard.includes("000000")) {
+                    foundAdminBalance = balance;
+                } else {
+                    totalVaultLiabilities += balance;
+                }
+
+                // Query match operations logic
+                const matchPhone = phoneKey.toLowerCase().includes(parsedQuery);
+                const matchCard = displayCard.toLowerCase().includes(parsedQuery);
+                const matchFirstName = (profile.firstName || '').toLowerCase().includes(parsedQuery);
+                const matchFullName = (profile.fullName || '').toLowerCase().includes(parsedQuery);
+
+                if (parsedQuery !== '' && !matchPhone && !matchCard && !matchFirstName && !matchFullName) {
+                    return; // Skip rendering row node if search doesn't match entries
+                }
+
+                let dateFormatted = "N/A";
+                if(profile.createdAt) {
+                    try { dateFormatted = new Date(profile.createdAt).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}); } catch(e){}
+                }
+
+                const rowHtml = `
+                    <tr>
+                        <td><span class="id-badge">BG-${profile.userNumber || '1000'}</span></td>
+                        <td style="font-family:monospace;font-weight:600;color:var(--text-muted);">${displayCard}</td>
+                        <td style="font-weight:700;color:var(--text-dark);">${profile.firstName || 'N/A'}</td>
+                        <td>${profile.fullName || 'Anonymous Account'}</td>
+                        <td>+251${phoneKey}</td>
+                        <td style="font-weight:700;color:var(--primary-burgundy);">${balance.toFixed(2)} ETB</td>
+                        <td style="color:var(--text-muted);font-size:12px;">${dateFormatted}</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+
+            document.getElementById('metric-total-users').innerText = totalUsers;
+            document.getElementById('metric-total-vault').innerText = totalVaultLiabilities.toFixed(2);
+            document.getElementById('metric-lottery-vault').innerText = foundAdminBalance.toFixed(2);
+        }
+
+        // BIND EVENT WATCHER FOR INSTANT USER ARCHIVE QUERIES 
+        document.getElementById('ecosystemSearchInput').addEventListener('input', (e) => {
+            processAndRenderEcosystemTable(e.target.value);
+        });
+
+        // LOAD DYNAMIC ADMISSION MATRIX PARAMS
+        get(ref(db, 'task')).then((snapshot) => {
+            if (snapshot.exists()) {
+                const taskData = snapshot.val();
+                if (taskData.task1) document.getElementById('taskLink1').value = taskData.task1;
+                if (taskData.task2) document.getElementById('taskLink2').value = taskData.task2;
+                if (taskData.task3) document.getElementById('taskLink3').value = taskData.task3;
+                if (taskData.task4) document.getElementById('taskLink4').value = taskData.task4;
+                if (taskData.task5) document.getElementById('taskLink5').value = taskData.task5;
+            }
+        }).catch(() => {});
+
+        async function lookupUserProfileByCardOrPhone(inputString) {
+            if (!localUserDirectoryCache) return null;
+            const cleanedInput = inputString.replace(/\s/g, '');
+
+            if (localUserDirectoryCache[cleanedInput]) {
+                return { phoneKey: cleanedInput, profile: localUserDirectoryCache[cleanedInput] };
+            }
+
+            for (let phoneKey of Object.keys(localUserDirectoryCache)) {
+                const profile = localUserDirectoryCache[phoneKey];
+                const storedCard = profile.cardNumber ? profile.cardNumber.replace(/\s/g, '') : '';
+                const computedCard = generate15DigitCard(phoneKey);
+                
+                if (storedCard === cleanedInput || computedCard === cleanedInput) {
+                    return { phoneKey, profile };
+                }
+            }
+            return null;
+        }
+
+        async function handleIdBalanceAdjustment(isDeposit) {
+            const inputCard = document.getElementById('targetIdNumber').value.trim();
+            const inputAmount = parseFloat(document.getElementById('targetFinancialValue').value.trim());
+
+            if (!inputCard || isNaN(inputAmount) || inputAmount <= 0) {
+                triggerAdminAlert("Please supply accurate parameters.", false);
+                return;
+            }
+
+            try {
+                const userMatch = await lookupUserProfileByCardOrPhone(inputCard);
+                if (!userMatch) {
+                    triggerAdminAlert("No user node located.", false);
+                    return;
+                }
+
+                const targetPhone = userMatch.phoneKey;
+                const accountName = userMatch.profile.fullName || "Anonymous Account";
+                const actionType = isDeposit ? "DEPOSIT" : "WITHDRAWAL";
+
+                const confirmed = await openCustomModal(
+                    "Confirm Account Balance Adjustment",
+                    "Verify matching fields cleanly before launching memory pipelines.",
+                    [
+                        { label: "Profile Name:", value: accountName },
+                        { label: "Action:", value: actionType },
+                        { label: "Change total:", value: inputAmount.toFixed(2) + " ETB" }
+                    ],
+                    isDeposit ? "btn-credit" : "btn-debit",
+                    isDeposit ? "Authorize Deposit" : "Authorize Withdrawal"
+                );
+                
+                if (!confirmed) return;
+
+                await runTransaction(ref(db, `users/${targetPhone}/walletBalance`), (currentBalance) => {
+                    let parsed = parseFloat(currentBalance) || 0;
+                    return isDeposit ? parsed + inputAmount : Math.max(0, parsed - inputAmount);
+                });
+
+                const now = new Date();
+                const timeStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
+                                now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+                await set(push(ref(db, `users/${targetPhone}/transactions`)), {
+                    title: isDeposit ? "System Admin Wallet Credit" : "System Admin Wallet Debit Overrides",
+                    amount: inputAmount,
+                    type: isDeposit ? "income" : "expense",
+                    timestamp: timeStr
+                });
+
+                triggerAdminAlert("Balance operations parsed accurately!", true);
+                closeRoleModal('modal-money');
+                document.getElementById('targetIdNumber').value = '';
+                document.getElementById('targetFinancialValue').value = '';
+            } catch (err) {
+                triggerAdminAlert("Transactional processing engine dropped.", false);
+            }
+        }
+
+        document.getElementById('publishNewsBtn').addEventListener('click', async () => {
+            const titleText = document.getElementById('newsTitle').value.trim();
+            const contentText = document.getElementById('newsContent').value.trim();
+
+            if (!titleText || !contentText) {
+                triggerAdminAlert("Fields require inputs.", false);
+                return;
+            }
+
+            try {
+                await set(push(ref(db, 'news')), {
+                    title: titleText,
+                    content: contentText,
+                    dateStamp: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    createdAtTimestamp: Date.now()
+                });
+                triggerAdminAlert("Broadcast pushed live!", true);
+                closeRoleModal('modal-news');
+                document.getElementById('newsTitle').value = '';
+                document.getElementById('newsContent').value = '';
+            } catch (err) {
+                triggerAdminAlert("Broadcast payload delivery failure.", false);
+            }
+        });
+
+        document.getElementById('updateAllTasksBtn').addEventListener('click', async () => {
+            const link1 = document.getElementById('taskLink1').value.trim();
+            const link2 = document.getElementById('taskLink2').value.trim();
+            const link3 = document.getElementById('taskLink3').value.trim();
+            const link4 = document.getElementById('taskLink4').value.trim();
+            const link5 = document.getElementById('taskLink5').value.trim();
+
+            const newIncomingLink = link5; 
+            if (!newIncomingLink) {
+                triggerAdminAlert("Please enter a new link in the Task 5 field to cycle the links.", false);
+                return;
+            }
+
+            try {
+                const shiftedMatrix = {
+                    task1: link2 || "",
+                    task2: link3 || "",
+                    task3: link4 || "",
+                    task4: link5 || "",         
+                    task5: newIncomingLink      
+                };
+
+                await set(ref(db, 'task'), shiftedMatrix);
+
+                document.getElementById('taskLink1').value = shiftedMatrix.task1;
+                document.getElementById('taskLink2').value = shiftedMatrix.task2;
+                document.getElementById('taskLink3').value = shiftedMatrix.task3;
+                document.getElementById('taskLink4').value = shiftedMatrix.task4;
+                document.getElementById('taskLink5').value = ""; 
+
+                triggerAdminAlert("First link removed! Matrix shifted up successfully.", true);
+                closeRoleModal('modal-tasks');
+            } catch (err) {
+                triggerAdminAlert("Link matrix rotation failed.", false);
+            }
+        });
+
+        // REALTIME SUB-ADMINS PIPELINE DIRECTORY TRACKING
+        onValue(ref(db, 'admin/sub_credentials'), (snapshot) => {
+            const listBody = document.getElementById('subAdminsListBody');
+            listBody.innerHTML = '';
+
+            if (!snapshot.exists()) {
+                listBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding: 12px;">No auxiliary administrators found.</td></tr>`;
+                return;
+            }
+
+            const subAdminsData = snapshot.val();
+            Object.keys(subAdminsData).forEach((username) => {
+                const rowHtml = `
+                    <tr>
+                        <td style="font-weight:700; color:var(--text-dark);">${username}</td>
+                        <td style="text-align: right;">
+                            <button class="btn-admin-action btn-debit" 
+                                    style="height:32px; width:100px; font-size:12px; border-radius:10px; display:inline-flex;" 
+                                    data-user="${username}">
+                                Revoke
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                listBody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+
+            listBody.querySelectorAll('.btn-debit').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetUser = button.getAttribute('data-user');
+                    removeExtraSubAdmin(targetUser);
+                });
+            });
+        });
+
+        async function removeExtraSubAdmin(username) {
+            const confirmRevocation = await openCustomModal(
+                "Revoke Auxiliary Account Privileges",
+                `Terminating access configuration parameters for: ${username}`,
+                [{ label: "Target Account:", value: username }],
+                "btn-delete",
+                "Confirm Access Deletion"
+            );
+
+            if (!confirmRevocation) return;
+
+            try {
+                await remove(ref(db, `admin/sub_credentials/${username}`));
+                triggerAdminAlert(`Admin session keys for [${username}] destroyed successfully!`, true);
+            } catch (err) {
+                triggerAdminAlert("Failed to clear authorization reference.", false);
+            }
+        }
+
+        document.getElementById('updateAdminCredsBtn').addEventListener('click', async () => {
+            const user = document.getElementById('newAdminUser').value.trim();
+            const pass = document.getElementById('newAdminPass').value.trim();
+
+            if (!user || !pass) {
+                triggerAdminAlert("Please structure values completely.", false);
+                return;
+            }
+
+            try {
+                await set(ref(db, `admin/sub_credentials/${user}`), { 
+                    username: user, 
+                    password: pass,
+                    role: "sub_admin",
+                    addedAt: Date.now()
+                });
+                triggerAdminAlert("Extra admin account registered safely!", true);
+                document.getElementById('newAdminUser').value = '';
+                document.getElementById('newAdminPass').value = '';
+            } catch (err) {
+                triggerAdminAlert("Extra credential payload dropped.", false);
+            }
+        });
+
+        document.getElementById('changeMainAdminBtn').addEventListener('click', async () => {
+            const mainUser = document.getElementById('mainAdminUser').value.trim();
+            const mainPass = document.getElementById('mainAdminPass').value.trim();
+
+            if (!mainUser || !mainPass) {
+                triggerAdminAlert("Please fill in both Main Admin fields completely.", false);
+                return;
+            }
+
+            const confirmOverride = await openCustomModal(
+                "Warning: Overwriting Root Credentials",
+                "This action alters your core administration entry data. Make sure you remember these details.",
+                [
+                    { label: "Main Username:", value: mainUser },
+                    { label: "Security Status:", value: "CRITICAL CORE CHANGE" }
+                ],
+                "btn-delete",
+                "Authorize Password Overwrite"
+            );
+
+            if (!confirmOverride) return;
+
+            try {
+                await set(ref(db, 'admin/credentials'), { username: mainUser, password: mainPass });
+                triggerAdminAlert("Main root password modified successfully!", true);
+                closeRoleModal('modal-secure');
+                document.getElementById('mainAdminUser').value = '';
+                document.getElementById('mainAdminPass').value = '';
+            } catch (err) {
+                triggerAdminAlert("Failed to update core database credentials.", false);
+            }
+        });
+
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            const deleteInput = document.getElementById('deleteTargetInput').value.trim();
+            if (!deleteInput) return;
+
+            try {
+                const userMatch = await lookupUserProfileByCardOrPhone(deleteInput);
+                if (!userMatch) {
+                    triggerAdminAlert("No user identity found.", false);
+                    return;
+                }
+
+                const nodeKey = userMatch.phoneKey;
+                const name = userMatch.profile.fullName || "Anonymous Account";
+
+                const confirm = await openCustomModal(
+                    "Critical: Erase Account Record",
+                    "Wipes target reference clusters permanently without server trace records.",
+                    [{ label: "Profile target:", value: name }, { label: "Index Phone ID:", value: "+251" + nodeKey }],
+                    "btn-delete",
+                    "Wipe Node Record"
+                );
+                
+                if (!confirm) return;
+
+                await remove(ref(db, `users/${nodeKey}`));
+                triggerAdminAlert(`Record node [${name}] dropped from cluster.`, true);
+                closeRoleModal('modal-secure');
+                document.getElementById('deleteTargetInput').value = '';
+            } catch (err) {
+                triggerAdminAlert("System dropped parameters due to errors.", false);
+            }
+        });
+
+        document.getElementById('idCreditBtn').addEventListener('click', () => handleIdBalanceAdjustment(true));
+        document.getElementById('idDebitBtn').addEventListener('click', () => handleIdBalanceAdjustment(false));
+        
+        document.getElementById('exitAdminBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('birrgo_admin_session');
+            window.location.href = "admin_login.html";
+        });
+    </script>
+</body>
+</html>
