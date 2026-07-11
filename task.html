@@ -309,7 +309,7 @@
 
         .sub-header-row {
             display: flex;
-            justify-content: space-between;
+            justify-between: space-between;
             align-items: center;
             margin-bottom: 12px;
             padding: 0 2px;
@@ -1004,20 +1004,27 @@
         }
 
         function injectUniversalMediaFrame(targetUrl) {
-            if (!targetUrl) targetUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ";
+            if (!targetUrl) {
+                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:20px; text-align:center; font-weight:700;">No video configured.</div>`;
+                return;
+            }
             
             let structuredUrl = targetUrl.trim();
+            let videoId = "";
             
-            if (structuredUrl.includes("youtube.com") || structuredUrl.includes("youtu.be")) {
-                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                const match = structuredUrl.match(regExp);
-                const videoId = (match && match[2].length === 11) ? match[2] : "dQw4w9WgXcQ";
-                structuredUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0`;
+            // Advanced universal expression filtering out any dynamic YouTube stream URL context cleanly
+            const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(mbed)?)\/|shorts\/|user\/[^\/]+\/|embed\/|watch\?(?:.*&)?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = structuredUrl.match(regExp);
+
+            if (match && match[1]) {
+                videoId = match[1];
+            } else {
+                videoId = "dQw4w9WgXcQ"; // Ultimate strict structural boundary safety fallback
             }
 
             youtubePlayerContainer.innerHTML = `
                 <iframe 
-                    src="${structuredUrl}" 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                     allowfullscreen>
                 </iframe>
@@ -1041,7 +1048,6 @@
             btn.disabled = true;
 
             try {
-                /* FIXED DATABASE REFERENCE MATCHING THE ADMIN CONFIGURATION MATRIX PATH */
                 const videoLinkRef = ref(db, `task/task${id}`);
                 const snapshot = await get(videoLinkRef);
                 const fetchedUrl = snapshot.exists() ? snapshot.val() : "";
