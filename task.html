@@ -590,7 +590,7 @@
             justify-content: center;
             align-items: center;
             padding: 24px;
-            z-index: 2147483647 !important; /* Ultimate absolute top stacking layer allowed by web browsers */
+            z-index: 2147483647 !important;
             opacity: 0;
             transition: opacity 0.25s ease;
         }
@@ -719,7 +719,7 @@
             </div>
         </div>
 
-        <nav class="bottom-nav-bar">
+        <nav class="bottom-nav-bar" id="bottomNavBar">
             <div onclick="goToPage('dashboard.html')" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
@@ -819,6 +819,7 @@
         let activeUserPhone = "";
         let adActiveStatus = false;
 
+        const bottomNavBar = document.getElementById('bottomNavBar');
         const adViewerOverlay = document.getElementById('adViewerOverlay');
         const youtubePlayerContainer = document.getElementById('youtubePlayerContainer');
         const adContainer = document.getElementById('adContainer');
@@ -852,7 +853,6 @@
             }
         };
 
-        // Fix for Problem 2: JavaScript function safely handles clean redirect without letting ads step in
         window.goToPage = function(page) {
             if (page === '#') return;
             adActiveStatus = false;
@@ -996,7 +996,7 @@
                     container.innerHTML = `<div class="empty-history-notice">You haven't invited anyone yet. Share your link above to get started!</div>`;
                 }
             } catch (error) {
-                console.error("Firebase fetch error reading referrals: ", error);
+                console.error(error);
                 container.innerHTML = `<div class="empty-history-notice" style="color:#ef4444;">Failed to sync invited list history data.</div>`;
             }
         }
@@ -1048,7 +1048,6 @@
             }
         }
 
-        // Fix for Problem 1 & 2: Complete background wipe out loops
         function clearInjectedAds() {
             adContainer.innerHTML = "";
             const elements = document.body.children;
@@ -1073,6 +1072,9 @@
                 const fetchedUrl = snapshot.exists() ? snapshot.val() : "";
                 
                 adActiveStatus = true;
+                
+                // HIDE THE MENU BUTTON BAR COMPLETELY WHEN VIDEO STARTS Running
+                bottomNavBar.style.display = "none";
                 adViewerOverlay.style.display = "flex";
                 closeOverlayBtn.style.display = "none"; 
                 
@@ -1103,7 +1105,6 @@
                         clearInterval(countdown);
                         clearInterval(adReloadInterval);
                         
-                        // Turn off tracking status immediately so no new scripts are appended
                         adActiveStatus = false;
                         
                         youtubePlayerContainer.innerHTML = "";
@@ -1132,7 +1133,6 @@
                             overlayCountdown.innerText = "Finished! +10 Birr";
                             closeOverlayBtn.style.display = "block"; 
                             
-                            // Double check and erase leftover layout overlays before building the modal dialog view window frame
                             clearInjectedAds();
                             
                             displayAppModal(
@@ -1142,11 +1142,14 @@
                                 () => {
                                     clearInjectedAds(); 
                                     adViewerOverlay.style.display = "none";
+                                    
+                                    // RESTORE MENU BUTTON BAR VISIBILITY ONLY AFTER EXITING OVERLAY
+                                    bottomNavBar.style.display = "flex";
                                     initTasks();
                                 }
                             );
                         } catch (error) {
-                            console.error("Firebase Transaction dropped: ", error);
+                            console.error(error);
                             displayAppModal('error', 'Sync Failed', 'Network validation error.');
                             overlayCountdown.innerText = "Sync Failed.";
                             closeOverlayBtn.style.display = "block";
@@ -1172,6 +1175,9 @@
                 adContainer.innerHTML = "";
                 clearInjectedAds();
                 adViewerOverlay.style.display = "none";
+                
+                // RESTORE MENU BAR IF MANUALLY DISMISSED
+                bottomNavBar.style.display = "flex";
                 initTasks();
             });
         }
