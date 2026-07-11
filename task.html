@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BirrGo - Premium Tasks</title>
-    <!-- Premium, modern tech typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
@@ -228,7 +227,7 @@
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            min-width: 105px;
+            min-width: 115px;
             text-align: center;
             box-shadow: 0 4px 10px var(--accent-glow);
             transition: all 0.2s ease;
@@ -250,6 +249,7 @@
             background: var(--warning-amber);
             color: #ffffff;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            font-size: 11px;
         }
 
         .invite-card {
@@ -480,59 +480,36 @@
             left: 0;
             width: 100%;
             height: 100dvh;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             z-index: 2000;
             display: none;
             flex-direction: column;
         }
-        .overlay-navbar {
-            height: calc(55px + env(safe-area-inset-top));
-            padding-top: env(safe-area-inset-top);
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-left: 20px;
-            padding-right: 20px;
-            border-bottom: 1px solid var(--border-light);
-            z-index: 2010;
-        }
-        .overlay-countdown-label {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary-burgundy);
-            background: #fdf2f4;
-            padding: 6px 14px;
-            border-radius: 30px;
-        }
-        .btn-close-overlay {
-            background: none;
-            border: none;
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text-dark);
-            cursor: pointer;
-            line-height: 1;
-            display: none;
-        }
         
-        /* TWO-LAYER DYNAMIC SPLIT PLAYER OR IMPRESSION ARCHITECTURE */
+        /* OPTIMIZED DYNAMIC SPLIT PLAYER ARCHITECTURE - CENTERED VIDEO VIEWPORT */
         .split-media-viewport {
             flex: 1;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
             width: 100%;
-            height: 100%;
+            padding: 20px;
+            gap: 20px;
             overflow-y: auto;
         }
 
         .youtube-player-box {
             width: 100%;
+            max-width: 410px;
             aspect-ratio: 16 / 9;
             background: #000000;
-            border-bottom: 2px solid var(--border-light);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .youtube-player-box iframe {
@@ -542,16 +519,60 @@
         }
 
         .ad-container-frame {
-            flex: 1;
             width: 100%;
-            min-height: 300px;
+            max-width: 410px;
+            min-height: 200px;
             position: relative !important;
             display: flex !important;
             justify-content: center !important;
             align-items: center !important;
-            padding: 20px;
         }
 
+        /* PREMIUM CONTROLS BAR AT THE BOTTOM OF THE SCREEN */
+        .overlay-navbar {
+            height: calc(76px + env(safe-area-inset-bottom));
+            padding-bottom: env(safe-area-inset-bottom);
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 24px;
+            padding-right: 24px;
+            border-top: 1px solid var(--border-light);
+            z-index: 2010;
+            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .overlay-countdown-label {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--primary-burgundy);
+            background: #fdf2f4;
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(128, 0, 32, 0.1);
+            box-shadow: 0 2px 8px rgba(128, 0, 32, 0.05);
+        }
+
+        .btn-close-overlay {
+            background: var(--primary-gradient);
+            border: none;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-close-overlay:active {
+            transform: scale(0.96);
+        }
+        
         /* FORCE EVERY ELEMENT INJECTED BY MONETAG SCRIPT TO ABSOLUTE CENTER AT MICROSECOND ONE */
         .force-ad-center {
             position: absolute !important;
@@ -681,13 +702,11 @@
                 <button class="toggle-tab-btn" id="tabBtnInvite" onclick="switchTaskPanel('invite')">Invitation</button>
             </div>
 
-            <!-- PANEL 1: WATCH & EARN -->
             <div id="panelWatchEarn" class="sub-view-panel panel-active">
                 <h2 class="section-heading">Watch & Earn</h2>
                 <div class="active-list-stack" id="video-task-container"></div>
             </div>
 
-            <!-- PANEL 2: INVITATION SYSTEM -->
             <div id="panelInvitation" class="sub-view-panel">
                 <h2 class="section-heading">Invite System</h2>
                 <div class="invite-card">
@@ -734,15 +753,15 @@
         </nav>
     </div>
 
-    <!-- Embedded Dual Split-Screen Player Layout Container -->
     <div class="immersive-overlay" id="adViewerOverlay">
-        <div class="overlay-navbar">
-            <div class="overlay-countdown-label" id="overlayCountdown">Remaining: 2:00</div>
-            <button class="btn-close-overlay" id="closeOverlayBtn">&times;</button>
-        </div>
         <div class="split-media-viewport">
             <div id="youtubePlayerContainer" class="youtube-player-box"></div>
             <div id="adContainer" class="ad-container-frame"></div>
+        </div>
+        
+        <div class="overlay-navbar">
+            <div class="overlay-countdown-label" id="overlayCountdown">Remaining: 2:00</div>
+            <button class="btn-close-overlay" id="closeOverlayBtn">Claim Reward</button>
         </div>
     </div>
 
@@ -753,11 +772,10 @@
             </div>
             <h3 class="custom-popup-title" id="popupTitle">Notification</h3>
             <p class="custom-popup-msg" id="popupMessage">Message info goes here natively.</p>
-            <button class="btn-popup-confirm" id="popupConfirmBtn">OK</button>
+            <button class="btn-popup-confirm" id="popupConfirmBtn">Done</button>
         </div>
     </div>
 
-    <!-- Live Asynchronous Ad Interceptor System -->
     <script>
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -785,7 +803,6 @@
         observer.observe(document.body, { childList: true, subtree: true });
     </script>
 
-    <!-- Modular Firebase Application Pipeline -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, runTransaction, push, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -987,7 +1004,7 @@
         }
 
         function extractYouTubeId(url) {
-            if (!url) return "dQw4w9WgXcQ"; // Fallback popular video if link is empty
+            if (!url) return "dQw4w9WgXcQ"; 
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : "dQw4w9WgXcQ";
@@ -996,7 +1013,7 @@
         function injectYouTubePlayer(videoId) {
             youtubePlayerContainer.innerHTML = `
                 <iframe 
-                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&rel=0" 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowfullscreen>
                 </iframe>
@@ -1020,14 +1037,12 @@
             btn.disabled = true;
 
             try {
-                // Fetch specific link dynamically from Firebase Admin settings nodes
                 const videoLinkRef = ref(db, `admin/tasks/video${id}`);
                 const snapshot = await get(videoLinkRef);
                 const fetchedUrl = snapshot.exists() ? snapshot.val() : "";
                 
                 const ytVideoId = extractYouTubeId(fetchedUrl);
                 
-                // Mount layout frames instantly
                 adViewerOverlay.style.display = "flex";
                 closeOverlayBtn.style.display = "none"; 
                 
@@ -1036,7 +1051,7 @@
 
                 let timeLeft = watchDuration;
                 overlayCountdown.innerText = "Remaining: 2:00";
-                btn.innerText = "2:00";
+                btn.innerText = "Watching (2:00)";
 
                 const adReloadInterval = setInterval(() => {
                     if (timeLeft > 0) {
@@ -1051,7 +1066,7 @@
                     const seconds = timeLeft % 60;
                     const standardTimeFormatted = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                     
-                    btn.innerText = standardTimeFormatted;
+                    btn.innerText = `Watching (${standardTimeFormatted})`;
                     overlayCountdown.innerText = `Remaining: ${standardTimeFormatted}`;
 
                     if (timeLeft <= 0) {
@@ -1078,13 +1093,20 @@
 
                             localStorage.setItem(`video_cooldown_${id}`, Date.now());
                             
-                            overlayCountdown.innerText = "Task Finished! +10 Birr";
+                            overlayCountdown.innerText = "Finished! +10 Birr";
                             closeOverlayBtn.style.display = "block"; 
                             
                             displayAppModal(
                                 'success', 
                                 'Task Completed', 
-                                'Success! 10 Birr has been credited directly to your database wallet balance.'
+                                'Your money is added to wallet.',
+                                () => {
+                                    youtubePlayerContainer.innerHTML = "";
+                                    adContainer.innerHTML = "";
+                                    clearInjectedAds();
+                                    adViewerOverlay.style.display = "none";
+                                    initTasks();
+                                }
                             );
                         } catch (error) {
                             console.error("Firebase Transaction dropped: ", error);
@@ -1093,7 +1115,7 @@
                                 'Sync Failed', 
                                 'Network validation error. Balance sync failed.'
                             );
-                            overlayCountdown.innerText = "Sync Failed. Close and try again.";
+                            overlayCountdown.innerText = "Sync Failed.";
                             closeOverlayBtn.style.display = "block";
                         }
                     }
