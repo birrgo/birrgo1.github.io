@@ -57,12 +57,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
         }
 
-        /* Prevent any background interactions when global modals are open */
-        .app-view.modal-shield-active {
-            pointer-events: none !important;
-            user-select: none !important;
-        }
-
         .app-content {
             flex: 1;
             overflow-y: auto;
@@ -434,7 +428,7 @@
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
-            z-index: 999999 !important; /* Pushed extremely high to prevent invisible background ad intercepting links */
+            z-index: 99999999 !important;
         }
 
         .nav-item {
@@ -443,14 +437,12 @@
             align-items: center;
             justify-content: center;
             color: #94a3b8;
-            text-decoration: none;
             font-size: 11px;
             font-weight: 700;
             gap: 4px;
             flex: 1;
             height: 100%;
-            position: relative;
-            z-index: 1000000 !important;
+            cursor: pointer;
         }
 
         .nav-item svg {
@@ -591,17 +583,16 @@
             left: 0;
             width: 100%;
             height: 100dvh;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
             padding: 24px;
-            z-index: 999999999 !important; /* Ultimate stack height layer */
+            z-index: 2147483647 !important; /* Ultimate absolute top stacking layer allowed by web browsers */
             opacity: 0;
             transition: opacity 0.25s ease;
-            pointer-events: auto !important; /* Explicitly claims absolute priority over mouse/touch frames */
         }
         .custom-popup-backdrop.show-modal {
             display: flex;
@@ -613,11 +604,10 @@
             max-width: 360px;
             border-radius: var(--border-radius-lg);
             padding: 28px 24px 24px 24px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
             text-align: center;
             transform: scale(0.9);
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: auto !important;
         }
         .custom-popup-backdrop.show-modal .custom-popup-card {
             transform: scale(1);
@@ -676,9 +666,6 @@
             cursor: pointer;
             box-shadow: 0 6px 16px rgba(128, 0, 32, 0.15);
             transition: background 0.2s ease;
-            pointer-events: auto !important;
-            position: relative;
-            z-index: 1000000000 !important;
         }
         .btn-popup-confirm:active {
             transform: scale(0.98);
@@ -689,7 +676,7 @@
 
     <div class="toast-container" id="toast">Invite Link Copied!</div>
 
-    <div class="app-view" id="mainAppView">
+    <div class="app-view">
         <div class="app-content">
             <div class="brand-header">
                 <img class="logo-image" src="birrgo-logo.png" alt="BirrGo Mobile Wallet">
@@ -732,28 +719,28 @@
             </div>
         </div>
 
-        <nav class="bottom-nav-bar" id="appBottomNav">
-            <a href="dashboard.html" class="nav-item">
+        <nav class="bottom-nav-bar">
+            <div onclick="goToPage('dashboard.html')" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
                 Home
-            </a>
-            <a href="#" class="nav-item active-tab">
+            </div>
+            <div onclick="goToPage('#')" class="nav-item active-tab">
                 <div class="tab-icon-wrapper">
                     <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                 </div>
                 Tasks
-            </a>
-            <a href="lottery.html" class="nav-item">
+            </div>
+            <div onclick="goToPage('lottery.html')" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                 Lottery
-            </a>
-            <a href="wallet.html" class="nav-item">
+            </div>
+            <div onclick="goToPage('wallet.html')" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                 Wallet
-            </a>
+            </div>
         </nav>
     </div>
 
@@ -830,8 +817,8 @@
         const cooldownDuration = 3600000; 
 
         let activeUserPhone = "";
+        let adActiveStatus = false;
 
-        const mainAppView = document.getElementById('mainAppView');
         const adViewerOverlay = document.getElementById('adViewerOverlay');
         const youtubePlayerContainer = document.getElementById('youtubePlayerContainer');
         const adContainer = document.getElementById('adContainer');
@@ -865,6 +852,14 @@
             }
         };
 
+        // Fix for Problem 2: JavaScript function safely handles clean redirect without letting ads step in
+        window.goToPage = function(page) {
+            if (page === '#') return;
+            adActiveStatus = false;
+            clearInjectedAds();
+            window.location.replace(page);
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             activeUserPhone = localStorage.getItem('auth_session_phone');
             if (!activeUserPhone) {
@@ -874,28 +869,7 @@
             initTasks();
             setupOverlayEvents();
             setupProfileEvents();
-            setupNavigationShield();
         });
-
-        // Strict Interception for Bottom Navigation Links
-        function setupNavigationShield() {
-            const navItems = document.querySelectorAll('#appBottomNav .nav-item');
-            navItems.forEach(item => {
-                const triggerNavigation = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation(); // Blocks the touch from dripping through to background Monetag layers
-                    
-                    clearInjectedAds();
-                    const pathTarget = item.getAttribute('href');
-                    if (pathTarget && pathTarget !== '#') {
-                        window.location.href = pathTarget;
-                    }
-                };
-                
-                item.addEventListener('click', triggerNavigation, true);
-                item.addEventListener('touchstart', triggerNavigation, { passive: false });
-            });
-        }
 
         function displayAppModal(type, title, message, onConfirm = null) {
             popupBadge.className = "popup-status-badge";
@@ -913,34 +887,24 @@
                 popupIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>`;
             }
 
-            // Lock background interface from responding to touches
-            mainAppView.classList.add('modal-shield-active');
-
             customPopup.style.display = 'flex';
             setTimeout(() => customPopup.classList.add('show-modal'), 10);
 
             const handleClosure = (e) => {
                 if (e) {
                     e.preventDefault();
-                    e.stopPropagation(); // Stops touch from escaping to hidden ads
+                    e.stopPropagation();
                 }
-                
-                clearInjectedAds(); // Instantly wipes out background code artifacts before running state closure
+                clearInjectedAds();
                 customPopup.classList.remove('show-modal');
-                mainAppView.classList.remove('modal-shield-active');
-                
                 setTimeout(() => {
                     customPopup.style.display = 'none';
                     if (onConfirm) onConfirm();
                     clearInjectedAds();
                 }, 300);
-                
                 popupConfirmBtn.removeEventListener('click', handleClosure);
-                popupConfirmBtn.removeEventListener('touchstart', handleClosure);
             };
-            
-            popupConfirmBtn.addEventListener('click', handleClosure, true);
-            popupConfirmBtn.addEventListener('touchstart', handleClosure, { passive: false });
+            popupConfirmBtn.addEventListener('click', handleClosure);
         }
 
         function initTasks() {
@@ -1038,6 +1002,7 @@
         }
 
         function loadMonetagAd() {
+            if (!adActiveStatus) return;
             adContainer.innerHTML = "";
             const monetagScript = document.createElement('script');
             monetagScript.src = "https://quge5.com/88/tag.min.js?cb=" + Date.now();
@@ -1049,7 +1014,6 @@
 
         function injectUniversalMediaFrame(targetUrl) {
             if (!targetUrl || typeof targetUrl !== 'string' || targetUrl.trim() === "") {
-                console.error("Database path error: Checked node value is empty or missing.");
                 youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px 20px; text-align:center; font-weight:700; font-size:14px;">Error: Video URL not found in Database.</div>`;
                 return;
             }
@@ -1059,24 +1023,16 @@
             
             if (structuredUrl.includes("shorts/")) {
                 const parts = structuredUrl.split("shorts/");
-                if (parts[1]) {
-                    videoId = parts[1].split(/[?#]/)[0];
-                }
+                if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
             } else if (structuredUrl.includes("youtu.be/")) {
                 const parts = structuredUrl.split("youtu.be/");
-                if (parts[1]) {
-                    videoId = parts[1].split(/[?#]/)[0];
-                }
+                if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
             } else if (structuredUrl.includes("v=")) {
                 const parts = structuredUrl.split("v=");
-                if (parts[1]) {
-                    videoId = parts[1].split(/[&#]/)[0];
-                }
+                if (parts[1]) videoId = parts[1].split(/[&#]/)[0];
             } else if (structuredUrl.includes("embed/")) {
                 const parts = structuredUrl.split("embed/");
-                if (parts[1]) {
-                    videoId = parts[1].split(/[?#]/)[0];
-                }
+                if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
             }
 
             if (videoId && videoId.length === 11) {
@@ -1088,11 +1044,11 @@
                     </iframe>
                 `;
             } else {
-                console.warn("Regex parse warning. Received URL string input was: ", structuredUrl);
                 youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px 20px; text-align:center; font-weight:700; font-size:14px;">Error: Invalid YouTube link structure.</div>`;
             }
         }
 
+        // Fix for Problem 1 & 2: Complete background wipe out loops
         function clearInjectedAds() {
             adContainer.innerHTML = "";
             const elements = document.body.children;
@@ -1116,6 +1072,7 @@
                 const snapshot = await get(videoLinkRef);
                 const fetchedUrl = snapshot.exists() ? snapshot.val() : "";
                 
+                adActiveStatus = true;
                 adViewerOverlay.style.display = "flex";
                 closeOverlayBtn.style.display = "none"; 
                 
@@ -1127,7 +1084,7 @@
                 btn.innerText = "Watching (2:00)";
 
                 const adReloadInterval = setInterval(() => {
-                    if (timeLeft > 0) {
+                    if (timeLeft > 0 && adActiveStatus) {
                         clearInjectedAds();
                         loadMonetagAd();
                     }
@@ -1145,6 +1102,9 @@
                     if (timeLeft <= 0) {
                         clearInterval(countdown);
                         clearInterval(adReloadInterval);
+                        
+                        // Turn off tracking status immediately so no new scripts are appended
+                        adActiveStatus = false;
                         
                         youtubePlayerContainer.innerHTML = "";
                         adContainer.innerHTML = "";
@@ -1172,6 +1132,9 @@
                             overlayCountdown.innerText = "Finished! +10 Birr";
                             closeOverlayBtn.style.display = "block"; 
                             
+                            // Double check and erase leftover layout overlays before building the modal dialog view window frame
+                            clearInjectedAds();
+                            
                             displayAppModal(
                                 'success', 
                                 'Task Completed', 
@@ -1184,11 +1147,7 @@
                             );
                         } catch (error) {
                             console.error("Firebase Transaction dropped: ", error);
-                            displayAppModal(
-                                'error', 
-                                'Sync Failed', 
-                                'Network validation error. Balance sync failed.'
-                            );
+                            displayAppModal('error', 'Sync Failed', 'Network validation error.');
                             overlayCountdown.innerText = "Sync Failed.";
                             closeOverlayBtn.style.display = "block";
                         }
@@ -1196,7 +1155,7 @@
                 }, 1000);
 
             } catch (err) {
-                console.error("Failed to sync media configuration from Admin node: ", err);
+                console.error(err);
                 btn.className = "btn-task";
                 btn.disabled = false;
                 btn.innerText = "Watch";
@@ -1206,10 +1165,9 @@
 
         function setupOverlayEvents() {
             closeOverlayBtn.addEventListener('click', (e) => {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation(); 
-                }
+                e.preventDefault();
+                e.stopPropagation(); 
+                adActiveStatus = false;
                 youtubePlayerContainer.innerHTML = "";
                 adContainer.innerHTML = "";
                 clearInjectedAds();
@@ -1224,7 +1182,7 @@
                 displayAppModal(
                     'lock', 
                     'Sign Out', 
-                    'Are you sure you want to end your session and return to the login screen?', 
+                    'Are you sure you want to end your session?', 
                     () => {
                         localStorage.removeItem('auth_session_phone');
                         window.location.href = "login.html";
@@ -1237,7 +1195,7 @@
             displayAppModal(
                 'lock', 
                 'Task Locked', 
-                `This video row is locked. Please come back after ${minutes} minutes to watch and claim another 10 Birr!`
+                `This video row is locked. Please come back after ${minutes} minutes!`
             );
         }
 
@@ -1274,7 +1232,7 @@
                 toast.style.display = 'block';
                 setTimeout(() => { toast.style.display = 'none'; }, 2000);
             }).catch(err => {
-                console.error("Copy action failed: ", err);
+                console.error(err);
             });
         });
     </script>
