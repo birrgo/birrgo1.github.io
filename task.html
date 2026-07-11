@@ -720,24 +720,24 @@
         </div>
 
         <nav class="bottom-nav-bar" id="bottomNavBar">
-            <div onclick="goToPage('dashboard.html')" class="nav-item">
+            <div id="navHome" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
                 Home
             </div>
-            <div onclick="goToPage('#')" class="nav-item active-tab">
+            <div id="navTasks" class="nav-item active-tab">
                 <div class="tab-icon-wrapper">
                     <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                 </div>
                 Tasks
             </div>
-            <div onclick="goToPage('lottery.html')" class="nav-item">
+            <div id="navLottery" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                 Lottery
             </div>
-            <div onclick="goToPage('wallet.html')" class="nav-item">
+            <div id="navWallet" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                 Wallet
             </div>
@@ -818,6 +818,11 @@
 
         let activeUserPhone = "";
         let adActiveStatus = false;
+        let bypassUnloadShield = false; 
+        
+        // Active timer trackers to allow total structural cancellation
+        let currentCountdownInterval = null;
+        let currentAdReloadInterval = null;
 
         const bottomNavBar = document.getElementById('bottomNavBar');
         const adViewerOverlay = document.getElementById('adViewerOverlay');
@@ -832,6 +837,31 @@
         const popupTitle = document.getElementById('popupTitle');
         const popupMessage = document.getElementById('popupMessage');
         const popupConfirmBtn = document.getElementById('popupConfirmBtn');
+
+        // FORCE CAPTURING PHASE: Kill background redirect bindings
+        function globalClickInterceptor(e) {
+            if (adActiveStatus) return; 
+            let currentCheckNode = e.target;
+            while(currentCheckNode && currentCheckNode !== document.body) {
+                if (currentCheckNode.tagName === 'A' && !currentCheckNode.id) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    currentCheckNode.remove();
+                    return false;
+                }
+                currentCheckNode = currentCheckNode.parentNode;
+            }
+        }
+        window.addEventListener('click', globalClickInterceptor, true);
+
+        // LOCK OUTBOUND NAVIGATION REDIRECT MECHANISMS
+        window.onbeforeunload = function(e) {
+            if (!bypassUnloadShield) {
+                e.preventDefault();
+                return "Are you sure you want to exit?";
+            }
+        };
 
         window.switchTaskPanel = function(targetPanel) {
             const btnWatch = document.getElementById('tabBtnWatch');
@@ -853,23 +883,61 @@
             }
         };
 
+        // EXPLICIT RUNTIME AND STATE DESTROYER (SOLVES PROBLEM 1 & 2)
+        function terminateAllAdRuntimes() {
+            adActiveStatus = false;
+            
+            // 1. Clear all intervals running active ad operations
+            if (currentCountdownInterval) { clearInterval(currentCountdownInterval); currentCountdownInterval = null; }
+            if (currentAdReloadInterval) { clearInterval(currentAdReloadInterval); currentAdReloadInterval = null; }
+            
+            // 2. Tear down the UI frameworks
+            youtubePlayerContainer.innerHTML = "";
+            adContainer.innerHTML = "";
+            
+            // 3. Scrub injected scripts/popups completely
+            clearInjectedAds();
+            
+            // 4. Detach global click listener locks to release page restrictions
+            window.removeEventListener('click', globalClickInterceptor, true);
+        }
+
         window.goToPage = function(page) {
             if (page === '#') return;
-            adActiveStatus = false;
-            clearInjectedAds();
+            terminateAllAdRuntimes(); // Completely strip ads prior to loading new page context
+            bypassUnloadShield = true;
             window.location.replace(page);
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             activeUserPhone = localStorage.getItem('auth_session_phone');
             if (!activeUserPhone) {
+                bypassUnloadShield = true;
                 window.location.href = "login.html";
                 return;
             }
             initTasks();
             setupOverlayEvents();
             setupProfileEvents();
+            setupNavigationHandlers();
         });
+
+        function setupNavigationHandlers() {
+            document.getElementById('navHome').addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+                goToPage('dashboard.html');
+            }, true);
+            
+            document.getElementById('navLottery').addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+                goToPage('lottery.html');
+            }, true);
+            
+            document.getElementById('navWallet').addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+                goToPage('wallet.html');
+            }, true);
+        }
 
         function displayAppModal(type, title, message, onConfirm = null) {
             popupBadge.className = "popup-status-badge";
@@ -887,24 +955,27 @@
                 popupIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>`;
             }
 
+            // Ensure ads don't inject over top modal windows
+            adContainer.innerHTML = "";
+            clearInjectedAds();
+
             customPopup.style.display = 'flex';
             setTimeout(() => customPopup.classList.add('show-modal'), 10);
 
             const handleClosure = (e) => {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                clearInjectedAds();
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
                 customPopup.classList.remove('show-modal');
                 setTimeout(() => {
                     customPopup.style.display = 'none';
                     if (onConfirm) onConfirm();
                     clearInjectedAds();
                 }, 300);
-                popupConfirmBtn.removeEventListener('click', handleClosure);
+                popupConfirmBtn.removeEventListener('click', handleClosure, true);
             };
-            popupConfirmBtn.addEventListener('click', handleClosure);
+            popupConfirmBtn.addEventListener('click', handleClosure, true);
         }
 
         function initTasks() {
@@ -945,14 +1016,14 @@
                 const targetBtn = document.getElementById(`btn-action-${currentId}`);
                 if (targetBtn.classList.contains('cooldown')) {
                     targetBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
                         showReminder(remainingMinutes);
-                    });
+                    }, true);
                 } else {
                     targetBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
                         handleTask(currentId);
-                    });
+                    }, true);
                 }
             }
         }
@@ -1004,12 +1075,35 @@
         function loadMonetagAd() {
             if (!adActiveStatus) return;
             adContainer.innerHTML = "";
-            const monetagScript = document.createElement('script');
-            monetagScript.src = "https://quge5.com/88/tag.min.js?cb=" + Date.now();
-            monetagScript.dataset.zone = "258295";
-            monetagScript.async = true;
-            monetagScript.setAttribute('data-cfasync', 'false');
-            adContainer.appendChild(monetagScript);
+            
+            const adIframe = document.createElement('iframe');
+            adIframe.style.width = "100%";
+            adIframe.style.height = "100%";
+            adIframe.style.border = "none";
+            adIframe.style.overflow = "hidden";
+            
+            adIframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
+            adContainer.appendChild(adIframe);
+            
+            const iframeDoc = adIframe.contentDocument || adIframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <html style="margin:0; padding:0; background:#000; overflow:hidden; width:100%; height:100%;">
+                <body style="margin:0; padding:0; display:flex; justify-content:center; align-items:center; width:100%; height:100%;">
+                    <script>
+                        (function() {
+                            const monetagScript = document.createElement('script');
+                            monetagScript.src = "https://quge5.com/88/tag.min.js?cb=" + Date.now();
+                            monetagScript.dataset.zone = "258295";
+                            monetagScript.async = true;
+                            monetagScript.setAttribute('data-cfasync', 'false');
+                            document.body.appendChild(monetagScript);
+                        })();
+                    <\/script>
+                </body>
+                </html>
+            `);
+            iframeDoc.close();
         }
 
         function injectUniversalMediaFrame(targetUrl) {
@@ -1073,7 +1167,6 @@
                 
                 adActiveStatus = true;
                 
-                // HIDE THE MENU BUTTON BAR COMPLETELY WHEN VIDEO STARTS Running
                 bottomNavBar.style.display = "none";
                 adViewerOverlay.style.display = "flex";
                 closeOverlayBtn.style.display = "none"; 
@@ -1085,14 +1178,15 @@
                 overlayCountdown.innerText = "Remaining: 2:00";
                 btn.innerText = "Watching (2:00)";
 
-                const adReloadInterval = setInterval(() => {
+                // Save internal intervals to structural tracking instances
+                currentAdReloadInterval = setInterval(() => {
                     if (timeLeft > 0 && adActiveStatus) {
                         clearInjectedAds();
                         loadMonetagAd();
                     }
                 }, 20000);
 
-                const countdown = setInterval(async () => {
+                currentCountdownInterval = setInterval(async () => {
                     timeLeft--;
                     const minutes = Math.floor(timeLeft / 60);
                     const seconds = timeLeft % 60;
@@ -1102,14 +1196,8 @@
                     overlayCountdown.innerText = `Remaining: ${standardTimeFormatted}`;
 
                     if (timeLeft <= 0) {
-                        clearInterval(countdown);
-                        clearInterval(adReloadInterval);
-                        
-                        adActiveStatus = false;
-                        
-                        youtubePlayerContainer.innerHTML = "";
-                        adContainer.innerHTML = "";
-                        clearInjectedAds();
+                        // FORCE ABSOLUTE AD DESTRUCTION IMMEDIATELY ON COMPLETION
+                        terminateAllAdRuntimes();
                         
                         try {
                             const balanceRef = ref(db, `users/${activeUserPhone}/walletBalance`);
@@ -1133,18 +1221,16 @@
                             overlayCountdown.innerText = "Finished! +10 Birr";
                             closeOverlayBtn.style.display = "block"; 
                             
-                            clearInjectedAds();
-                            
                             displayAppModal(
                                 'success', 
                                 'Task Completed', 
                                 'Your money is added to wallet.',
                                 () => {
-                                    clearInjectedAds(); 
+                                    // Zero redirects occur when click confirm
+                                    terminateAllAdRuntimes(); 
                                     adViewerOverlay.style.display = "none";
-                                    
-                                    // RESTORE MENU BUTTON BAR VISIBILITY ONLY AFTER EXITING OVERLAY
                                     bottomNavBar.style.display = "flex";
+                                    window.addEventListener('click', globalClickInterceptor, true); // Re-arm for baseline state
                                     initTasks();
                                 }
                             );
@@ -1168,33 +1254,29 @@
 
         function setupOverlayEvents() {
             closeOverlayBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation(); 
-                adActiveStatus = false;
-                youtubePlayerContainer.innerHTML = "";
-                adContainer.innerHTML = "";
-                clearInjectedAds();
+                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+                terminateAllAdRuntimes();
                 adViewerOverlay.style.display = "none";
-                
-                // RESTORE MENU BAR IF MANUALLY DISMISSED
                 bottomNavBar.style.display = "flex";
+                window.addEventListener('click', globalClickInterceptor, true);
                 initTasks();
-            });
+            }, true);
         }
 
         function setupProfileEvents() {
             document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.stopPropagation();
+                e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
                 displayAppModal(
                     'lock', 
                     'Sign Out', 
                     'Are you sure you want to end your session?', 
                     () => {
                         localStorage.removeItem('auth_session_phone');
+                        bypassUnloadShield = true;
                         window.location.href = "login.html";
                     }
                 );
-            });
+            }, true);
         }
 
         function showReminder(minutes) {
@@ -1228,7 +1310,7 @@
         }
 
         document.getElementById('shareBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
             const cleanRefPhone = activeUserPhone.replace(/\D/g, '').slice(-9);
             const clearPathUrl = window.location.href.split('?')[0];
             const registrationLink = clearPathUrl.replace('task.html', 'register.html') + "?ref=" + cleanRefPhone;
@@ -1240,7 +1322,7 @@
             }).catch(err => {
                 console.error(err);
             });
-        });
+        }, true);
     </script>
 </body>
 </html>
