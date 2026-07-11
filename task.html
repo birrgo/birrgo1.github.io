@@ -57,6 +57,12 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
         }
 
+        /* Prevent any background interactions when global modals are open */
+        .app-view.modal-shield-active {
+            pointer-events: none !important;
+            user-select: none !important;
+        }
+
         .app-content {
             flex: 1;
             overflow-y: auto;
@@ -428,7 +434,7 @@
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
-            z-index: 10;
+            z-index: 999999 !important; /* Pushed extremely high to prevent invisible background ad intercepting links */
         }
 
         .nav-item {
@@ -443,6 +449,8 @@
             gap: 4px;
             flex: 1;
             height: 100%;
+            position: relative;
+            z-index: 1000000 !important;
         }
 
         .nav-item svg {
@@ -590,9 +598,10 @@
             justify-content: center;
             align-items: center;
             padding: 24px;
-            z-index: 999999 !important; /* Pushed extremely high so it blocks all underlying third-party ad layers */
+            z-index: 999999999 !important; /* Ultimate stack height layer */
             opacity: 0;
             transition: opacity 0.25s ease;
+            pointer-events: auto !important; /* Explicitly claims absolute priority over mouse/touch frames */
         }
         .custom-popup-backdrop.show-modal {
             display: flex;
@@ -608,6 +617,7 @@
             text-align: center;
             transform: scale(0.9);
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto !important;
         }
         .custom-popup-backdrop.show-modal .custom-popup-card {
             transform: scale(1);
@@ -666,6 +676,9 @@
             cursor: pointer;
             box-shadow: 0 6px 16px rgba(128, 0, 32, 0.15);
             transition: background 0.2s ease;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 1000000000 !important;
         }
         .btn-popup-confirm:active {
             transform: scale(0.98);
@@ -676,7 +689,7 @@
 
     <div class="toast-container" id="toast">Invite Link Copied!</div>
 
-    <div class="app-view">
+    <div class="app-view" id="mainAppView">
         <div class="app-content">
             <div class="brand-header">
                 <img class="logo-image" src="birrgo-logo.png" alt="BirrGo Mobile Wallet">
@@ -719,7 +732,7 @@
             </div>
         </div>
 
-        <nav class="bottom-nav-bar">
+        <nav class="bottom-nav-bar" id="appBottomNav">
             <a href="dashboard.html" class="nav-item">
                 <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
@@ -818,6 +831,7 @@
 
         let activeUserPhone = "";
 
+        const mainAppView = document.getElementById('mainAppView');
         const adViewerOverlay = document.getElementById('adViewerOverlay');
         const youtubePlayerContainer = document.getElementById('youtubePlayerContainer');
         const adContainer = document.getElementById('adContainer');
@@ -860,7 +874,28 @@
             initTasks();
             setupOverlayEvents();
             setupProfileEvents();
+            setupNavigationShield();
         });
+
+        // Strict Interception for Bottom Navigation Links
+        function setupNavigationShield() {
+            const navItems = document.querySelectorAll('#appBottomNav .nav-item');
+            navItems.forEach(item => {
+                const triggerNavigation = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation(); // Blocks the touch from dripping through to background Monetag layers
+                    
+                    clearInjectedAds();
+                    const pathTarget = item.getAttribute('href');
+                    if (pathTarget && pathTarget !== '#') {
+                        window.location.href = pathTarget;
+                    }
+                };
+                
+                item.addEventListener('click', triggerNavigation, true);
+                item.addEventListener('touchstart', triggerNavigation, { passive: false });
+            });
+        }
 
         function displayAppModal(type, title, message, onConfirm = null) {
             popupBadge.className = "popup-status-badge";
@@ -878,22 +913,34 @@
                 popupIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>`;
             }
 
+            // Lock background interface from responding to touches
+            mainAppView.classList.add('modal-shield-active');
+
             customPopup.style.display = 'flex';
             setTimeout(() => customPopup.classList.add('show-modal'), 10);
 
             const handleClosure = (e) => {
                 if (e) {
                     e.preventDefault();
-                    e.stopPropagation(); 
+                    e.stopPropagation(); // Stops touch from escaping to hidden ads
                 }
+                
+                clearInjectedAds(); // Instantly wipes out background code artifacts before running state closure
                 customPopup.classList.remove('show-modal');
+                mainAppView.classList.remove('modal-shield-active');
+                
                 setTimeout(() => {
                     customPopup.style.display = 'none';
                     if (onConfirm) onConfirm();
+                    clearInjectedAds();
                 }, 300);
+                
                 popupConfirmBtn.removeEventListener('click', handleClosure);
+                popupConfirmBtn.removeEventListener('touchstart', handleClosure);
             };
-            popupConfirmBtn.addEventListener('click', handleClosure);
+            
+            popupConfirmBtn.addEventListener('click', handleClosure, true);
+            popupConfirmBtn.addEventListener('touchstart', handleClosure, { passive: false });
         }
 
         function initTasks() {
@@ -1048,7 +1095,6 @@
 
         function clearInjectedAds() {
             adContainer.innerHTML = "";
-            // Aggressively targets all Monetag dynamic floating banners and scripts injected inside the document body root
             const elements = document.body.children;
             for (let i = elements.length - 1; i >= 0; i--) {
                 const el = elements[i];
@@ -1131,7 +1177,7 @@
                                 'Task Completed', 
                                 'Your money is added to wallet.',
                                 () => {
-                                    clearInjectedAds(); // Clears all remaining Monetag floating elements instantly when the user finishes
+                                    clearInjectedAds(); 
                                     adViewerOverlay.style.display = "none";
                                     initTasks();
                                 }
