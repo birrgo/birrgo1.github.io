@@ -407,7 +407,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const refParam = urlParams.get('ref');
             if (refParam) {
-                // Captures strings like "BG-1000" safely 
                 referrerAccountId = refParam.trim();
                 if (referrerAccountId) {
                     document.getElementById('referrer-label').innerHTML = `Invited by User: <span style="color:var(--primary-burgundy);font-weight:700;">${referrerAccountId}</span>`;
@@ -479,7 +478,6 @@
 
                 submitBtn.innerText = "Saving Profile...";
 
-                // Fixed: Incremental logic configured to start at baseline 1000
                 let finalizedUserNumber = 1000; 
                 try {
                     const globalCounterRef = ref(db, 'admin/globalUserCounter');
@@ -495,7 +493,6 @@
                     console.error("Counter generation latency override fallback applied.", counterErr);
                 }
 
-                // Fixed: Saves accountId formatted explicitly as BG-1000, BG-1001, etc.
                 const userPayload = {
                     phoneNumber: formatGlobalPhone,
                     localPhoneRef: cleanPhone,
@@ -509,9 +506,10 @@
                     createdAt: new Date().toISOString()
                 };
 
+                // 1. Create the new user entry
                 await set(ref(db, 'users/' + cleanPhone), userPayload);
 
-                // Look up inviter via the clean "BG-XXXX" accountId text string
+                // 2. Perform database indexed query using the rule parameters
                 if (referrerAccountId) {
                     try {
                         const usersRef = ref(db, 'users');
@@ -520,6 +518,7 @@
 
                         if (querySnapshot.exists()) {
                             let inviterPhoneNode = "";
+                            
                             querySnapshot.forEach((child) => {
                                 inviterPhoneNode = child.key; 
                             });
@@ -531,6 +530,7 @@
                                 
                                 const fixedBonus = 50.00; 
 
+                                // Add 50 Birr atomically
                                 await runTransaction(inviterBalanceRef, (currentBalance) => {
                                     let parsedBalance = parseFloat(currentBalance);
                                     if (isNaN(parsedBalance)) parsedBalance = 0;
@@ -541,6 +541,7 @@
                                 const walletFormattedTime = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
                                                            now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
+                                // Log inside transaction array
                                 const newTxNode = push(inviterTxRef);
                                 await set(newTxNode, {
                                     title: `Referral Bonus (${firstNameOnly})`,
@@ -549,12 +550,15 @@
                                     timestamp: walletFormattedTime
                                 });
 
+                                // Track invite list so it instantly syncs up on task.html UI layout
                                 const historyLogNode = push(referredHistoryRef);
                                 await set(historyLogNode, {
                                     fullName: fullName,
                                     phone: cleanPhone,
                                     timestamp: walletFormattedTime
                                 });
+                                
+                                console.log("Referral transaction completed successfully.");
                             }
                         }
                     } catch (referralError) {
