@@ -24,12 +24,14 @@ jobs:
 
       - name: Create Mobile Project wrapper
         run: |
-          cordova create appcom com.birrgo.app BirrgoApp
+          cordova create appcom com.birrgo.app "Birr Go"
           cd appcom
-          cordova platform add android
           rm -rf www/*
           cp -r ../* www/ || true
           rm -rf www/appcom
+          cp ../config.xml ./config.xml
+          cp ../icon.png ./icon.png
+          cordova platform add android
 
       - name: Build Android APK File
         run: |
