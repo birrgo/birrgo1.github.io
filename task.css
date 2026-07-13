@@ -1,11 +1,10 @@
-
 :root {
     --primary-burgundy: #800020;
     --primary-gradient: linear-gradient(135deg, #9b0026 0%, #4a0000 100%);
     --accent-glow: rgba(128, 0, 32, 0.15);
     --text-dark: #0f172a;
     --text-muted: #64748b;
-    --bg-light: #f8fafc;
+    --bg-light: transparent;
     --border-light: #e2e8f0;
     --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
     --success-green: #10b981;
@@ -40,32 +39,46 @@ body {
     width: 100%;
     height: 100dvh;
     max-width: 450px;
-    background-color: #ffffff;
+    background-color: #f8fafc;
     display: flex;
     flex-direction: column;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
-.app-content {
-    flex: 1;
-    overflow-y: auto;
-    background-color: var(--bg-light);
-    padding: calc(16px + env(safe-area-inset-top)) 20px calc(95px + env(safe-area-inset-bottom)) 20px;
-    scrollbar-width: none;
+/* --- Global Background Waves --- */
+.bg-wave {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 78px;        /* Scaled down to be sleek and non-intrusive */
+    z-index: 1;
+    pointer-events: none;
+    object-fit: fill;    /* Ensures both vectors scale and compress identically */
+    opacity: 0.95;       /* Slightly softer rendering */
 }
-.app-content::-webkit-scrollbar { display: none; }
 
+.bg-wave-top {
+    top: 0;
+}
+
+.bg-wave-bottom {
+    bottom: 0;
+}
+
+/* --- Fixed Unifying Header Line --- */
 .brand-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-    padding: 4px 2px;
+    padding: calc(14px + env(safe-area-inset-top)) 24px 0 24px;
+    position: relative;
+    z-index: 10;
 }
 
-.logo-image {
-    height: 32px;
+.brand-logo {
+    height: 38px;
     width: auto;
     object-fit: contain;
 }
@@ -74,20 +87,18 @@ body {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background-color: #eaf0f6;
-    border: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: #ffffff;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .profile-btn:active {
     transform: scale(0.94);
-    background-color: #e2e8f0;
 }
 
 .profile-btn svg {
@@ -98,13 +109,28 @@ body {
     stroke-width: 2.5;
 }
 
+/* --- Content Wrapper Area --- */
+.app-content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--bg-light);
+    padding: 0 20px calc(85px + env(safe-area-inset-bottom)) 20px;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 5;
+}
+.app-content::-webkit-scrollbar { display: none; }
+
+/* --- Tasks Toggle Element Alignment --- */
 .task-view-toggle-bar {
     display: flex;
     background: #e2e8f0;
     padding: 4px;
     border-radius: var(--border-radius-md);
+    margin-top: 24px;    
     margin-bottom: 24px;
     gap: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .toggle-tab-btn {
@@ -317,7 +343,7 @@ body {
 }
 
 .counter-badge {
-    background: #f1f5f9;
+    background: #ffffff;
     color: var(--text-muted);
     font-size: 12px;
     font-weight: 700;
@@ -409,21 +435,22 @@ body {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* --- Navigation Bars --- */
 .bottom-nav-bar {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: calc(68px + env(safe-area-inset-bottom));
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    height: calc(64px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid var(--border-light);
     display: flex;
     justify-content: space-around;
     align-items: center;
     padding-bottom: env(safe-area-inset-bottom);
-    z-index: 99999999 !important;
+    z-index: 999;
 }
 
 .nav-item {
@@ -432,17 +459,17 @@ body {
     align-items: center;
     justify-content: center;
     color: #94a3b8;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    gap: 4px;
+    gap: 3px;
     flex: 1;
     height: 100%;
     cursor: pointer;
 }
 
 .nav-item svg {
-    width: 24px;
-    height: 24px;
+    width: 21px;
+    height: 21px;
     stroke: currentColor;
     fill: none;
     transition: all 0.2s ease;
@@ -454,16 +481,16 @@ body {
 
 .nav-item.active-tab .tab-icon-wrapper {
     background-color: #fdf2f4;
-    padding: 6px 16px;
+    padding: 4px 14px;
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: -2px;
+    margin-bottom: -1px;
 }
 .nav-item.active-tab svg {
     stroke: var(--primary-burgundy);
-    stroke-width: 2.4;
+    stroke-width: 2.5;
 }
 
 .immersive-overlay {
@@ -589,10 +616,12 @@ body {
     opacity: 0;
     transition: opacity 0.25s ease;
 }
+
 .custom-popup-backdrop.show-modal {
     display: flex;
     opacity: 1;
 }
+
 .custom-popup-card {
     background: #ffffff;
     width: 100%;
@@ -604,9 +633,11 @@ body {
     transform: scale(0.9);
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .custom-popup-backdrop.show-modal .custom-popup-card {
     transform: scale(1);
 }
+
 .popup-status-badge {
     width: 56px;
     height: 56px;
@@ -616,18 +647,22 @@ body {
     justify-content: center;
     margin: 0 auto 18px auto;
 }
+
 .popup-status-badge.bg-success {
     background: #ecfdf5;
     color: var(--success-green);
 }
+
 .popup-status-badge.bg-lock {
     background: #fffbeb;
     color: var(--warning-amber);
 }
+
 .popup-status-badge.bg-error {
     background: #fef2f2;
     color: #ef4444;
 }
+
 .popup-status-badge svg {
     width: 28px;
     height: 28px;
@@ -635,6 +670,7 @@ body {
     stroke: currentColor;
     stroke-width: 2.5;
 }
+
 .custom-popup-title {
     font-size: 19px;
     font-weight: 800;
@@ -642,6 +678,7 @@ body {
     margin-bottom: 10px;
     letter-spacing: -0.3px;
 }
+
 .custom-popup-msg {
     font-size: 14px;
     font-weight: 500;
@@ -649,6 +686,7 @@ body {
     line-height: 1.5;
     margin-bottom: 24px;
 }
+
 .btn-popup-confirm {
     width: 100%;
     height: 48px;
@@ -662,7 +700,7 @@ body {
     box-shadow: 0 6px 16px rgba(128, 0, 32, 0.15);
     transition: background 0.2s ease;
 }
+
 .btn-popup-confirm:active {
     transform: scale(0.98);
 }
-

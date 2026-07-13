@@ -14,29 +14,47 @@
     <div class="toast-container" id="toast">Invite Link Copied!</div>
 
     <div class="app-view">
+        
+        <!-- Premium Brand Decorative Waves -->
+        <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
+            <defs>
+                <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="200" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#9A0019"/>
+                    <stop offset="1" stop-color="#700010"/>
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
+        </svg>
+
         <div class="app-content">
-            <div class="brand-header">
-                <img class="logo-image" src="birrgo-logo.png" alt="BirrGo Mobile Wallet">
-                <button class="profile-btn" id="logoutBtn">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"></path>
-                        <circle cx="12" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round"></circle>
+            <!-- Brand Header Layout -->
+            <div class="brand-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 8px 20px; position: relative; z-index: 5;">
+                <img src="birrgo-logo.png" alt="BirrGo Logo" class="brand-logo" style="height: 45px; object-fit: contain;">
+                
+                <button class="profile-btn" id="headerProfileBtn" aria-label="Profile" style="width: 44px; height: 44px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.85); border: 2px solid #ffffff; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
+                    <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: #4b5563; stroke: none;">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"></path>
                     </svg>
                 </button>
             </div>
 
+            <!-- Segmented Sub-View Toggle Navigation Row -->
             <div class="task-view-toggle-bar">
                 <button class="toggle-tab-btn active-view-tab" id="tabBtnWatch" onclick="switchTaskPanel('watch')">Watch & Earn</button>
                 <button class="toggle-tab-btn" id="tabBtnInvite" onclick="switchTaskPanel('invite')">Invitation</button>
             </div>
 
+            <!-- Sub-Panel: Watch & Earn Stack -->
             <div id="panelWatchEarn" class="sub-view-panel panel-active">
-             
                 <div class="active-list-stack" id="video-task-container"></div>
             </div>
 
+            <!-- Sub-Panel: Invitation Interface -->
             <div id="panelInvitation" class="sub-view-panel">
-        
                 <div class="invite-card">
                     <h3 class="invite-title">Invite Friends</h3>
                     <p class="invite-desc">Share your unique link with friends. When they join BirrGo, you will receive a fixed bonus cash drop of <span class="reward-highlight">50 Birr</span> directly in your wallet balance!</p>
@@ -56,17 +74,18 @@
             </div>
         </div>
 
+        <!-- Aligned Navigation Bottom Sticky Bar Framework -->
         <nav class="bottom-nav-bar" id="bottomNavBar">
             <div id="navHome" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <svg viewBox="0 0 24 24">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
                 Home
             </div>
             <div id="navTasks" class="nav-item active-tab">
                 <div class="tab-icon-wrapper">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24">
                         <polyline points="9 11 12 14 22 4"></polyline>
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
@@ -74,13 +93,13 @@
                 Tasks
             </div>
             <div id="navLottery" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
                 Lottery
             </div>
             <div id="navWallet" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24">
                     <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
                     <line x1="2" y1="10" x2="22" y2="10"></line>
                 </svg>
@@ -89,6 +108,7 @@
         </nav>
     </div>
 
+    <!-- Immersive Media Interceptor Container -->
     <div class="immersive-overlay" id="adViewerOverlay">
         <div class="split-media-viewport">
             <div id="adContainer" class="ad-container-frame"></div>
@@ -96,15 +116,38 @@
         </div>
         
         <div class="overlay-navbar">
-            <div class="overlay-countdown-label" id="overlayCountdown">Remaining: 2:00</div>
+            <div class="overlay-countdown-label" id="overlayCountdown">Remaining: 1:00</div>
             <button class="btn-close-overlay" id="closeOverlayBtn">Claim Reward</button>
         </div>
     </div>
 
+    <!-- SYSTEM PROFILE POPUP MODAL -->
+    <div class="custom-popup-backdrop" id="profilePopup">
+        <div class="custom-popup-card" style="padding: 24px; max-width: 340px; border-radius: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
+                <h3 style="font-size: 19px; font-weight: 800; color: #111827; margin: 0;">Account Profile</h3>
+                <button id="closeProfilePopupBtn" style="background: none; border: none; font-size: 20px; color: #6b7280; cursor: pointer; font-weight: 700;">&times;</button>
+            </div>
+            
+            <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 20px; padding: 20px; width: 100%; box-sizing: border-box; text-align: left; margin-bottom: 24px;">
+                <p style="font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.5px;">Full Name</p>
+                <h4 id="modalFullName" style="font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 16px 0; word-break: break-word;">Loading...</h4>
+                
+                <p style="font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.5px;">Phone Number</p>
+                <h4 id="modalPhone" style="font-size: 16px; font-weight: 700; color: #111827; margin: 0;">Loading...</h4>
+            </div>
+
+            <button class="btn-popup-confirm" id="modalLogoutBtn" style="width: 100%; background: var(--primary-burgundy); border-radius: 100px; padding: 14px; font-weight: 700; color: white; border: none; cursor: pointer;">Logout</button>
+        </div>
+    </div>
+
+    <!-- System Modal Framework for Popups -->
     <div class="custom-popup-backdrop" id="customPopup">
         <div class="custom-popup-card">
             <div class="popup-status-badge bg-success" id="popupBadge">
-                <svg viewBox="0 0 24 24" id="popupIcon"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg viewBox="0 0 24 24" id="popupIcon">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
             </div>
             <h3 class="custom-popup-title" id="popupTitle">Notification</h3>
             <p class="custom-popup-msg" id="popupMessage">Message info goes here natively.</p>
@@ -158,7 +201,7 @@
         const db = getDatabase(app);
 
         const totalVideos = 5;
-        const watchDuration = 120; 
+        const watchDuration = 60; // Reduced down to 1 minute (60 seconds)
         const cooldownDuration = 3600000; 
 
         let activeUserPhone = "";
@@ -176,6 +219,7 @@
         const overlayCountdown = document.getElementById('overlayCountdown');
         const closeOverlayBtn = document.getElementById('closeOverlayBtn');
 
+        const profilePopup = document.getElementById('profilePopup');
         const customPopup = document.getElementById('customPopup');
         const popupBadge = document.getElementById('popupBadge');
         const popupIcon = document.getElementById('popupIcon');
@@ -247,7 +291,7 @@
             activeUserPhone = localStorage.getItem('auth_session_phone');
             if (!activeUserPhone) {
                 bypassUnloadShield = true;
-                window.location.href = "login.html";
+                window.location.href = "new2.html";
                 return;
             }
             
@@ -256,21 +300,18 @@
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
                     
+                    document.getElementById('modalFullName').innerText = userData.fullName || "Premium User";
+                    document.getElementById('modalPhone').innerText = activeUserPhone;
+
                     if (userData.accountId) {
                         activeAccountId = userData.accountId;
-                        
                         const shareBtn = document.getElementById('shareBtn');
                         shareBtn.innerText = "Share Invite Link";
                         shareBtn.disabled = false;
-                    } else {
-                        const shareBtn = document.getElementById('shareBtn');
-                        shareBtn.innerText = "Verification Required";
-                        shareBtn.disabled = true;
-                        console.warn("Secure accountId reference element property missing from current node path.");
                     }
                 }
             } catch (err) {
-                console.error("Critical structural registration reference mismatch", err);
+                console.error("Profile sync error: ", err);
             }
 
             initTasks();
@@ -280,20 +321,15 @@
         });
 
         function setupNavigationHandlers() {
-            document.getElementById('navHome').addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+            document.getElementById('navHome').addEventListener('click', () => {
                 goToPage('dashboard.html');
-            }, true);
-            
-            document.getElementById('navLottery').addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+            });
+            document.getElementById('navLottery').addEventListener('click', () => {
                 goToPage('lottery.html');
-            }, true);
-            
-            document.getElementById('navWallet').addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+            });
+            document.getElementById('navWallet').addEventListener('click', () => {
                 goToPage('wallet.html');
-            }, true);
+            });
         }
 
         function displayAppModal(type, title, message, onConfirm = null) {
@@ -319,17 +355,13 @@
             setTimeout(() => customPopup.classList.add('show-modal'), 10);
 
             const handleClosure = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-
+                customPopup.removeEventListener('click', handleClosure, true);
                 customPopup.classList.remove('show-modal');
                 setTimeout(() => {
                     customPopup.style.display = 'none';
                     if (onConfirm) onConfirm();
                     clearInjectedAds();
                 }, 300);
-                popupConfirmBtn.removeEventListener('click', handleClosure, true);
             };
             popupConfirmBtn.addEventListener('click', handleClosure, true);
         }
@@ -358,11 +390,11 @@
                 card.innerHTML = `
                     <div class="list-item-left">
                         <div class="list-icon-box">
-                            <img src="33164.png" alt="20 Birr Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7152/7152349.png'">
+                            <img src="33164.png" alt="20 Birr" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7152/7152349.png'">
                         </div>
                         <div class="list-item-info">
                             <h4>Task Video ${currentId}</h4>
-                            <p>Watch 2 minutes<br>Reward: <span class="reward-highlight">20 Birr</span></p>
+                            <p>Watch 1 minute<br>Reward: <span class="reward-highlight">20 Birr</span></p>
                         </div>
                     </div>
                     ${buttonHTML}
@@ -372,12 +404,10 @@
                 const targetBtn = document.getElementById(`btn-action-${currentId}`);
                 if (targetBtn.classList.contains('cooldown')) {
                     targetBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
                         showReminder(remainingMinutes);
                     }, true);
                 } else {
                     targetBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
                         handleTask(currentId);
                     }, true);
                 }
@@ -424,7 +454,6 @@
                 }
             } catch (error) {
                 console.error(error);
-                container.innerHTML = `<div class="empty-history-notice" style="color:#ef4444;">Failed to sync invited list history data.</div>`;
             }
         }
 
@@ -437,7 +466,6 @@
             adIframe.style.height = "100%";
             adIframe.style.border = "none";
             adIframe.style.overflow = "hidden";
-            
             adIframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
             adContainer.appendChild(adIframe);
             
@@ -463,38 +491,24 @@
         }
 
         function injectUniversalMediaFrame(targetUrl) {
-            if (!targetUrl || typeof targetUrl !== 'string' || targetUrl.trim() === "") {
-                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px 20px; text-align:center; font-weight:700; font-size:14px;">Error: Video URL not found in Database.</div>`;
+            if (!targetUrl) {
+                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px; text-align:center;">Error: Video missing.</div>`;
                 return;
             }
             
-            let structuredUrl = targetUrl.trim();
             let videoId = "";
-            
-            if (structuredUrl.includes("shorts/")) {
-                const parts = structuredUrl.split("shorts/");
-                if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
-            } else if (structuredUrl.includes("youtu.be/")) {
-                const parts = structuredUrl.split("youtu.be/");
-                if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
-            } else if (structuredUrl.includes("v=")) {
-                const parts = structuredUrl.split("v=");
-                if (parts[1]) videoId = parts[1].split(/[&#]/)[0];
-            } else if (structuredUrl.includes("embed/")) {
-                const parts = structuredUrl.split("embed/");
-                if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
-            }
+            if (targetUrl.includes("shorts/")) videoId = targetUrl.split("shorts/")[1]?.split(/[?#]/)[0];
+            else if (targetUrl.includes("youtu.be/")) videoId = targetUrl.split("youtu.be/")[1]?.split(/[?#]/)[0];
+            else if (targetUrl.includes("v=")) videoId = targetUrl.split("v=")[1]?.split(/[&#]/)[0];
+            else if (targetUrl.includes("embed/")) videoId = targetUrl.split("embed/")[1]?.split(/[?#]/)[0];
 
             if (videoId && videoId.length === 11) {
                 youtubePlayerContainer.innerHTML = `
-                    <iframe 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        allowfullscreen>
-                    </iframe>
-                `;
+                    <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+                    </iframe>`;
             } else {
-                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px 20px; text-align:center; font-weight:700; font-size:14px;">Error: Invalid YouTube link structure.</div>`;
+                youtubePlayerContainer.innerHTML = `<div style="color:white; padding:40px; text-align:center;">Error: Link structural failure.</div>`;
             }
         }
 
@@ -503,7 +517,7 @@
             const elements = document.body.children;
             for (let i = elements.length - 1; i >= 0; i--) {
                 const el = elements[i];
-                if (el.id !== 'customPopup' && el.id !== 'adViewerOverlay' && !el.classList.contains('app-view') && el.id !== 'toast' && el.tagName !== 'SCRIPT') {
+                if (el.id !== 'customPopup' && el.id !== 'profilePopup' && el.id !== 'adViewerOverlay' && !el.classList.contains('app-view') && el.id !== 'toast' && el.tagName !== 'SCRIPT') {
                     el.remove();
                 }
             }
@@ -512,17 +526,14 @@
         async function handleTask(id) {
             const card = document.getElementById(`video-card-${id}`);
             const btn = card.querySelector('.btn-task');
-            
             btn.className = "btn-task watching";
             btn.disabled = true;
 
             try {
-                const videoLinkRef = ref(db, `task/task${id}`);
-                const snapshot = await get(videoLinkRef);
+                const snapshot = await get(ref(db, `task/task${id}`));
                 const fetchedUrl = snapshot.exists() ? snapshot.val() : "";
                 
                 adActiveStatus = true;
-                
                 bottomNavBar.style.display = "none";
                 adViewerOverlay.style.display = "flex";
                 closeOverlayBtn.style.display = "none"; 
@@ -531,8 +542,8 @@
                 loadMonetagAd();
 
                 let timeLeft = watchDuration;
-                overlayCountdown.innerText = "Remaining: 2:00";
-                btn.innerText = "Watching (2:00)";
+                overlayCountdown.innerText = "Remaining: 1:00";
+                btn.innerText = "Watching (1:00)";
 
                 currentAdReloadInterval = setInterval(() => {
                     if (timeLeft > 0 && adActiveStatus) {
@@ -545,24 +556,17 @@
                     timeLeft--;
                     const minutes = Math.floor(timeLeft / 60);
                     const seconds = timeLeft % 60;
-                    const standardTimeFormatted = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    const formatted = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                     
-                    btn.innerText = `Watching (${standardTimeFormatted})`;
-                    overlayCountdown.innerText = `Remaining: ${standardTimeFormatted}`;
+                    btn.innerText = `Watching (${formatted})`;
+                    overlayCountdown.innerText = `Remaining: ${formatted}`;
 
                     if (timeLeft <= 0) {
                         terminateAllAdRuntimes();
                         
                         try {
-                            const balanceRef = ref(db, `users/${activeUserPhone}/walletBalance`);
-                            await runTransaction(balanceRef, (currentBalance) => {
-                                let parsedBalance = parseFloat(currentBalance);
-                                if (isNaN(parsedBalance)) parsedBalance = 0;
-                                return parsedBalance + 20;
-                            });
-
-                            const txHistoryRef = ref(db, `users/${activeUserPhone}/transactions`);
-                            const newTxNode = push(txHistoryRef);
+                            await runTransaction(ref(db, `users/${activeUserPhone}/walletBalance`), (curr) => (parseFloat(curr) || 0) + 20);
+                            const newTxNode = push(ref(db, `users/${activeUserPhone}/transactions`));
                             await set(newTxNode, {
                                 title: `Watch Task Video #${id}`,
                                 amount: 20.00,
@@ -571,116 +575,86 @@
                             });
 
                             localStorage.setItem(`video_cooldown_${id}`, Date.now());
-                            
                             overlayCountdown.innerText = "Finished! +20 Birr";
                             closeOverlayBtn.style.display = "block"; 
                             
-                            displayAppModal(
-                                'success', 
-                                'Task Completed', 
-                                'Your money is added to wallet.',
-                                () => {
-                                    terminateAllAdRuntimes(); 
-                                    adViewerOverlay.style.display = "none";
-                                    bottomNavBar.style.display = "flex";
-                                    window.addEventListener('click', globalClickInterceptor, true); 
-                                    initTasks();
-                                }
-                            );
+                            displayAppModal('success', 'Task Completed', 'Your money is added to wallet.', () => {
+                                terminateAllAdRuntimes(); 
+                                adViewerOverlay.style.display = "none";
+                                bottomNavBar.style.display = "flex";
+                                window.addEventListener('click', globalClickInterceptor, true); 
+                                initTasks();
+                            });
                         } catch (error) {
-                            console.error(error);
                             displayAppModal('error', 'Sync Failed', 'Network validation error.');
-                            overlayCountdown.innerText = "Sync Failed.";
-                            closeOverlayBtn.style.display = "block";
                         }
                     }
                 }, 1000);
-
             } catch (err) {
-                console.error(err);
                 btn.className = "btn-task";
                 btn.disabled = false;
                 btn.innerText = "Watch";
-                displayAppModal('error', 'Error', 'Failed to retrieve media stream links.');
             }
         }
 
         function setupOverlayEvents() {
-            closeOverlayBtn.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+            closeOverlayBtn.addEventListener('click', () => {
                 terminateAllAdRuntimes();
                 adViewerOverlay.style.display = "none";
                 bottomNavBar.style.display = "flex";
                 window.addEventListener('click', globalClickInterceptor, true);
                 initTasks();
-            }, true);
+            });
         }
 
         function setupProfileEvents() {
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
-                displayAppModal(
-                    'lock', 
-                    'Sign Out', 
-                    'Are you sure you want to end your session?', 
-                    () => {
-                        localStorage.removeItem('auth_session_phone');
-                        bypassUnloadShield = true;
-                        window.location.href = "login.html";
-                    }
-                );
-            }, true);
+            const openBtn = document.getElementById('headerProfileBtn');
+            const closeBtn = document.getElementById('closeProfilePopupBtn');
+            const logoutBtn = document.getElementById('modalLogoutBtn');
+
+            openBtn.addEventListener('click', () => {
+                profilePopup.style.display = 'flex';
+                setTimeout(() => profilePopup.classList.add('show-modal'), 10);
+            });
+
+            closeBtn.addEventListener('click', () => {
+                profilePopup.classList.remove('show-modal');
+                setTimeout(() => { profilePopup.style.display = 'none'; }, 300);
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                profilePopup.classList.remove('show-modal');
+                profilePopup.style.display = 'none';
+                
+                displayAppModal('lock', 'Logout', 'Are you sure you want to end your session?', () => {
+                    localStorage.removeItem('auth_session_phone');
+                    bypassUnloadShield = true;
+                    window.location.href = "new2.html";
+                });
+            });
         }
 
         function showReminder(minutes) {
-            displayAppModal(
-                'lock', 
-                'Task Locked', 
-                `This video row is locked. Please come back after ${minutes} minutes!`
-            );
+            displayAppModal('lock', 'Task Locked', `This video row is locked. Please come back after ${minutes} minutes!`);
         }
 
         function secureCopy(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                return navigator.clipboard.writeText(text);
-            } else {
-                return new Promise((resolve, reject) => {
-                    const tempInput = document.createElement('textarea');
-                    tempInput.value = text;
-                    tempInput.style.position = 'fixed'; 
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    try {
-                        const success = document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-                        if (success) resolve(); else reject();
-                    } catch (err) {
-                        document.body.removeChild(tempInput);
-                        reject(err);
-                    }
-                });
-            }
+            if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+            const temp = document.createElement('textarea');
+            temp.value = text; temp.style.position = 'fixed'; document.body.appendChild(temp); temp.select();
+            const res = document.execCommand('copy'); document.body.removeChild(temp);
+            return res ? Promise.resolve() : Promise.reject();
         }
 
-        document.getElementById('shareBtn').addEventListener('click', (e) => {
-            e.stopPropagation(); e.preventDefault(); e.stopImmediatePropagation();
-            
-            if (!activeAccountId) {
-                displayAppModal('error', 'Error', 'Secure identity authentication signature invalid.');
-                return;
-            }
-
-            const clearPathUrl = window.location.href.split('?')[0];
-            const registrationLink = clearPathUrl.replace('task.html', 'register.html') + "?ref=" + activeAccountId;
-            
-            secureCopy(registrationLink).then(() => {
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            if (!activeAccountId) return;
+            const link = window.location.href.split('?')[0].replace('task.html', 'register.html') + "?ref=" + activeAccountId;
+            secureCopy(link).then(() => {
                 const toast = document.getElementById('toast');
                 toast.style.display = 'block';
                 setTimeout(() => { toast.style.display = 'none'; }, 2000);
-            }).catch(err => {
-                console.error("Link capture initialization error: ", err);
             });
-        }, true);
+        });
     </script>
 </body>
 </html>

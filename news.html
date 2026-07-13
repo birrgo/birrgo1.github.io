@@ -169,6 +169,22 @@
             background: var(--primary-gradient);
         }
 
+        .featured-broadcast-card.native-ad-card {
+            padding: 18px 22px !important;
+            min-height: 110px !important;
+            margin-bottom: 16px;
+        }
+        .featured-broadcast-card.native-ad-card::before {
+            background: linear-gradient(135deg, #eab308 0%, #eab308 100%);
+        }
+
+        .ad-script-wrapper {
+            width: 100%;
+            min-height: 50px;
+            display: block;
+            position: relative;
+        }
+
         .badge-meta-row {
             display: flex;
             align-items: center;
@@ -190,6 +206,11 @@
         .spotlight-pill.system-badge {
             background: rgba(30, 41, 59, 0.08);
             color: #1e293b;
+        }
+
+        .spotlight-pill.inline-ad-badge {
+            background: #fef08a;
+            color: #854d0e;
         }
 
         .timestamp-log-text {
@@ -237,7 +258,7 @@
             border-radius: var(--border-radius-lg);
             padding: 20px;
             box-shadow: var(--card-shadow);
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .promo-header-group {
@@ -308,7 +329,6 @@
             cursor: not-allowed;
         }
 
-        /* PREMIUM CUSTOM MODAL POPUP SYSTEM STYLE */
         .custom-popup-overlay {
             display: none;
             position: absolute;
@@ -350,7 +370,6 @@
             display: inline-block;
         }
 
-        /* Large Bold Green Amount Styling */
         .popup-success-amount {
             font-size: 36px;
             font-weight: 800;
@@ -413,11 +432,9 @@
 <body>
 
     <div class="app-view">
-        <!-- CUSTOM MODAL COMPONENT CONTAINER -->
         <div class="custom-popup-overlay" id="customPopupModule">
             <div class="custom-popup-modal">
                 <span class="popup-status-icon" id="popupIconNode">🎁</span>
-                <!-- Added a dynamic element holder for green amount strings -->
                 <span id="popupAmountNode" style="display: none;"></span>
                 <h3 class="popup-main-title" id="popupTitleNode">Status Alert</h3>
                 <p class="popup-body-desc" id="popupDescNode">Notification update context.</p>
@@ -440,6 +457,7 @@
                 <span class="filter-pill" data-category="Promo Rewards">Promo Rewards</span>
             </div>
 
+            <!-- PROMO REDEEM CARD -->
             <section class="promo-redeem-card" id="promoRedeemSection">
                 <div class="promo-header-group">
                     <span class="promo-gift-badge">🎁</span>
@@ -454,6 +472,16 @@
                 </div>
             </section>
 
+            <!-- PROMO TAB STATIC AD CARD -->
+            <article class="featured-broadcast-card native-ad-card" id="promoTabAdCard" style="display: none;">
+                <div class="badge-meta-row" style="margin-bottom: 8px;">
+                    <span class="spotlight-pill inline-ad-badge">AD</span>
+                    <span class="timestamp-log-text">Advertisement</span>
+                </div>
+                <div class="ad-script-wrapper" id="promoAdSlotWrapper"></div>
+            </article>
+
+            <!-- DYNAMIC BROADCASTS CONTAINER -->
             <div class="broadcasts-container" id="broadcastsContainer">
                 <div class="featured-broadcast-card">
                     <h2 class="broadcast-title" style="font-size:16px; text-align:center;">Connecting to Server Node...</h2>
@@ -491,7 +519,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const activeUserPhoneSession = localStorage.getItem('auth_session_phone');
             if (!activeUserPhoneSession) {
-                window.location.href = "login.html";
+                window.location.href = "new2.html";
                 return;
             }
             activeUserPhone = activeUserPhoneSession;
@@ -500,9 +528,7 @@
             bindVisualInterfaceControls();
             
             const claimBtn = document.getElementById('claimPromoBtn');
-            if (claimBtn) {
-                claimBtn.addEventListener('click', processPromoClaim);
-            }
+            if (claimBtn) claimBtn.addEventListener('click', processPromoClaim);
 
             const closeBtn = document.getElementById('closePopupBtn');
             if (closeBtn) {
@@ -513,18 +539,15 @@
         });
 
         function streamLiveAdminUpdatesLog() {
-            const adminNewsRef = ref(db, `adminNews`);
-            
+            // Updated node reference path from 'adminNews' to 'newNews'
+            const adminNewsRef = ref(db, `newNews`);
             onValue(adminNewsRef, (snapshot) => {
                 localCachedBroadcasts = [];
-
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    
                     Object.keys(data).forEach(key => {
                         localCachedBroadcasts.push({ id: key, ...data[key] });
                     });
-
                     localCachedBroadcasts.sort((a, b) => (b.createdAtTimestamp || 0) - (a.createdAtTimestamp || 0));
                     renderFilteredBroadcasts();
                 } else {
@@ -558,6 +581,28 @@
             }
         }
 
+        // Helper function to safely load standard scripts dynamically without iframe blocks
+        function triggerNativeAdExecution(containerId) {
+            const target = document.getElementById(containerId);
+            if (!target) return;
+
+            // Clear the placeholder container completely
+            target.innerHTML = '';
+
+            // 1. Create the container div required by your script zone
+            const zoneContainer = document.createElement('div');
+            zoneContainer.id = "container-f87729ca03d3b44c8a05cc9336ce92bf";
+            target.appendChild(zoneContainer);
+
+            // 2. Build the script element manually so the browser treats it as main thread layout
+            const adScript = document.createElement('script');
+            adScript.async = true;
+            adScript.setAttribute('data-cfasync', 'false');
+            adScript.src = "https://pl30332226.effectivecpmnetwork.com/f87729ca03d3b44c8a05cc9336ce92bf/invoke.js";
+            
+            target.appendChild(adScript);
+        }
+
         function renderFilteredBroadcasts() {
             const container = document.getElementById('broadcastsContainer');
             if (!container) return;
@@ -565,12 +610,18 @@
             container.innerHTML = "";
 
             const promoBox = document.getElementById('promoRedeemSection');
-            if (promoBox) {
-                if (currentActiveCategoryFilter === "Promo Rewards") {
-                    promoBox.style.display = "block";
-                } else {
-                    promoBox.style.display = "none";
+            const promoAd = document.getElementById('promoTabAdCard');
+
+            // Tab View Rule 1: Handle Promo Rewards Module
+            if (currentActiveCategoryFilter === "Promo Rewards") {
+                if (promoBox) promoBox.style.display = "block";
+                if (promoAd) {
+                    promoAd.style.display = "block";
+                    triggerNativeAdExecution('promoAdSlotWrapper');
                 }
+            } else {
+                if (promoBox) promoBox.style.display = "none";
+                if (promoAd) promoAd.style.display = "none";
             }
 
             const filtered = localCachedBroadcasts.filter(item => {
@@ -582,11 +633,12 @@
             });
 
             if (filtered.length === 0) {
-                renderEmptyState();
+                if (currentActiveCategoryFilter !== "Promo Rewards") renderEmptyState();
                 return;
             }
 
-            filtered.forEach(item => {
+            // Tab View Rule 2 & 3: Render data loops for All Updates and System Releases
+            filtered.forEach((item, index) => {
                 const headline = item.title || "Platform Announcement";
                 const content = item.content || item.message || "";
                 const category = item.category || "All Updates";
@@ -601,11 +653,7 @@
                 
                 let imageHTML = "";
                 if (imageUrl && imageUrl.trim().length > 0) {
-                    imageHTML = `
-                        <div class="broadcast-image-frame">
-                            <img src="${imageUrl}" alt="Broadcast Media">
-                        </div>
-                    `;
+                    imageHTML = `<div class="broadcast-image-frame"><img src="${imageUrl}"></div>`;
                 }
 
                 card.innerHTML = `
@@ -618,6 +666,28 @@
                     <p class="broadcast-body-text">${content}</p>
                 `;
                 container.appendChild(card);
+
+                // Dynamically inject unique script nodes under each native content banner card
+                if (currentActiveCategoryFilter === "All Updates" || currentActiveCategoryFilter === "System Releases") {
+                    const adCard = document.createElement('article');
+                    adCard.className = "featured-broadcast-card native-ad-card";
+                    
+                    const dynamicAdSlotId = `live-inline-zone-${index}-${Date.now()}`;
+                    
+                    adCard.innerHTML = `
+                        <div class="badge-meta-row" style="margin-bottom: 8px;">
+                            <span class="spotlight-pill inline-ad-badge">AD</span>
+                            <span class="timestamp-log-text">Advertisement</span>
+                        </div>
+                        <div class="ad-script-wrapper" id="${dynamicAdSlotId}"></div>
+                    `;
+                    container.appendChild(adCard);
+
+                    // Tiny timeout guarantees the DOM element exists before appending script threads
+                    setTimeout(() => {
+                        triggerNativeAdExecution(dynamicAdSlotId);
+                    }, 20);
+                }
             });
         }
 
@@ -627,7 +697,6 @@
                 pill.addEventListener('click', function() {
                     pills.forEach(p => p.classList.remove('active-pill'));
                     this.classList.add('active-pill');
-                    
                     currentActiveCategoryFilter = this.getAttribute('data-category') || this.innerText.trim();
                     renderFilteredBroadcasts();
                 });
@@ -637,11 +706,9 @@
         async function processPromoClaim() {
             const inputField = document.getElementById('promoCodeInput');
             const claimBtn = document.getElementById('claimPromoBtn');
-            
             if (!inputField || !claimBtn) return;
 
             const enteredCode = inputField.value.trim().toUpperCase();
-
             if (!enteredCode) {
                 triggerUiPopup("⚠️", "Input Empty", "Please enter a valid code voucher string to process.");
                 return;
@@ -660,14 +727,11 @@
                 }
 
                 const campaignData = campaignSnap.val();
-
-                // 1. WRONG CODE MODAL POPUP TRIGGER
                 if (enteredCode !== String(campaignData.code).trim().toUpperCase()) {
                     triggerUiPopup("❌", "Wrong Promo Code", "The code you entered is invalid. Please try again with a correct code.");
                     return;
                 }
 
-                // 2. EXPIRED / EXHAUSTED MODAL POPUP TRIGGER
                 const currentCount = parseInt(campaignData.currentClaimCount) || 0;
                 const maxClaims = parseInt(campaignData.maxClaims) || 0;
                 if (currentCount >= maxClaims) {
@@ -675,7 +739,6 @@
                     return;
                 }
 
-                // 3. ALREADY CLAIMED MODAL POPUP TRIGGER
                 const userHistoryRef = ref(db, `users/${activeUserPhone}/claimedPromos/${enteredCode}`);
                 const historySnap = await get(userHistoryRef);
                 if (historySnap.exists()) {
@@ -683,7 +746,6 @@
                     return;
                 }
 
-                // Transaction limit verification step
                 const counterRef = ref(db, 'globalPromoCampaign/currentClaimCount');
                 const transactionResult = await runTransaction(counterRef, (currentValue) => {
                     let val = parseInt(currentValue);
@@ -697,10 +759,8 @@
                     return;
                 }
 
-                // 4. CONGRATULATIONS AND BALANCES ALLOCATED TO WALLET
                 const balanceRef = ref(db, `users/${activeUserPhone}/walletBalance`);
                 const currentBalanceSnap = await get(balanceRef);
-                
                 let reward = parseFloat(campaignData.rewardAmount) || 0;
                 let currentBalance = 0;
                 
@@ -708,21 +768,11 @@
                     currentBalance = parseFloat(currentBalanceSnap.val()) || 0;
                 }
                 
-                let newCalculatedBalance = currentBalance + reward;
-                
-                // Write balanced calculation data
-                await set(balanceRef, newCalculatedBalance);
-                
-                // Save required claimedAt and amountClaimed under claimedPromos node
-                await set(userHistoryRef, { 
-                    claimedAt: Date.now(),
-                    amountClaimed: reward 
-                });
+                await set(balanceRef, currentBalance + reward);
+                await set(userHistoryRef, { claimedAt: Date.now(), amountClaimed: reward });
 
-                // SUCCESS - TRIGGER GREEN AMOUNT POPUP & REMOVE REWARD ICON
                 triggerUiPopup("", "Voucher Redeemed!", "Successfully updated onto your wallet balance.", `+${reward} Birr`);
                 inputField.value = "";
-
             } catch (error) {
                 console.error("Voucher operation pipeline fail:", error);
                 triggerUiPopup("❌", "Network Error", "Secure server connection failure. Please try again.");
@@ -740,19 +790,16 @@
             const descNode = document.getElementById('popupDescNode');
             
             if (overlay && iconNode && titleNode && descNode && amountNode) {
-                // If a green amount is provided, hide the icon and display green amount
                 if (greenAmount) {
                     iconNode.style.display = "none";
                     amountNode.innerText = greenAmount;
                     amountNode.className = "popup-success-amount";
                     amountNode.style.display = "block";
                 } else {
-                    // Fallback to normal icon behaviour for warnings/errors
                     iconNode.innerText = icon;
                     iconNode.style.display = "inline-block";
                     amountNode.style.display = "none";
                 }
-
                 titleNode.innerText = title;
                 descNode.innerText = desc;
                 overlay.classList.add('show-popup');
