@@ -327,7 +327,6 @@
         </div>
 
         <div class="welcome-content">
-            <!-- Optimized semantic title tag for SEO -->
             <h1>Welcome to <span>BirrGo!</span></h1>
         </div>
 
@@ -424,6 +423,9 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Track state history for offline recovery
+            localStorage.setItem('birrgo_last_page', window.location.pathname.split('/').pop() || 'index.html');
+
             const urlParams = new URLSearchParams(window.location.search);
             const refParam = urlParams.get('ref');
 
@@ -434,6 +436,15 @@
                 }
             }
         });
+
+        // Safe Service Worker connection pointing to of.js
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./of.js')
+                    .then(reg => console.log('BirrGo Service Worker connected successfully!', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
