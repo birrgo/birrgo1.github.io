@@ -55,10 +55,12 @@
             z-index: 0;
             pointer-events: none;
         }
+        
+        /* SCALED DOWN TOP WAVE SIZE */
         .bg-wave-top {
             top: 0;
-            height: 12vh;
-            min-height: 80px;
+            height: 11vh;
+            min-height: 85px;
         }
         .bg-wave-bottom {
             bottom: 0;
@@ -73,10 +75,81 @@
             max-width: 450px; 
             display: flex;
             flex-direction: column;
-            justify-content: center; 
-            padding: calc(14vh + env(safe-area-inset-top)) 20px calc(12vh + env(safe-area-inset-bottom)) 20px;
+            justify-content: space-between;
+            padding: calc(1vh + env(safe-area-inset-top)) 20px calc(12vh + env(safe-area-inset-bottom)) 20px;
             position: relative;
             z-index: 1;
+        }
+
+        /* Top Header Area inside Dark Red Wave */
+        .header-top-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 2vh;
+        }
+
+        /* Premium Top Download Banner (Transparent on Red Wave) */
+        .download-banner {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .download-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .apk-icon-box {
+            width: 32px;
+            height: 32px;
+            background: #ffffff;
+            color: var(--primary-burgundy);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .download-text-main {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .download-text-sub {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 1px;
+        }
+
+        .download-action-btn {
+            background: #ffffff;
+            color: var(--primary-burgundy);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        .download-action-btn:active {
+            transform: scale(0.95);
         }
 
         /* Brand & Logo */
@@ -84,13 +157,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 2vh;
+            margin-top: 1vh;
         }
 
         .logo-image {
-            width: 160px; 
+            width: 150px; 
             height: auto;
             object-fit: contain;
+        }
+
+        /* Middle Content Grid Wrapper */
+        .main-body-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
         }
 
         /* Welcome Text */
@@ -109,14 +190,6 @@
 
         .welcome-content h1 span {
             color: var(--primary-burgundy);
-        }
-
-        .welcome-content p {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            font-weight: 400; 
-            padding: 0 10px;
         }
 
         /* Feature Cards */
@@ -293,21 +366,134 @@
             margin: 0 2px;
         }
 
+        /* Installation Guide Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: scale(0.9);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: #e8f0fe;
+            color: #1976d2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .step-list {
+            text-align: left;
+            background: var(--bg-light);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .step-item {
+            font-size: 12px;
+            color: var(--text-dark);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .step-item:last-child { margin-bottom: 0; }
+
+        .step-num {
+            background: var(--primary-burgundy);
+            color: #ffffff;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .modal-close-btn {
+            background: var(--text-dark);
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         /* Small screen adjustments */
         @media (max-height: 650px) {
-            .app-view { padding-top: 100px; padding-bottom: 80px; }
-            .logo-image { width: 130px; } 
+            .bg-wave-top { height: 12vh; min-height: 80px; }
+            .logo-image { width: 120px; } 
             .welcome-content h1 { font-size: 20px; margin-bottom: 4px; }
             .feature-card { padding: 12px 6px 10px; }
             .icon-circle { width: 32px; height: 32px; margin-bottom: 8px; }
             .btn { height: 50px; }
+            .download-banner { padding: 8px 12px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Dark Red Top Wave Background -->
     <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
+        <path d="M0 0H375V110C375 110 280 230 0 150V0Z" fill="url(#paint0_linear)"/>
         <defs>
             <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="200" gradientUnits="userSpaceOnUse">
                 <stop stop-color="#9A0019"/>
@@ -316,64 +502,90 @@
         </defs>
     </svg>
 
+    <!-- Dark Red Bottom Wave Background -->
     <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
     </svg>
 
     <div class="app-view">
         
-        <div class="brand-section">
-            <img class="logo-image" src="birrgo-logo.png" alt="BirrGo Mobile Wallet Logo">
-        </div>
-
-        <div class="welcome-content">
-            <h1>Welcome to <span>BirrGo!</span></h1>
-        </div>
-
-        <div class="features-container">
-            <div class="feature-card">
-                <div class="icon-circle card-1-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
+        <!-- Header Group Section -->
+        <div class="header-top-area">
+            <!-- Premium White Text Download Banner -->
+            <div class="download-banner" id="apkDownloadBanner">
+                <div class="download-info">
+                    <div class="apk-icon-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="download-text-main">Get the BirrGo App</div>
+                        <div class="download-text-sub">Fast, secure Android APK</div>
+                    </div>
                 </div>
-                <div class="feature-title">Send & Receive</div>
-                <div class="feature-desc">Send and receive money instantly, anytime.</div>
-                <div class="indicator-dash dash-1"></div>
+                <button id="dlBtnAction" class="download-action-btn">Download</button>
             </div>
 
-            <div class="feature-card">
-                <div class="icon-circle card-2-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <rect x="9" y="11" width="6" height="6" rx="1"></rect>
-                        <path d="M12 11V9a2 2 0 1 1 4 0"></path>
-                    </svg>
-                </div>
-                <div class="feature-title">Secure & Safe</div>
-                <div class="feature-desc">Bank-level security to protect your money.</div>
-                <div class="indicator-dash dash-2"></div>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon-circle card-3-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 2 7 22 7 12 2"></polygon>
-                        <polyline points="2 17 22 17"></polyline>
-                        <polyline points="2 22 22 22"></polyline>
-                        <line x1="6" y1="17" x2="6" y2="7"></line>
-                        <line x1="10" y1="17" x2="10" y2="7"></line>
-                        <line x1="14" y1="17" x2="14" y2="7"></line>
-                        <line x1="18" y1="17" x2="18" y2="7"></line>
-                    </svg>
-                </div>
-                <div class="feature-title">Save & Grow</div>
-                <div class="feature-desc">Save your money and grow your future.</div>
-                <div class="indicator-dash dash-3"></div>
+            <div class="brand-section">
+                <img class="logo-image" src="birrgo-logo.png" alt="BirrGo Mobile Wallet Logo">
             </div>
         </div>
 
+        <!-- Middle UI Grid Layout Wrapper -->
+        <div class="main-body-content">
+            <div class="welcome-content">
+                <h1>Welcome to <span>BirrGo!</span></h1>
+            </div>
+
+            <div class="features-container">
+                <div class="feature-card">
+                    <div class="icon-circle card-1-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="feature-title">Send & Receive</div>
+                    <div class="feature-desc">Send and receive money instantly, anytime.</div>
+                    <div class="indicator-dash dash-1"></div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon-circle card-2-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <rect x="9" y="11" width="6" height="6" rx="1"></rect>
+                            <path d="M12 11V9a2 2 0 1 1 4 0"></path>
+                        </svg>
+                    </div>
+                    <div class="feature-title">Secure & Safe</div>
+                    <div class="feature-desc">Bank-level security to protect your money.</div>
+                    <div class="indicator-dash dash-2"></div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon-circle card-3-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 22 7 12 2"></polygon>
+                            <polyline points="2 17 22 17"></polyline>
+                            <polyline points="2 22 22 22"></polyline>
+                            <line x1="6" y1="17" x2="6" y2="7"></line>
+                            <line x1="10" y1="17" x2="10" y2="7"></line>
+                            <line x1="14" y1="17" x2="14" y2="7"></line>
+                            <line x1="18" y1="17" x2="18" y2="7"></line>
+                        </svg>
+                    </div>
+                    <div class="feature-title">Save & Grow</div>
+                    <div class="feature-desc">Save your money and grow your future.</div>
+                    <div class="indicator-dash dash-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Control Buttons Footer Area -->
         <div class="action-area">
             <a href="register.html" id="createAccountBtn" class="btn btn-primary">
                 <div class="btn-left">
@@ -421,9 +633,40 @@
 
     </div>
 
+    <!-- Smart Installation Guide Popup Overlay -->
+    <div class="modal-overlay" id="installGuideModal">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+            </div>
+            <div class="modal-title">Install BirrGo Wallet</div>
+            <div class="modal-desc">Your download has started! Follow these final steps to install the app on your phone:</div>
+            
+            <div class="step-list">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <span>Check your notification bar or browser downloads.</span>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <!-- Updated text reference from app-debug.apk to BirrGo.apk -->
+                    <span>Tap on the downloaded <b>BirrGo.apk</b> file.</span>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <span>Click <b>Install</b> (Allow from this source if asked).</span>
+                </div>
+            </div>
+            
+            <button class="modal-close-btn" id="closeModalBtn">Got it</button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // Track state history for offline recovery
             localStorage.setItem('birrgo_last_page', window.location.pathname.split('/').pop() || 'index.html');
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -435,10 +678,32 @@
                     createBtn.href = `register.html?ref=${encodeURIComponent(refParam.trim())}`;
                 }
             }
+
+            const dlBtn = document.getElementById('dlBtnAction');
+            const modal = document.getElementById('installGuideModal');
+            const closeBtn = document.getElementById('closeModalBtn');
+
+            if (dlBtn && modal && closeBtn) {
+                dlBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Native foreground window location trigger
+                    // This forces the hosted browser to show the download popup and file progress visibly
+                    window.location.href = "https://github.com/birrgo/birrgo1.github.io/releases/latest/download/BirrGo.apk";
+
+                    // Trigger the guide overlay right after interaction
+                    setTimeout(() => {
+                        modal.classList.add('active');
+                    }, 400);
+                });
+
+                closeBtn.addEventListener('click', () => {
+                    modal.classList.remove('active');
+                });
+            }
         });
 
-        // Safe Service Worker connection pointing to of.js
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./of.js')
                     .then(reg => console.log('BirrGo Service Worker connected successfully!', reg.scope))
