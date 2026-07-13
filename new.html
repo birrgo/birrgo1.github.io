@@ -26,7 +26,6 @@
         </div>
     </div>
 
-    <!-- DYNAMIC USER PROFILE PROFILE MANAGEMENT MODAL -->
     <div class="role-modal-overlay" id="modal-profile">
         <div class="workspace-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-profile')">✕</button>
@@ -214,6 +213,37 @@
         </div>
     </div>
 
+    <div class="role-modal-overlay" id="modal-social">
+        <div class="workspace-card">
+            <button class="btn-close-modal" onclick="closeRoleModal('modal-social')">✕</button>
+            <h3 class="section-title title-burgundy">Social Links Manager</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:-10px;">Deploy deep links to the mobile application view instantly. Updating these automatically resets the user validation logic.</p>
+            <div class="task-input-group" style="display:flex; flex-direction:column; gap:12px;">
+                <div class="input-field-wrapper">
+                    <label>Telegram Deep Link</label>
+                    <input type="text" id="socialLinkTg" class="admin-input" placeholder="tg://resolve?domain=username">
+                </div>
+                <div class="input-field-wrapper">
+                    <label>Facebook Deep Link</label>
+                    <input type="text" id="socialLinkFb" class="admin-input" placeholder="fb://facewebmodal/f?href=...">
+                </div>
+                <div class="input-field-wrapper">
+                    <label>Instagram Deep Link</label>
+                    <input type="text" id="socialLinkIg" class="admin-input" placeholder="instagram://user?username=...">
+                </div>
+                <div class="input-field-wrapper">
+                    <label>TikTok Deep Link</label>
+                    <input type="text" id="socialLinkTt" class="admin-input" placeholder="snssdk1128://user/profile/...">
+                </div>
+                <div class="input-field-wrapper">
+                    <label>YouTube Deep Link</label>
+                    <input type="text" id="socialLinkYt" class="admin-input" placeholder="vnd.youtube://...">
+                </div>
+            </div>
+            <button class="btn-admin-action btn-broadcast" id="updateSocialLinksBtn" style="margin-top:15px; width:100%;">Push & Reset Social Tasks</button>
+        </div>
+    </div>
+
     <div class="role-modal-overlay" id="modal-secure">
         <div class="workspace-card">
             <button class="btn-close-modal" onclick="closeRoleModal('modal-secure')">✕</button>
@@ -269,6 +299,9 @@
             <button class="role-nav-btn btn-role-tasks" onclick="openRoleModal('modal-tasks')">
                 <span class="icon">🔗</span> Enter Tasks
             </button>
+            <button class="role-nav-btn btn-role-news" onclick="openRoleModal('modal-social')" style="background: linear-gradient(135deg, #4b0082 0%, #1a0033 100%); color: white;">
+                <span class="icon">📱</span> Social Links
+            </button>
             <button class="role-nav-btn btn-role-news" onclick="openRoleModal('modal-news')">
                 <span class="icon">📢</span> Broadcast & Promos
             </button>
@@ -298,6 +331,7 @@
         import { getDatabase, ref, get, onValue, runTransaction, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+        // REDIRECT TARGET MATCHES THE SPECIFIED PARENT DOMAIN
         if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
             window.location.href = "new1.html";
         }
@@ -359,7 +393,7 @@
         function triggerAdminAlert(msg, isSuccess = true) {
             const toast = document.getElementById('adminToast');
             toast.innerText = msg;
-            toast.style.background = isSuccess ? 'var(--success-gradient)' : 'var(--danger-gradient)';
+            toast.style.background = isSuccess ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 3500);
         }
@@ -454,6 +488,18 @@
             }
         }).catch(() => {});
 
+        // POOLS AND INITIALIZES ACTIVE SYSTEM DEEP LINKS MAPPINGS
+        get(ref(db, 'new/social_links')).then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                if (data.tg) document.getElementById('socialLinkTg').value = data.tg;
+                if (data.fb) document.getElementById('socialLinkFb').value = data.fb;
+                if (data.ig) document.getElementById('socialLinkIg').value = data.ig;
+                if (data.tt) document.getElementById('socialLinkTt').value = data.tt;
+                if (data.yt) document.getElementById('socialLinkYt').value = data.yt;
+            }
+        }).catch(() => {});
+
         async function lookupUserProfileByCardOrPhone(inputString) {
             if (!localUserDirectoryCache) return null;
             const cleanedInput = inputString.replace(/\s/g, '');
@@ -533,7 +579,6 @@
             }
         }
 
-        // FULL USER PROFILE MANAGEMENT CORE ENGINE
         let activeManagedUserPhone = null;
         let activeManagedUserProfile = null;
 
@@ -643,8 +688,6 @@
             }
         });
 
-
-        // PREVIEW, DELETION & CATEGORY PURGE ENGINE
         const categorySelector = document.getElementById('postCategory');
         const broadcastFormFields = document.getElementById('broadcastFormFields');
         const promoRewardsFields = document.getElementById('promoRewardsFields');
@@ -663,7 +706,6 @@
         let globalPromoState = null;
 
         function setupNewsAndPromoSync() {
-            // CHANGED REFERENCE: 'adminNews' changed to 'newNews'
             onValue(ref(db, 'newNews'), (snapshot) => {
                 globalNewsState = snapshot.val();
                 renderCombinedManagementTable();
@@ -740,13 +782,11 @@
                 return;
             }
 
-            // RE-BIND DELETE HANDLERS
             liveNewsRecordsBody.querySelectorAll('.delete-news-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const type = btn.getAttribute('data-type');
                     const key = btn.getAttribute('data-key');
 
-                    // CHANGED REFERENCE: 'adminNews/${key}' changed to 'newNews/${key}'
                     const confirmed = await openCustomModal(
                         "Confirm Action Deletion",
                         "Are you certain you want to remove this record parameter cluster?",
@@ -759,7 +799,6 @@
 
                     try {
                         if (type === 'news') {
-                            // CHANGED REFERENCE: 'adminNews/${key}' changed to 'newNews/${key}'
                             await remove(ref(db, `newNews/${key}`));
                         } else {
                             await remove(ref(db, 'globalPromoCampaign'));
@@ -772,13 +811,11 @@
             });
         }
 
-        // PURGE ALL CATEGORIES HANDLER
         document.getElementById('deleteAllCategoriesBtn').addEventListener('click', async () => {
             const confirmed = await openCustomModal(
                 "CRITICAL: Wipe All Categories",
                 "This action clears all active Feeds, System Patches, and Promotional Engine parameters across the database layout.",
                 [
-                    // CHANGED REFERENCE DISPLAY
                     { label: "Target Nodes:", value: "newNews & globalPromoCampaign" },
                     { label: "Operational Risk:", value: "PERMANENT DATA LOSS" }
                 ],
@@ -789,7 +826,6 @@
             if (!confirmed) return;
 
             try {
-                // CHANGED REFERENCE: 'adminNews' changed to 'newNews'
                 await remove(ref(db, 'newNews'));
                 await remove(ref(db, 'globalPromoCampaign'));
                 triggerAdminAlert("All system application categories flushed completely!", true);
@@ -839,7 +875,6 @@
             const selectedCategory = categorySelector.value;
             const formattedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
-            // CHANGED REFERENCE: 'adminNews' changed to 'newNews'
             const adminNewsListRef = ref(db, 'newNews');
 
             if (selectedCategory === "All Updates" || selectedCategory === "System Releases") {
@@ -944,7 +979,48 @@
             }
         });
 
-        // CHANGED REFERENCE: 'admin/sub_credentials' changed to 'new/sub_credentials'
+        // SOCIAL MATRIX UPDATES EXECUTED WITHIN THE UNIFIED WORKSPACE
+        document.getElementById('updateSocialLinksBtn').addEventListener('click', async () => {
+            const tgLink = document.getElementById('socialLinkTg').value.trim();
+            const fbLink = document.getElementById('socialLinkFb').value.trim();
+            const igLink = document.getElementById('socialLinkIg').value.trim();
+            const ttLink = document.getElementById('socialLinkTt').value.trim();
+            const ytLink = document.getElementById('socialLinkYt').value.trim();
+
+            const confirmed = await openCustomModal(
+                "Confirm Social Matrix Updates",
+                "Deploying updates changes all running application deep links and forces a version verification level clear.",
+                [{ label: "Data Structure Route:", value: "new/social_links" }],
+                "btn-update",
+                "Authorize Network Push"
+            );
+
+            if (!confirmed) return;
+
+            try {
+                let targetVersion = 1;
+                const versionSnap = await get(ref(db, 'new/social_links/version'));
+                if (versionSnap.exists()) {
+                    targetVersion = (parseInt(versionSnap.val()) || 1) + 1;
+                }
+
+                const updatedSocialPayload = {
+                    tg: tgLink || "tg://resolve?domain=your_channel_username",
+                    fb: fbLink || "fb://facewebmodal/f?href=https://facebook.com/your_page_username",
+                    ig: igLink || "instagram://user?username=your_username",
+                    tt: ttLink || "snssdk1128://user/profile/your_tiktok_id",
+                    yt: ytLink || "vnd.youtube://www.youtube.com/user/your_channel_username",
+                    version: targetVersion
+                };
+
+                await set(ref(db, 'new/social_links'), updatedSocialPayload);
+                triggerAdminAlert(`Social Matrix updated safely! Shifted to Version: [${targetVersion}]`, true);
+                closeRoleModal('modal-social');
+            } catch (err) {
+                triggerAdminAlert("Link matrix updates rejected.", false);
+            }
+        });
+
         onValue(ref(db, 'new/sub_credentials'), (snapshot) => {
             const listBody = document.getElementById('subAdminsListBody');
             listBody.innerHTML = '';
@@ -991,7 +1067,6 @@
             if (!confirmRevocation) return;
 
             try {
-                // CHANGED REFERENCE: 'admin/sub_credentials/${username}' changed to 'new/sub_credentials/${username}'
                 await remove(ref(db, `new/sub_credentials/${username}`));
                 triggerAdminAlert(`Admin session keys for [${username}] destroyed successfully!`, true);
             } catch (err) {
@@ -1009,7 +1084,6 @@
             }
 
             try {
-                // CHANGED REFERENCE: 'admin/sub_credentials/${user}' changed to 'new/sub_credentials/${user}'
                 await set(ref(db, `new/sub_credentials/${user}`), { 
                     username: user, password: pass, role: "sub_admin", addedAt: Date.now()
                 });
@@ -1044,7 +1118,6 @@
             if (!confirmOverride) return;
 
             try {
-                // CHANGED REFERENCE: 'admin/credentials' changed to 'new/credentials'
                 await set(ref(db, 'new/credentials'), { username: mainUser, password: mainPass });
                 triggerAdminAlert("Main root password modified successfully!", true);
                 closeRoleModal('modal-secure');
