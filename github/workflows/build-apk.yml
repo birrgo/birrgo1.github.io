@@ -1,0 +1,43 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Cordova and Tools
+        run: |
+          npm install -g cordova
+          sudo apt-get update
+          sudo apt-get install -y gradle
+
+      - name: Create Mobile Project wrapper
+        run: |
+          cordova create appcom com.birrgo.app BirrgoApp
+          cd appcom
+          cordova platform add android
+          rm -rf www/*
+          cp -r ../* www/ || true
+          rm -rf www/appcom
+
+      - name: Build Android APK File
+        run: |
+          cd appcom
+          cordova build android --release
+
+      - name: Upload Finished APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: birrgo-app-apk
+          path: appcom/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
