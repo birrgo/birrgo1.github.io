@@ -646,9 +646,14 @@
             return res ? Promise.resolve() : Promise.reject();
         }
 
+        // Fixed invitation link logic below
         document.getElementById('shareBtn').addEventListener('click', () => {
             if (!activeAccountId) return;
-            const link = window.location.href.split('?')[0].replace('task.html', 'register.html') + "?ref=" + activeAccountId;
+            
+            // Hardcoded production endpoint stops the app from using its internal localhost address
+            const productionUrl = "https://birrgo.github.io/birrgo1.github.io/register.html";
+            const link = productionUrl + "?ref=" + activeAccountId;
+            
             secureCopy(link).then(() => {
                 const toast = document.getElementById('toast');
                 toast.style.display = 'block';
