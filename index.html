@@ -33,18 +33,24 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        html, body {
+        html {
+            background-color: #e5e7eb; 
             width: 100%;
-            height: 100dvh; 
-            overflow: hidden;
-            background-color: var(--bg-light);
-            position: relative;
+            height: 100dvh;
         }
 
         body {
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
+            max-width: 450px; 
+            height: 100dvh;
+            margin: 0 auto; 
+            background-color: var(--bg-light);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.08); 
+            position: relative;
+            overflow: hidden;
         }
 
         /* Decorative Background Waves */
@@ -56,7 +62,6 @@
             pointer-events: none;
         }
         
-        /* SCALED DOWN TOP WAVE SIZE */
         .bg-wave-top {
             top: 0;
             height: 11vh;
@@ -72,7 +77,6 @@
         .app-view {
             width: 100%;
             height: 100dvh;
-            max-width: 450px; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -86,16 +90,19 @@
             width: 100%;
             display: flex;
             flex-direction: column;
+            align-items: center; /* Center the smaller download banner elements */
             gap: 10px;
             margin-bottom: 2vh;
         }
 
-        /* Premium Top Download Banner (Transparent on Red Wave) */
+        /* Premium Top Download Banner - Decreased horizontal size */
         .download-banner {
+            width: 90%; /* Scale down width significantly */
+            max-width: 340px; 
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 14px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -106,29 +113,29 @@
         .download-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .apk-icon-box {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: #ffffff;
             color: var(--primary-burgundy);
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .download-text-main {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: -0.01em;
         }
 
         .download-text-sub {
-            font-size: 10px;
+            font-size: 9px;
             color: rgba(255, 255, 255, 0.85);
             margin-top: 1px;
         }
@@ -139,8 +146,8 @@
             text-decoration: none;
             font-size: 11px;
             font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 5px 12px;
+            border-radius: 6px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s ease;
             cursor: pointer;
@@ -324,7 +331,7 @@
 
         /* Footer Links */
         .footer-links {
-            position: fixed;
+            position: absolute; 
             bottom: calc(4vh + env(safe-area-inset-bottom));
             left: 0;
             width: 100%;
@@ -368,7 +375,7 @@
 
         /* Installation Guide Modal Overlay */
         .modal-overlay {
-            position: fixed;
+            position: absolute; 
             top: 0;
             left: 0;
             width: 100%;
@@ -643,21 +650,20 @@
                 </svg>
             </div>
             <div class="modal-title">Install BirrGo Wallet</div>
-            <div class="modal-desc">Your download has started! Follow these final steps to install the app on your phone:</div>
+            <div class="modal-desc">Follow these final steps to complete the installation setup on your device:</div>
             
             <div class="step-list">
                 <div class="step-item">
                     <div class="step-num">1</div>
-                    <span>Check your notification bar or browser downloads.</span>
+                    <span>Your download window will activate immediately after clicking below.</span>
                 </div>
                 <div class="step-item">
                     <div class="step-num">2</div>
-                    <!-- Updated text reference from app-debug.apk to BirrGo.apk -->
-                    <span>Tap on the downloaded <b>BirrGo.apk</b> file.</span>
+                    <span>Tap on the downloaded <b>BirrGo.apk</b> file inside your browser framework.</span>
                 </div>
                 <div class="step-item">
                     <div class="step-num">3</div>
-                    <span>Click <b>Install</b> (Allow from this source if asked).</span>
+                    <span>Click <b>Install</b> (Allow file from this source if requested).</span>
                 </div>
             </div>
             
@@ -684,21 +690,18 @@
             const closeBtn = document.getElementById('closeModalBtn');
 
             if (dlBtn && modal && closeBtn) {
+                // Step 1: Open the popup info layout first on click
                 dlBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    
-                    // Native foreground window location trigger
-                    // This forces the hosted browser to show the download popup and file progress visibly
-                    window.location.href = "https://github.com/birrgo/birrgo1.github.io/releases/latest/download/BirrGo.apk";
-
-                    // Trigger the guide overlay right after interaction
-                    setTimeout(() => {
-                        modal.classList.add('active');
-                    }, 400);
+                    modal.classList.add('active');
                 });
 
+                // Step 2: Clear popup overlay AND trigger the download sequence when user clicks "Got it"
                 closeBtn.addEventListener('click', () => {
                     modal.classList.remove('active');
+                    
+                    // Native location routing executed here safely
+                    window.location.href = "https://github.com/birrgo/birrgo1.github.io/releases/latest/download/BirrGo.apk";
                 });
             }
         });
