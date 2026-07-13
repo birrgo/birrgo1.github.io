@@ -34,10 +34,10 @@ jobs:
       - name: Build Android APK File
         run: |
           cd appcom
-          cordova build android --release
+          cordova build android
 
       - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
           name: birrgo-app-apk
-          path: appcom/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: appcom/platforms/android/app/build/outputs/apk/debug/app-debug.apk
