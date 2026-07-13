@@ -3,8 +3,16 @@
     <name>Birr Go</name>
     <description>BirrGo Mobile Wallet</description>
     <author email="support@birrgo.com">BirrGo Team</author>
-    <content src="index.html" />
+    
+    <!-- Changed from index.html to your live GitHub Pages URL -->
+    <content src="https://birrgo1.github.io" />
+    
+    <!-- Crucial rules to keep the website running smoothly inside the app -->
     <access origin="*" />
+    <allow-navigation href="https://birrgo1.github.io/*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="icon.png" />
     
     <platform name="android">
