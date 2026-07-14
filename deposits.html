@@ -6,11 +6,12 @@
     <title>BirrGo Main Admin - deposits.html</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="deposits.css">
     
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- UPGRADED TO EMAILJS SDK V4 FOR PROPER COMPATIBILITY -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <style>
         /* Custom UI Toast Pop-up Notification */
@@ -58,6 +59,10 @@
             background-color: #9ca3af;
             display: none; /* Auto-hide if there's nothing pending */
         }
+
+        .nav-badge.unpaid-badge {
+            background-color: #f59e0b; /* Orange for Unpaid Orders */
+        }
         
         /* Grid styling helper for dual inputs */
         .dual-inputs {
@@ -80,6 +85,9 @@
         </div>
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('pane-stats', this)">System & Alerts</button>
+            <button class="tab-btn" onclick="switchTab('pane-unpaid', this)">
+                Unpaid Orders <span id="tab-badge-unpaid" class="nav-badge zero unpaid-badge">0</span>
+            </button>
             <button class="tab-btn" onclick="switchTab('pane-deposits', this)">
                 Pending Reviews <span id="tab-badge-pending" class="nav-badge zero">0</span>
             </button>
@@ -91,6 +99,7 @@
 
     <div class="content-body">
 
+        <!-- Tab Panel 1: System and Alerts -->
         <div id="pane-stats" class="tab-panel active">
             <div class="scrollable-content">
                 
@@ -221,17 +230,22 @@
             </div>
         </div>
 
+        <!-- Tab Panel 2: Unpaid Orders -->
+        <div id="pane-unpaid" class="tab-panel">
+            <div class="scrollable-content" id="unpaid-cards-container">
+            </div>
+        </div>
+
+        <!-- Tab Panel 3: Pending Reviews -->
         <div id="pane-deposits" class="tab-panel">
             <div class="scrollable-content" id="tx-cards-container">
             </div>
         </div>
 
+        <!-- Tab Panel 4: Chat Services -->
         <div id="pane-chats" class="tab-panel">
             <div class="chat-mobile-wrapper">
-                
-                <div class="chat-user-selector" id="chat-list-view">
-                </div>
-
+                <div class="chat-user-selector" id="chat-list-view"></div>
                 <div class="chat-active-window" id="chat-room-view">
                     <div class="chat-top-header">
                         <button class="btn-back" onclick="exitChatRoom()">← Back</button>
@@ -240,16 +254,12 @@
                             <p style="font-size: 10px; color: var(--text-muted);">Secure Client Tunnel</p>
                         </div>
                     </div>
-                    
-                    <div class="chat-scroller" id="chat-messages-box">
-                    </div>
-
+                    <div class="chat-scroller" id="chat-messages-box"></div>
                     <div class="chat-footer">
                         <input type="text" id="chat-msg-input" class="form-control" placeholder="Type administrative response..." style="flex-grow: 1;">
                         <button class="btn-primary" id="send-chat-btn" style="width: auto; padding: 0 16px; height: 42px;">Send</button>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -324,9 +334,8 @@
             document.getElementById('slipModal').style.display = 'flex';
         };
 
-        // --- REAL-TIME EMAIL NOTIFICATION ENGINE (SYNCED WITH FIREBASE) ---
+        // --- REAL-TIME EMAIL NOTIFICATION ENGINE ---
         function sendEmailNotification(subjectText, txDetails = {}) {
-            // Pull settings dynamically from Firebase settings node
             get(ref(db, 'settings/email_config')).then((snapshot) => {
                 const config = snapshot.val();
                 if (!config) {
@@ -342,17 +351,15 @@
                 const emailjsInstance = window.emailjs;
 
                 if (emailjsInstance && publicKey && serviceId && templateId && targetEmail) {
-                    // Correct initialization setup for browser scripts inside ES modules
                     emailjsInstance.init({
                         publicKey: publicKey
                     });
 
                     const templateParams = {
-                        to_email: targetEmail,
-                        subject: `⚠️ [BirrGo Alert] ${subjectText}`,
                         name: txDetails.name || txDetails.userId || 'Guest Client',
                         email: txDetails.email || txDetails.userId || 'N/A',
                         amount: txDetails.amount || '0',
+                        subject: `⚠️ [BirrGo Alert] ${subjectText}`, 
                         method: txDetails.method || 'Unknown Gateway',
                         ref: txDetails.ref || 'N/A',
                         status: txDetails.status || 'Pending',
@@ -367,7 +374,6 @@
                 console.error("Failed to read email config parameters from database: ", err);
             });
 
-            // SAFETY CHECK: Only send HTML5 push notifications if supported by this browser
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(subjectText, { 
                     body: `Tx: ${txDetails.ref || 'N/A'} - ${txDetails.amount || 0} ETB via ${txDetails.method || 'N/A'}` 
@@ -387,7 +393,6 @@
                 return;
             }
 
-            // Sync settings to database
             set(ref(db, 'settings/email_config'), {
                 alert_email_target: email,
                 emailjs_public_key: pubKey,
@@ -397,12 +402,10 @@
             .then(() => {
                 window.showToast("Cloud Email configurations updated successfully!");
 
-                // SAFETY CHECK: Only request push notification permissions if supported by this browser/app-view
                 if ('Notification' in window && Notification.permission !== 'granted') {
                     Notification.requestPermission();
                 }
 
-                // Fire initial verification test
                 sendEmailNotification("System Cloud Integration Verified", {
                     name: "BirrGo Administrator",
                     email: email,
@@ -447,12 +450,16 @@
                 });
         };
 
-        // --- REAL-TIME TRANSACTION ENGINE ---
+        // --- REAL-TIME TRANSACTION ENGINE (SPLIT INTO PENDING AND UNPAID) ---
         function listenToDeposits() {
             const container = document.getElementById('tx-cards-container');
+            const unpaidContainer = document.getElementById('unpaid-cards-container');
+            
             const pendingMetric = document.getElementById('metric-pending');
             const approvedMetric = document.getElementById('metric-approved');
+            
             const topMenuPendingBadge = document.getElementById('tab-badge-pending');
+            const topMenuUnpaidBadge = document.getElementById('tab-badge-unpaid');
 
             let initialLoadComplete = false;
             const knownTxKeys = new Set();
@@ -462,22 +469,32 @@
                 activeDepositList = data; 
                 
                 let pendingCount = 0;
+                let unpaidCount = 0;
                 let approvedTotal = 0;
+                
                 container.innerHTML = '';
+                unpaidContainer.innerHTML = '';
 
                 const keys = Object.keys(data).reverse();
 
                 if (keys.length === 0) {
-                    container.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 40px;">No transaction records found.</p>`;
+                    container.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 40px;">No reviews found.</p>`;
+                    unpaidContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 40px;">No open unpaid orders found.</p>`;
                 }
+
+                let totalUnpaidRendered = 0;
+                let totalPendingRendered = 0;
 
                 keys.forEach((dbKey) => {
                     const dep = data[dbKey];
-                    if (dep.status === 'Pending' || dep.status === 'pending') pendingCount++;
+                    const rawStatus = (dep.status || 'unpaid').toLowerCase();
+
+                    if (rawStatus === 'pending') pendingCount++;
+                    if (rawStatus === 'unpaid') unpaidCount++;
                     if (dep.status === 'Approved') approvedTotal += parseFloat(dep.amount || 0);
 
-                    if (initialLoadComplete && !knownTxKeys.has(dbKey) && (dep.status === 'Pending' || dep.status === 'pending')) {
-                        // Dynamically pull user name to structure highly accurate emails
+                    // Auto-notification for freshly incoming pending review deposits
+                    if (initialLoadComplete && !knownTxKeys.has(dbKey) && rawStatus === 'pending') {
                         get(ref(db, `users/${dep.userId}/fullName`)).then((nameSnap) => {
                             const clientFullName = nameSnap.val() || dep.userId;
                             sendEmailNotification("New Pending Order Placed", {
@@ -505,13 +522,41 @@
                     card.className = 'mobile-tx-card';
                     card.id = `card-${dbKey}`;
                     
-                    let badgeStyle = (dep.status === 'Pending' || dep.status === 'pending') ? 'background:#fef3c7; color:#d97706;' : (dep.status === 'Approved' ? 'background:#d1fae5; color:#059669;' : 'background:#fee2e2; color:#dc2626;');
+                    let badgeStyle = '';
+                    if (rawStatus === 'pending') {
+                        badgeStyle = 'background:#fef3c7; color:#d97706;';
+                    } else if (rawStatus === 'unpaid') {
+                        badgeStyle = 'background:rgba(245, 158, 11, 0.15); color:#f59e0b;';
+                    } else if (dep.status === 'Approved') {
+                        badgeStyle = 'background:#d1fae5; color:#059669;';
+                    } else {
+                        badgeStyle = 'background:#fee2e2; color:#dc2626;';
+                    }
+
                     let reasonDisplay = dep.reject_reason ? `<div class="tx-row" style="color:#ef4444;"><span style="font-weight:600;">Reason:</span> <span>${dep.reject_reason}</span></div>` : '';
+
+                    // Layout changes for unpaid orders vs reviews with slips
+                    const isUnpaidCard = rawStatus === 'unpaid';
+                    const slipActionHtml = isUnpaidCard 
+                        ? `<button class="btn-action-mobile" style="background:#f3f4f6; color:#9ca3af; cursor: not-allowed;" disabled>No Receipt</button>`
+                        : `<button class="btn-action-mobile" style="background:#f3f4f6; color:#111;" id="view-slip-${dbKey}">View Receipt</button>`;
+
+                    const actionPanelHtml = (rawStatus === 'pending' || rawStatus === 'unpaid') ? `
+                        <div class="tx-actions">
+                            ${slipActionHtml}
+                            <button class="btn-action-mobile" style="background:var(--success-color); color:white;" id="approve-${dbKey}">Approve</button>
+                            <button class="btn-action-mobile" style="background:var(--danger-color); color:white;" id="reject-${dbKey}">Reject</button>
+                        </div>
+                    ` : `
+                        <div class="tx-actions">
+                            ${slipActionHtml}
+                        </div>
+                    `;
 
                     card.innerHTML = `
                         <div class="tx-header">
                             <span class="tx-ref">${dep.ref || 'N/A'}</span>
-                            <span style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; text-transform:uppercase; ${badgeStyle}">${dep.status}</span>
+                            <span style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; text-transform:uppercase; ${badgeStyle}">${dep.status || 'Unpaid'}</span>
                         </div>
                         <div class="tx-row">
                             <span style="color:var(--text-muted);">Gateway:</span>
@@ -526,17 +571,18 @@
                             <span style="font-weight:800; color:var(--primary-burgundy);">${parseFloat(dep.amount || 0).toLocaleString()} ETB</span>
                         </div>
                         ${reasonDisplay}
-                        <div class="tx-actions">
-                            <button class="btn-action-mobile" style="background:#f3f4f6; color:#111;" id="view-slip-${dbKey}">View Receipt</button>
-                            ${(dep.status === 'Pending' || dep.status === 'pending') ? `
-                                <button class="btn-action-mobile" style="background:var(--success-color); color:white;" id="approve-${dbKey}">Approve</button>
-                                <button class="btn-action-mobile" style="background:var(--danger-color); color:white;" id="reject-${dbKey}">Reject</button>
-                            ` : ''}
-                        </div>
+                        ${actionPanelHtml}
                     `;
-                    container.appendChild(card);
 
-                    // Fetch user's Full Name from the database dynamically
+                    // Route Card rendering to the appropriate panel view
+                    if (isUnpaidCard) {
+                        unpaidContainer.appendChild(card);
+                        totalUnpaidRendered++;
+                    } else {
+                        container.appendChild(card);
+                        totalPendingRendered++;
+                    }
+
                     if (dep.userId) {
                         get(ref(db, `users/${dep.userId}/fullName`)).then((nameSnap) => {
                             const fullName = nameSnap.val();
@@ -547,9 +593,11 @@
                         }).catch(() => {});
                     }
 
-                    document.getElementById(`view-slip-${dbKey}`).onclick = () => window.viewSlip(dep.receiptUrl, dep.ref);
+                    if (!isUnpaidCard) {
+                        document.getElementById(`view-slip-${dbKey}`).onclick = () => window.viewSlip(dep.receiptUrl, dep.ref);
+                    }
                     
-                    if (dep.status === 'Pending' || dep.status === 'pending') {
+                    if (rawStatus === 'pending' || rawStatus === 'unpaid') {
                         document.getElementById(`approve-${dbKey}`).onclick = () => {
                             updateTransactionStatus(dbKey, 'Approved', '');
                             window.showToast("Transaction Approved Successfully!");
@@ -559,19 +607,35 @@
                             if (reason === null) return; 
                             
                             updateTransactionStatus(dbKey, 'Rejected', reason.trim() || 'Invalid details provided');
-                            window.showToast("Transaction Rejected Successfully!", "error");
+                            window.showToast("Transaction Rejected & Logged!", "error");
                         };
                     }
                 });
 
+                if (totalUnpaidRendered === 0) {
+                    unpaidContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 40px;">No unpaid requests active.</p>`;
+                }
+                if (totalPendingRendered === 0) {
+                    container.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 40px;">No pending reviews active.</p>`;
+                }
+
                 pendingMetric.innerText = pendingCount;
                 approvedMetric.innerText = `${approvedTotal.toLocaleString()} ETB`;
 
+                // Update pending reviews tab configuration
                 topMenuPendingBadge.innerText = pendingCount;
-                if(pendingCount > 0) {
+                if (pendingCount > 0) {
                     topMenuPendingBadge.classList.remove('zero');
                 } else {
                     topMenuPendingBadge.classList.add('zero');
+                }
+
+                // Update unpaid orders tab configuration
+                topMenuUnpaidBadge.innerText = unpaidCount;
+                if (unpaidCount > 0) {
+                    topMenuUnpaidBadge.classList.remove('zero');
+                } else {
+                    topMenuUnpaidBadge.classList.add('zero');
                 }
 
                 initialLoadComplete = true;
@@ -591,12 +655,8 @@
                     updates.reject_reason = reason;
                 }
 
-                // Update the global deposit ticket
                 set(ref(db, `deposits/${dbKey}`), { ...depositData, ...updates }).then(() => {
-                    
-                    // Targets the exact matching node ID under user profile history
                     const historyRecordRef = ref(db, `users/${depositData.userId}/transactions/${dbKey}`);
-                    
                     const formatLabel = newStatus === 'Approved' 
                         ? `⚡ Deposit Approved [${depositData.method}]` 
                         : `🎟️ Deposit Declined [${depositData.method}]`;
@@ -617,14 +677,12 @@
 
                     if (newStatus === 'Approved') {
                         const amountToAdd = parseFloat(depositData.amount || 0);
-                        
                         const userWalletRef = ref(db, `users/${depositData.userId}/walletBalance`);
                         runTransaction(userWalletRef, (currentBalance) => {
                             return (parseFloat(currentBalance) || 0) + amountToAdd;
                         });
                     }
 
-                    // Dynamically resolve username for completion status email
                     get(ref(db, `users/${depositData.userId}/fullName`)).then((nameSnap) => {
                         const clientName = nameSnap.val() || depositData.userId;
                         sendEmailNotification(`Transaction ${newStatus}`, {
@@ -821,8 +879,6 @@
 
         // --- LIFECYCLE INITIALIZER ---
         window.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Real-time Firebase configuration listener (replaces LocalStorage)
             onValue(ref(db, 'settings/email_config'), (snapshot) => {
                 const config = snapshot.val();
                 if (config) {
@@ -833,7 +889,6 @@
                 }
             });
 
-            // 2. Fetch gateway account specifications from database
             get(ref(db, 'settings/accounts')).then((snapshot) => {
                 const acc = snapshot.val() || {};
                 const loadDetails = (gatewayKey, numInputId, nameInputId) => {
@@ -854,7 +909,6 @@
                 loadDetails('cbebirr', 'cbebirr-num', 'cbebirr-name');
             });
 
-            // 3. Keep track of Global Gateway toggle state in real time
             onValue(ref(db, 'settings/gateway_online'), (snapshot) => {
                 const isOnline = snapshot.val() !== false; 
                 const toggleInput = document.getElementById('gateway-toggle');

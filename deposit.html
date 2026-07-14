@@ -6,33 +6,37 @@
     <title>BirrGo | P2P Deposit</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="deposit.css">
+    
+    <!-- Import EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
     <style>
         /* Top Navigation Header Styles */
         .top-nav-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 4px 16px; /* Reduced vertical padding to move it up */
-            margin-top: 2px;   /* Reduced top margin to pull the button higher */
+            padding: 4px 16px;
+            margin-top: 2px;
             width: 100%;
             box-sizing: border-box;
             z-index: 10;
         }
         .btn-back-top {
-            display: flex; /* Always accessible */
+            display: flex;
             align-items: center;
             gap: 5px;
-            background: rgba(255, 255, 255, 0.25); /* Slightly increased background opacity for better visibility */
-            border: 1.5px solid rgba(255, 255, 255, 0.4); /* Made border thicker and brighter */
+            background: rgba(255, 255, 255, 0.25);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
             color: #ffffff;
-            font-size: 12px; /* Slightly larger text */
-            font-weight: 800; /* Extra bold for quick scanning */
-            padding: 6px 14px; /* Enhanced padding for a stronger look */
+            font-size: 12px;
+            font-weight: 800;
+            padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
             backdrop-filter: blur(5px);
             transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Drop shadow to pop out from background */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
         .btn-back-top:hover {
             background: rgba(255, 255, 255, 0.35);
@@ -233,7 +237,6 @@
                 <div class="screen-title">P2P <span>Deposits</span></div>
                 <div class="screen-subtitle"></div>
                 
-                <!-- Direct link to usera.html for track stats -->
                 <div class="pending-stat-box" id="pending-stat-box" style="display: none;" onclick="window.location.href='usera.html'">
                     <div class="stat-box-content">
                         <span class="pulse-orange"></span>
@@ -259,7 +262,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </div>
 
-                    <div class="p2p-card" onclick="selectMethod('abyssinia')">
+                    <div class="p2p-card" onclick="selectMethod('boa')">
                         <div class="p2p-info">
                             <div class="p2p-icon"><img src="a1.jpg" alt="Abyssinia Logo"></div>
                             <div>
@@ -354,7 +357,7 @@
                 <div class="unified-pay-card">
                     <div class="timer-banner">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        <span id="p2p-timer">Time Left: 15:00</span>
+                        <span id="p2p-timer">Time Left: 05:00</span>
                     </div>
 
                     <div class="bank-details-box" style="margin: 0; padding: 0; border: none; background: none; box-shadow: none;">
@@ -449,7 +452,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set, push, onChildAdded, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set, push, onChildAdded, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
@@ -472,6 +475,7 @@
         let transactionAmount = 0;
         let countdownInterval;
         let orderReferenceId = '';
+        let databaseOrderKey = ''; // Holds firebase reference key for updates
         let isMerchantOnline = true; 
         let isChatListenerAttached = false;
         let dbStatusListenerRef = null;
@@ -486,6 +490,7 @@
 
         const primaryBtn = document.getElementById('primaryBtn');
         const primaryBtnText = document.getElementById('primaryBtnText');
+        const secondaryBtn = document.getElementById('secondaryBtn');
         const topBackBtn = document.getElementById('topBackBtn');
         const depositAmountInput = document.getElementById('depositAmount');
         const receiptFileInput = document.getElementById('receipt-file');
@@ -496,9 +501,10 @@
         const footerChatLinks = document.getElementById('footer-chat-links');
         const footerNormalLinks = document.getElementById('footer-normal-links');
 
+        // STANDARD KEY MAPPINGS (MAPPED TO NATIVE DATABASE CONFIG KEYS)
         let paymentConfigs = {
             cbe: { name: 'Commercial Bank of Ethiopia', account: '', holder_name: '' },
-            abyssinia: { name: 'Bank of Abyssinia', account: '', holder_name: '' },
+            boa: { name: 'Bank of Abyssinia', account: '', holder_name: '' }, 
             telebirr: { name: 'Telebirr wallet', account: '', holder_name: '' },
             cbebirr: { name: 'CBE birr wallet', account: '', holder_name: '' },
             mpesa: { name: 'M-Pesa wallet', account: '', holder_name: '' }
@@ -622,6 +628,7 @@
         function updateNavigationButtons() {
             primaryBtn.style.display = "flex";
             topBackBtn.style.display = "flex";
+            secondaryBtn.style.display = "none";
 
             if (currentStep === 'method') {
                 primaryBtn.style.display = "none"; 
@@ -631,6 +638,11 @@
                 primaryBtnText.innerText = "I Understand";
             } else if (currentStep === 'pay') {
                 primaryBtnText.innerText = "Submit Receipt";
+                
+                // Show Cancel Button on payment step
+                secondaryBtn.innerText = "Cancel Deposit";
+                secondaryBtn.style.display = "block";
+                secondaryBtn.onclick = cancelOrder;
             }
         }
 
@@ -646,6 +658,41 @@
             }
         }
 
+        // ==========================================
+        // STEP INITIALIZATION: WRITING UNPAID ORDER
+        // ==========================================
+        function createUnpaidDatabaseRecord() {
+            const globalDepositsRef = ref(db, 'deposits');
+            const newOrderRef = push(globalDepositsRef);
+            databaseOrderKey = newOrderRef.key;
+
+            const unpaidPayload = {
+                ref: orderReferenceId,
+                method: paymentConfigs[selectedMethodId].name,
+                userId: userId,
+                amount: transactionAmount,
+                status: 'Unpaid',
+                receiptUrl: '',
+                timestamp: Date.now(),
+                rejectReason: ''
+            };
+
+            set(newOrderRef, unpaidPayload).then(() => {
+                // Log Unpaid Ticket in user profile
+                const userHistoryRef = ref(db, `users/${userId}/transactions/${databaseOrderKey}`);
+                set(userHistoryRef, {
+                    title: `🎟️ Deposit Ticket [${paymentConfigs[selectedMethodId].name}]`,
+                    amount: transactionAmount,
+                    type: 'income',
+                    status: 'unpaid',
+                    orderRef: orderReferenceId,
+                    timestamp: new Date().toLocaleString()
+                });
+            }).catch(err => {
+                console.error("Database initialization failed:", err);
+            });
+        }
+
         primaryBtn.addEventListener('click', () => {
             if (currentStep === 'amount') {
                 const amount = parseFloat(depositAmountInput.value);
@@ -655,6 +702,10 @@
                 }
                 transactionAmount = amount;
                 orderReferenceId = generateOrderRef(); 
+
+                // Generate and record "Unpaid" database entry immediately when amount is set
+                createUnpaidDatabaseRecord();
+
                 showScreen('guide');
             } else if (currentStep === 'guide') {
                 if (!isMerchantOnline) {
@@ -681,7 +732,7 @@
             document.getElementById('disp-account').innerText = currentGateway.account;
             document.getElementById('disp-amount').innerText = `${transactionAmount.toLocaleString()} Birr`;
 
-            let timeLimit = 15 * 60; 
+            let timeLimit = 5 * 60; // Set countdown timer to exactly 5 minutes
             const timerDisplay = document.getElementById('p2p-timer');
 
             clearInterval(countdownInterval);
@@ -697,62 +748,148 @@
             }, 1000);
         }
 
+        // COMPRESSION SCRIPT: Safely resizes receipt image before writing to database
         receiptFileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
-                receiptTitle.innerText = "File Selected";
-                receiptSub.innerText = file.name;
+                receiptTitle.innerText = "Processing File...";
+                
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    imagePreview.src = event.target.result;
-                    imagePreview.style.display = "block";
+                    const img = new Image();
+                    img.onload = function() {
+                        const max_width = 400;
+                        const scaleFactor = max_width / img.width;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = max_width;
+                        canvas.height = img.height * scaleFactor;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        imagePreview.src = compressedBase64;
+                        imagePreview.style.display = "block";
+                        receiptTitle.innerText = "File Selected";
+                        receiptSub.innerText = file.name;
+                    };
+                    img.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
+        // ==========================================
+        // CANCEL ORDER: updates Firebase logs cleanly
+        // ==========================================
         function cancelOrder() {
             clearInterval(countdownInterval);
             if (dbStatusListenerRef) off(dbStatusListenerRef);
-            window.location.href = "wallet.html";
+
+            if (databaseOrderKey) {
+                const updates = {};
+                // Update active queue status to Cancelled
+                updates[`deposits/${databaseOrderKey}/status`] = 'Cancelled';
+                
+                // Update transaction log in user profile
+                updates[`users/${userId}/transactions/${databaseOrderKey}/status`] = 'cancelled';
+                updates[`users/${userId}/transactions/${databaseOrderKey}/title`] = `❌ Deposit Cancelled [${paymentConfigs[selectedMethodId].name}]`;
+
+                update(ref(db), updates)
+                    .then(() => {
+                        window.location.href = "wallet.html";
+                    })
+                    .catch((err) => {
+                        console.error("Cancellation database log update failed:", err);
+                        window.location.href = "wallet.html";
+                    });
+            } else {
+                window.location.href = "wallet.html";
+            }
         }
 
+        // ==========================================
+        // STEP VERIFICATION: MOVING FROM UNPAID -> PENDING
+        // ==========================================
         function submitDepositReceipt() {
             clearInterval(countdownInterval);
             
-            const globalDepositsRef = ref(db, 'deposits');
-            const newTransactionKey = push(globalDepositsRef);
+            // 1. Fetch live EmailJS configurations from database settings
+            const emailConfigRef = ref(db, 'settings/email_config');
+            
+            onValue(emailConfigRef, (snapshot) => {
+                const emailConfig = snapshot.val();
+                
+                if (emailConfig && emailConfig.emailjs_public_key) {
+                    window.emailjs.init(emailConfig.emailjs_public_key);
+                }
 
-            const transactionPayload = {
-                ref: orderReferenceId,
-                method: paymentConfigs[selectedMethodId].name, 
-                userId: userId,                                
-                amount: transactionAmount,
-                status: 'Pending',                             
-                receiptUrl: imagePreview.src,                  
-                timestamp: Date.now(),
-                rejectReason: ''
-            };
+                // If databaseOrderKey is missing (e.g. state was recovered via URL parameters), create reference dynamically
+                if (!databaseOrderKey) {
+                    const globalDepositsRef = ref(db, 'deposits');
+                    databaseOrderKey = push(globalDepositsRef).key;
+                }
 
-            set(newTransactionKey, transactionPayload)
-                .then(() => {
-                    const userHistoryRef = ref(db, `users/${userId}/transactions/${newTransactionKey.key}`);
-                    set(userHistoryRef, {
-                        title: `📥 Deposit Pending [${paymentConfigs[selectedMethodId].name}]`,
-                        amount: transactionAmount,
-                        type: 'income',
-                        status: 'pending',
-                        orderRef: orderReferenceId,
-                        timestamp: new Date().toLocaleString()
+                const updates = {};
+                
+                // Update global deposits queue with receipt & change status to 'Pending'
+                updates[`deposits/${databaseOrderKey}`] = {
+                    ref: orderReferenceId,
+                    method: paymentConfigs[selectedMethodId].name, 
+                    userId: userId,                                
+                    amount: transactionAmount,
+                    status: 'Pending',                             
+                    receiptUrl: imagePreview.src,                  
+                    timestamp: Date.now(),
+                    rejectReason: ''
+                };
+
+                // Update transaction under user profile history to 'pending'
+                updates[`users/${userId}/transactions/${databaseOrderKey}`] = {
+                    title: `📥 Deposit Pending [${paymentConfigs[selectedMethodId].name}]`,
+                    amount: transactionAmount,
+                    type: 'income',
+                    status: 'pending',
+                    orderRef: orderReferenceId,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                // 3. Write updates atomic block to Firebase
+                update(ref(db), updates)
+                    .then(() => {
+                        // 4. Trigger EmailJS if active configuration settings are present
+                        if (emailConfig) {
+                            const templateParams = {
+                                name: userId, 
+                                email: emailConfig.alert_email_target || "firamob2541@gmail.com",
+                                amount: transactionAmount,
+                                user_os: navigator.platform,
+                                user_browser: navigator.userAgent
+                            };
+
+                            window.emailjs.send(
+                                emailConfig.emailjs_service_id, 
+                                emailConfig.emailjs_template_id, 
+                                templateParams
+                            )
+                            .then(() => {
+                                console.log("Success: Admin has been alerted of pending deposit.");
+                                window.location.href = "usera.html";
+                            })
+                            .catch((err) => {
+                                console.error("EmailJS sending failed:", err);
+                                window.location.href = "usera.html";
+                            });
+                        } else {
+                            window.location.href = "usera.html";
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Submission failed: ", error);
+                        showCustomAlert("Submission Error", "There was an error updating database logs.");
                     });
-
-                    // Directs directly to external User Activity page
-                    window.location.href = "usera.html";
-                })
-                .catch((error) => {
-                    console.error("Submission failed: ", error);
-                    showCustomAlert("Submission Error", "There was an error updating database logs.");
-                });
+            }, { onlyOnce: true }); 
         }
 
         function fetchUserTransactionsRealtime() {
@@ -828,9 +965,8 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     Object.keys(paymentConfigs).forEach(key => {
-                        const dbKey = key === 'abyssinia' ? 'boa' : key;
-                        if (data[dbKey]) {
-                            const config = data[dbKey];
+                        if (data[key]) {
+                            const config = data[key];
                             if (typeof config === 'object') {
                                 paymentConfigs[key].account = config.number || '';
                                 paymentConfigs[key].holder_name = config.holder_name || '';
@@ -840,6 +976,25 @@
                             }
                         }
                     });
+
+                    // JUMP STRAIGHT TO STEP 4 (PAY) IF DEPOSIT.HTML DETECTS URL QUERY PARAMETERS
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('step') === 'pay') {
+                        const methodParam = urlParams.get('method');
+                        const amountParam = parseFloat(urlParams.get('amount'));
+                        const refParam = urlParams.get('ref');
+                        const keyParam = urlParams.get('key'); // Fetch exact Firebase object reference key if provided
+
+                        if (methodParam && !isNaN(amountParam) && refParam) {
+                            selectedMethodId = methodParam;
+                            transactionAmount = amountParam;
+                            orderReferenceId = refParam;
+                            if (keyParam) databaseOrderKey = keyParam;
+
+                            setupPaymentTimer();
+                            showScreen('pay');
+                        }
+                    }
                 }
             });
 
