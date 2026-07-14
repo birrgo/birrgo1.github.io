@@ -439,20 +439,15 @@
             const errorBanner = document.getElementById('modalErrorBanner');
             const modalCard = document.getElementById('securityModalCard');
 
-            function launchLockedNotice(type) {
+            function launchLockedNotice() {
                 modalCard.classList.remove('has-error');
                 errorBanner.style.display = "none";
                 
                 iconBox.className = "security-modal-icon bg-lock";
                 iconSvg.innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>`;
                 
-                if (type === 'deposit') {
-                    title.innerText = "Deposit Gateway Locked";
-                    desc.innerText = "The local premium automated deposit pipeline terminal is currently undergoing testing structural checks. Available in the next updates.";
-                } else {
-                    title.innerText = "Withdraw System Locked";
-                    desc.innerText = "The native withdrawal gateway is coming soon! Complete video tasks daily to continue stacking up your database wallet balance.";
-                }
+                title.innerText = "Withdraw System Locked";
+                desc.innerText = "The native withdrawal gateway is coming soon! Complete video tasks daily to continue stacking up your database wallet balance.";
 
                 passInput.style.display = "none";
                 actionsGroup.className = "security-modal-actions single-btn";
@@ -467,8 +462,11 @@
                 setTimeout(() => modal.classList.add('show-modal'), 10);
             }
 
-            document.getElementById('depositBtn').addEventListener('click', () => launchLockedNotice('deposit'));
-            document.getElementById('withdrawBtn').addEventListener('click', () => launchLockedNotice('withdraw'));
+            document.getElementById('depositBtn').addEventListener('click', () => {
+                window.location.href = "deposit.html";
+            });
+
+            document.getElementById('withdrawBtn').addEventListener('click', () => launchLockedNotice());
         }
 
         function startLiveWalletListeners() {
@@ -488,16 +486,13 @@
             const historyContainer = document.getElementById('transaction-history-container');
             const userRef = ref(db, `users/${activeUserPhone}`);
 
-            // Absolute string time normalizer framework
             function convertToTimestamp(timeStr) {
                 if (!timeStr || timeStr === 'Just now') return Date.now();
                 
-                // If it's already an absolute number or numerical string representation
                 if (!isNaN(timeStr)) return Number(timeStr);
 
                 let cleanStr = timeStr.replace(/,/g, '').trim();
                 
-                // Handles variant: DD/MM/YYYY HH:MM:SS or DD/MM/YYYY
                 if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(cleanStr)) {
                     const sections = cleanStr.split(' ');
                     const dateParts = sections[0].split('/');
@@ -505,7 +500,6 @@
                     const month = dateParts[1];
                     const year = dateParts[2];
                     
-                    // Remap to uniform ISO blueprint: YYYY-MM-DD
                     cleanStr = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
                     if (sections[1]) cleanStr += `T${sections[1]}`;
                 }
@@ -524,8 +518,13 @@
                     if (userData.transactions) {
                         Object.keys(userData.transactions).forEach(key => {
                             const tx = userData.transactions[key];
-                            let calculatedFallbackSort = 0;
                             
+                            // 🚀 CRITICAL FIX: Skip the transaction if the status is pending/Pending
+                            if (tx.status === 'Pending' || tx.status === 'pending' || (tx.title && tx.title.toLowerCase().includes('pending'))) {
+                                return; // Skip it entirely
+                            }
+
+                            let calculatedFallbackSort = 0;
                             if (tx.sortingTime) {
                                 calculatedFallbackSort = Number(tx.sortingTime);
                             } else {
@@ -575,7 +574,6 @@
                     return;
                 }
 
-                // Strict Descending numerical sort evaluation rule (Highest Timestamp/Newest first)
                 masterTransactionList.sort((a, b) => b.sortingValue - a.sortingValue);
 
                 masterTransactionList.forEach(tx => {
