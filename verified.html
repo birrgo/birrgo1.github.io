@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BirrGo - Verification Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&family=Space+Grotesk:wght=500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+                    🔑 Verification Matrix
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Configure global registration credentials, monitor real-time verification logs, and send custom OTPs.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-xs font-semibold tracking-wide transition">
+                    ← Core Dashboard
+                </a>
+                <span class="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold px-3 py-1.5 rounded-full">
+                    Admin Session Active
+                </span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Side: Config & Custom Dispatch Form (1 Column) -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Brevo Configuration Card -->
+                <div class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-xl space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-slate-200">System Gateway</h2>
+                        <button type="button" id="saveConfigBtn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-lg transition-all shadow-md">
+                            💾 Save Sync
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400">Brevo API Key (v3)</label>
+                            <input type="password" id="apiKey" required placeholder="xkeysib-..." 
+                                class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-300 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400">Sender Authorized Email</label>
+                            <input type="email" id="senderEmail" required placeholder="admin@birrgo.com" 
+                                class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-300">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400">Brevo Template ID</label>
+                            <input type="number" id="templateId" required placeholder="e.g., 3" 
+                                class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-300">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400">Sender Identity Display Name</label>
+                            <input type="text" id="senderName" placeholder="BirrGo Secure Portal" 
+                                class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-300">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Test/Override OTP Dispatch -->
+                <div class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-xl space-y-4">
+                    <h2 class="text-lg font-bold text-slate-200">Force Bypass Override</h2>
+                    
+                    <form id="otpForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400">Target Email</label>
+                            <input type="email" id="recipientEmail" required placeholder="user@example.com" 
+                                class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-300">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400">OTP Code</label>
+                                <div class="flex gap-1.5">
+                                    <input type="text" id="otpCode" required placeholder="123456" 
+                                        class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-center font-mono tracking-wider text-slate-300">
+                                    <button type="button" id="rollCodeBtn" class="mt-1 bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 rounded-lg text-xs transition border border-slate-700">
+                                        Roll
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400">Expiry (Mins)</label>
+                                <input type="number" id="expiryMinutes" required value="10" 
+                                    class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs text-slate-300">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow-lg">
+                            Dispatch Override OTP
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Side: Real-time Live Registrations Logs Database Feed (2 Columns) -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/20">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-200">Live Verification Logs</h3>
+                            <p class="text-xs text-slate-500">Real-time sync feeding active OTP transactions directly from your database.</p>
+                        </div>
+                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" title="Connected to Firebase"></span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                                    <th class="p-4 font-semibold">User Email</th>
+                                    <th class="p-4 font-semibold text-center">Active OTP</th>
+                                    <th class="p-4 font-semibold text-center">Expiry Target</th>
+                                    <th class="p-4 font-semibold text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody" class="divide-y divide-slate-800/60">
+                                <!-- Dynamic records from database inject here -->
+                                <tr>
+                                    <td colspan="4" class="p-8 text-center text-slate-500">Awaiting database handshake...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Operational Status Output Notification Box -->
+        <div id="statusMessage" class="hidden fixed bottom-6 right-6 p-4 rounded-xl text-xs font-semibold shadow-2xl max-w-sm transition-all duration-300 transform scale-95 border"></div>
+    </div>
+
+    <!-- Firebase System Module Integrations -->
+    <script type="module">
+        // Global Admin Session Security Gate (Updated target to new.html)
+        if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
+            window.location.href = "new.html";
+        }
+
+        // --- ENVIRONMENT CONFIGURATION ---
+        // If your Node.js server is deployed, change this to your online address (e.g. "https://api.birrgo.com")
+        const PRODUCTION_API_URL = ""; 
+        const BACKEND_URL = PRODUCTION_API_URL || "http://localhost:3000";
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
+            authDomain: "birrgo-fdf7e.firebaseapp.com",
+            databaseURL: "https://birrgo-fdf7e-default-rtdb.firebaseio.com",
+            projectId: "birrgo-fdf7e",
+            storageBucket: "birrgo-fdf7e.firebasestorage.app",
+            messagingSenderId: "2317445154",
+            appId: "1:2317445154:web:4275cbb0f46b28f64f827b",
+            measurementId: "G-24X13TZ43D"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const statusDiv = document.getElementById('statusMessage');
+
+        // Helper: Format Emails safely as Firebase keys
+        function sanitizeEmail(email) {
+            return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
+        }
+
+        // 1. Live Fetch & Table Render of Database OTP records
+        function initializeLiveLogs() {
+            const otpsRef = ref(db, 'otps');
+            onValue(otpsRef, (snapshot) => {
+                const tbody = document.getElementById('logsTableBody');
+                tbody.innerHTML = "";
+
+                if (!snapshot.exists()) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-slate-500">No verification requests found. Ready to process accounts.</td>
+                        </tr>`;
+                    return;
+                }
+
+                const data = snapshot.val();
+                
+                Object.keys(data).forEach((key) => {
+                    const record = data[key];
+                    const currentTime = Date.now();
+                    const isExpired = currentTime > record.expiresAt;
+                    
+                    let statusBadge = "";
+                    if (record.verified) {
+                        statusBadge = `<span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Verified</span>`;
+                    } else if (isExpired) {
+                        statusBadge = `<span class="bg-red-500/10 border border-red-500/20 text-red-400 px-2.5 py-1 rounded-full font-bold">Expired</span>`;
+                    } else {
+                        statusBadge = `<span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2.5 py-1 rounded-full font-bold animate-pulse">Pending</span>`;
+                    }
+
+                    const expiryFormatted = new Date(record.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-900/30 transition-colors";
+                    tr.innerHTML = `
+                        <td class="p-4 font-medium text-slate-300 font-mono">${record.email}</td>
+                        <td class="p-4 text-center font-bold tracking-widest text-blue-400 font-mono text-sm">${record.otp}</td>
+                        <td class="p-4 text-center text-slate-400 font-mono">${expiryFormatted}</td>
+                        <td class="p-4 text-right">${statusBadge}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        // 2. Load Brevo parameters from Realtime DB
+        async function loadBrevoSettings() {
+            try {
+                const settingsRef = ref(db, 'admin/settings/brevo');
+                const snapshot = await get(settingsRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.apiKey) document.getElementById('apiKey').value = data.apiKey;
+                    if (data.senderEmail) document.getElementById('senderEmail').value = data.senderEmail;
+                    if (data.templateId) document.getElementById('templateId').value = data.templateId;
+                    if (data.senderName) document.getElementById('senderName').value = data.senderName;
+                }
+            } catch (error) {
+                console.error("Failed configuration handshake:", error);
+            }
+        }
+
+        // 3. Save current Settings back to Firebase
+        document.getElementById('saveConfigBtn').addEventListener('click', async () => {
+            const apiKey = document.getElementById('apiKey').value;
+            const senderEmail = document.getElementById('senderEmail').value;
+            const templateIdInput = document.getElementById('templateId').value;
+            const senderName = document.getElementById('senderName').value;
+
+            if (!apiKey || !senderEmail || !templateIdInput) {
+                showToast("Fill in all credentials before saving.", "red");
+                return;
+            }
+
+            const templateId = parseInt(templateIdInput, 10);
+            if (isNaN(templateId)) {
+                showToast("Template ID must be a valid number.", "red");
+                return;
+            }
+
+            try {
+                await set(ref(db, 'admin/settings/brevo'), {
+                    apiKey,
+                    senderEmail,
+                    templateId,
+                    senderName: senderName || "BirrGo Security",
+                    updatedAt: Date.now()
+                });
+                showToast("Configuration saved successfully!", "green");
+            } catch (error) {
+                showToast(`Sync Failed: ${error.message}`, "red");
+            }
+        });
+
+        // OTP Roll Utilities
+        function generateRandomOTP() {
+            const code = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('otpCode').value = code;
+        }
+
+        document.getElementById('rollCodeBtn').addEventListener('click', generateRandomOTP);
+
+        // 4. Send Manual Dispatch via Form Submit Override
+        document.getElementById('otpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const recipientEmail = document.getElementById('recipientEmail').value;
+            const otpCode = document.getElementById('otpCode').value;
+            const expiryMinutesVal = document.getElementById('expiryMinutes').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const templateIdVal = document.getElementById('templateId').value;
+
+            if (!apiKey || !templateIdVal) {
+                showToast("Please configure and save your Brevo settings first.", "red");
+                return;
+            }
+            
+            showToast("Syncing override parameters with database...", "blue");
+
+            const expiryMinutes = parseInt(expiryMinutesVal, 10) || 10;
+            const currentTime = Date.now();
+            const expiresAt = currentTime + (expiryMinutes * 60 * 1000);
+            const sanitizedEmailKey = sanitizeEmail(recipientEmail);
+
+            try {
+                // Write transaction parameters directly to user OTP path
+                await set(ref(db, `otps/${sanitizedEmailKey}`), {
+                    otp: otpCode,
+                    email: recipientEmail.toLowerCase(),
+                    createdAt: currentTime,
+                    expiresAt: expiresAt,
+                    verified: false
+                });
+
+                showToast("Sending verification payload to delivery proxy...", "blue");
+
+                const payload = {
+                    apiKey: apiKey,
+                    senderEmail: document.getElementById('senderEmail').value,
+                    senderName: document.getElementById('senderName').value || "BirrGo Security",
+                    templateId: parseInt(templateIdVal, 10),
+                    recipientEmail: recipientEmail,
+                    otp: otpCode,
+                    expireMinutes: expiryMinutes
+                };
+
+                const response = await fetch(`${BACKEND_URL}/api/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(`Success! OTP successfully sent to ${recipientEmail}`, "green");
+                } else {
+                    throw new Error(result.error || "Failed payload transfer");
+                }
+            } catch (error) {
+                showToast(`Execution Error: ${error.message}`, "red");
+            }
+        });
+
+        // Premium Notification Toast System
+        function showToast(msg, type) {
+            statusDiv.className = "fixed bottom-6 right-6 p-4 rounded-xl text-xs font-semibold shadow-2xl max-w-sm border transition-all duration-300 transform scale-100 block";
+            if (type === "blue") {
+                statusDiv.className += " bg-blue-950/90 border-blue-800 text-blue-400";
+            } else if (type === "green") {
+                statusDiv.className += " bg-emerald-950/90 border-emerald-800 text-emerald-400";
+            } else {
+                statusDiv.className += " bg-rose-950/90 border-rose-800 text-rose-400";
+            }
+            statusDiv.textContent = msg;
+
+            setTimeout(() => {
+                statusDiv.className = "hidden";
+            }, 5000);
+        }
+
+        // Initialize Engine
+        generateRandomOTP();
+        loadBrevoSettings();
+        initializeLiveLogs();
+    </script>
+</body>
+</html>

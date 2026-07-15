@@ -92,9 +92,10 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: calc(10vh + env(safe-area-inset-top)) 24px calc(10vh + env(safe-area-inset-bottom)) 24px;
+            padding: calc(8vh + env(safe-area-inset-top)) 24px calc(8vh + env(safe-area-inset-bottom)) 24px;
             position: relative;
             z-index: 1;
+            overflow-y: auto;
         }
 
         .header-content {
@@ -133,6 +134,7 @@
             border-radius: 50%;
             background-color: var(--primary-burgundy);
             border: 2.5px solid #ffccd5;
+            transition: all 0.3s ease;
         }
 
         .step-dot {
@@ -140,13 +142,24 @@
             height: 6px;
             border-radius: 50%;
             background-color: #d1d5db;
+            transition: all 0.3s ease;
         }
 
-        .registration-form {
+        .registration-form, .verification-view {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+        }
+
+        .verification-view {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .input-group {
@@ -228,6 +241,55 @@
 
         .input-box.phone-indent {
             padding-left: 105px; 
+        }
+
+        /* OTP Code Area */
+        .otp-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .otp-input {
+            width: 48px;
+            height: 56px;
+            background-color: var(--input-bg);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .otp-input:focus {
+            border-color: var(--primary-burgundy);
+            background-color: #ffffff;
+            box-shadow: var(--focus-shadow);
+        }
+
+        .resend-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .resend-link {
+            color: var(--primary-burgundy);
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .resend-link.disabled {
+            color: #9ca3af;
+            cursor: not-allowed;
+            font-weight: 500;
         }
 
         .country-modal-overlay {
@@ -408,7 +470,7 @@
         }
 
         .toast-container {
-            position: absolute;
+            position: fixed;
             top: calc(20px + env(safe-area-inset-top));
             left: 50%;
             transform: translateX(-50%);
@@ -420,7 +482,7 @@
             border-radius: 30px;
             font-size: 13px;
             font-weight: 600;
-            z-index: 999;
+            z-index: 9999;
             display: none;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
             border: 1px solid rgba(255,255,255,0.1);
@@ -430,7 +492,7 @@
         }
 
         @media (max-height: 650px) {
-            .app-view { padding-top: 80px; padding-bottom: 60px; }
+            .app-view { padding-top: 60px; padding-bottom: 40px; }
             .header-content h1 { font-size: 22px; }
             .btn-submit { height: 50px; }
             .step-indicator { margin-bottom: 1.5vh; }
@@ -442,11 +504,9 @@
     <div class="country-modal-overlay" id="countryModalOverlay">
         <div class="country-modal">
             <div class="modal-search-wrapper">
-                <input type="text" id="modalSearchInput" class="modal-search" placeholder="Search country or code...">
+                <input type="text" id="modalSearchInput" class="modal-search" placeholder="Search country..." autocomplete="off">
             </div>
-            <div class="country-list-scroll" id="countryListScroll">
-                <!-- Injected via script -->
-            </div>
+            <div class="country-list-scroll" id="countryListScroll"></div>
         </div>
     </div>
 
@@ -466,22 +526,23 @@
 
     <div class="toast-container" id="toast-message"></div>
 
-    <a href="index.html" class="back-btn" aria-label="Go back">
+    <button id="navBackBtn" class="back-btn" style="border:none; cursor:pointer;" aria-label="Go back">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
-    </a>
+    </button>
 
     <div class="app-view">
         <div class="header-content">
-            <h1>Create Your Account</h1>
+            <h1 id="screen-title">Create Your Account</h1>
             <p id="referrer-label">Enter your details to get started with BirrGo.</p>
         </div>
 
         <div class="step-indicator">
-            <span class="step-dot-active"></span>
-            <span>1. Details</span>
-            <span class="step-dot"></span>
+            <span id="stepDot1" class="step-dot-active"></span>
+            <span id="stepText1">1. Details</span>
+            <span id="stepDot2" class="step-dot"></span>
+            <span id="stepText2">2. Verify</span>
             <span class="step-dot"></span>
             <span class="step-dot"></span>
         </div>
@@ -497,7 +558,7 @@
                         <span class="trigger-arrow">▼</span>
                     </div>
 
-                    <input type="tel" id="regPhone" class="input-box phone-indent" placeholder="Phone number" required>
+                    <input type="tel" id="regPhone" class="input-box phone-indent" placeholder="Phone number" required autocomplete="off">
                     <div class="input-icon-right">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
@@ -509,7 +570,7 @@
 
             <div class="input-group">
                 <span class="field-label">Full Name <span class="label-required">*</span></span>
-                <input type="text" id="regName" class="input-box" placeholder="First Middle Last" required>
+                <input type="text" id="regName" class="input-box" placeholder="First Middle Last" required autocomplete="off">
                 <div class="input-icon-right">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -519,8 +580,19 @@
             </div>
 
             <div class="input-group">
+                <span class="field-label">Email Address <span class="label-required">*</span></span>
+                <input type="email" id="regEmail" class="input-box" placeholder="example@mail.com" required autocomplete="off">
+                <div class="input-icon-right">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="input-group">
                 <span class="field-label">Create Pin (4-digits) <span class="label-required">*</span></span>
-                <input type="password" id="regPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" class="input-box" placeholder="••••" required>
+                <input type="password" id="regPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" class="input-box" placeholder="••••" required autocomplete="off">
                 <div class="input-icon-right">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -531,13 +603,30 @@
 
             <div class="input-group">
                 <span class="field-label">Confirm Pin <span class="label-required">*</span></span>
-                <input type="password" id="regConfirmPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" class="input-box" placeholder="••••" required>
+                <input type="password" id="regConfirmPin" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" class="input-box" placeholder="••••" required autocomplete="off">
             </div>
 
             <div class="form-action-area">
-                <button type="submit" id="submitBtn" class="btn-submit">Verify & Create Account</button>
+                <button type="submit" id="submitBtn" class="btn-submit">Continue to Verification</button>
             </div>
         </form>
+
+        <div class="verification-view" id="otpView">
+            <div class="otp-container" id="otpInputsWrapper">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+            </div>
+
+            <p class="resend-text">Didn't receive the email? <span id="resendCodeBtn" class="resend-link disabled">Resend in (30s)</span></p>
+
+            <div class="form-action-area" style="margin-top:20px;">
+                <button type="button" id="verifyOtpBtn" class="btn-submit">Verify OTP & Create Account</button>
+            </div>
+        </div>
 
         <div class="login-redirect-footer">
             Already have an account? <a href="new2.html">Log In</a>
@@ -548,6 +637,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, set, runTransaction, push, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        // Firebase Web Config
         const firebaseConfig = {
             apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
             authDomain: "birrgo-fdf7e.firebaseapp.com",
@@ -567,7 +657,7 @@
             { name: "Kenya", code: "+254", flag: "🇰🇪" },
             { name: "United States", code: "+1", flag: "🇺🇸" },
             { name: "United Kingdom", code: "+44", flag: "🇬🇧" },
-            { name: "United Arab Emirates", code: "+971", flag: "🇺🇦" },
+            { name: "United Arab Emirates", code: "+971", flag: "🇦🇪" },
             { name: "Sudan", code: "+249", flag: "🇸🇩" },
             { name: "Somalia", code: "+252", flag: "🇸🇴" },
             { name: "Djibouti", code: "+253", flag: "🇩🇯" },
@@ -589,6 +679,15 @@
         const overlay = document.getElementById('countryModalOverlay');
         const listScrollContainer = document.getElementById('countryListScroll');
         const searchInput = document.getElementById('modalSearchInput');
+
+        // OTP State Variables
+        let signupPayload = {};
+        let countdownTimer;
+
+        // Helper: Sanitize Email as safe Firebase path key
+        function sanitizeEmail(email) {
+            return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
+        }
 
         function populateCountries(filterText = "") {
             listScrollContainer.innerHTML = "";
@@ -659,25 +758,152 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3500);
         }
 
+        // Custom Dynamic Back Navigation logic
+        document.getElementById('navBackBtn').addEventListener('click', () => {
+            const signupForm = document.getElementById('signupForm');
+            const otpView = document.getElementById('otpView');
+            
+            if (otpView.style.display === 'flex') {
+                otpView.style.display = 'none';
+                signupForm.style.display = 'flex';
+                
+                document.getElementById('stepDot1').className = 'step-dot-active';
+                document.getElementById('stepDot2').className = 'step-dot';
+                document.getElementById('screen-title').innerText = "Create Your Account";
+                
+                clearInterval(countdownTimer);
+            } else {
+                window.location.href = "index.html"; 
+            }
+        });
+
+        // OTP inputs auto-advance logic
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Live Real-Time automatic dynamic dispatch using your saved Brevo Configuration
+        async function sendVerificationOtp(email) {
+            try {
+                // Pull credentials safely stored on Firebase Realtime DB
+                const configRef = ref(db, 'admin/settings/brevo');
+                const configSnapshot = await get(configRef);
+                
+                if (!configSnapshot.exists()) {
+                    showNotification("System Brevo setup is missing. Please contact Admin.");
+                    return;
+                }
+                
+                const config = configSnapshot.val();
+
+                // Create random 6 digit OTP unique to this registration transaction
+                const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                const expiryMinutes = 10;
+                const currentTime = Date.now();
+                const expiresAt = currentTime + (expiryMinutes * 60 * 1000);
+                const sanitizedEmailKey = sanitizeEmail(email);
+
+                // Save transaction details on Realtime Database
+                await set(ref(db, `otps/${sanitizedEmailKey}`), {
+                    otp: generatedOtp,
+                    email: email.toLowerCase(),
+                    createdAt: currentTime,
+                    expiresAt: expiresAt,
+                    verified: false
+                });
+
+                // Post to API delivery proxy endpoint
+                const response = await fetch('http://localhost:3000/api/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        apiKey: config.apiKey,
+                        senderEmail: config.senderEmail,
+                        senderName: config.senderName || "BirrGo Security",
+                        templateId: parseInt(config.templateId),
+                        recipientEmail: email,
+                        otp: generatedOtp,
+                        expireMinutes: expiryMinutes
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showNotification(`Verification code successfully sent to ${email}`, true);
+                    startCountdown();
+                } else {
+                    throw new Error(result.error || "Email delivery transaction failed.");
+                }
+
+            } catch (error) {
+                console.error("OTP Delivery Exception:", error);
+                showNotification("Could not dispatch verification email. Try again later.");
+            }
+        }
+
+        function startCountdown() {
+            const resendBtn = document.getElementById('resendCodeBtn');
+            resendBtn.classList.add('disabled');
+            let timer = 30;
+            
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                timer--;
+                resendBtn.innerText = `Resend in (${timer}s)`;
+                if (timer <= 0) {
+                    clearInterval(countdownTimer);
+                    resendBtn.innerText = "Resend Code";
+                    resendBtn.classList.remove('disabled');
+                }
+            }, 1000);
+        }
+
+        document.getElementById('resendCodeBtn').addEventListener('click', function() {
+            if (!this.classList.contains('disabled')) {
+                sendVerificationOtp(signupPayload.email);
+            }
+        });
+
+        // Step 1: Handling Details Form submission & Routing to Verification Stage
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
             const rawPhone = document.getElementById('regPhone').value.trim();
             const fullName = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
             const pin = document.getElementById('regPin').value;
             const confirmPin = document.getElementById('regConfirmPin').value;
 
             let cleanPhone = rawPhone.replace(/^0+/, '');
             
             if (cleanPhone.length < 6 || cleanPhone.length > 14) {
-                showNotification("Please enter a valid phone number length.");
+                showNotification("Please enter a valid phone number.");
                 return;
             }
 
             const nameParts = fullName.split(/\s+/).filter(part => part.length > 0);
             if (nameParts.length !== 3) {
                 showNotification("Please enter exactly 3 names: First, Middle, and Last name.");
+                return;
+            }
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                showNotification("Please enter a valid email address.");
                 return;
             }
 
@@ -690,48 +916,127 @@
                 return;
             }
 
-            const formatGlobalPhone = activeSelectedPrefix + cleanPhone;
-            const firstNameOnly = nameParts[0];
-
-            const final6Reversed = cleanPhone.slice(-6).split('').reverse().join('');
-            const computedCardNumber = cleanPhone + final6Reversed;
-
             try {
                 submitBtn.disabled = true;
                 submitBtn.innerText = "Checking Availability...";
 
+                // Validate phone availability inside DB
                 const userSnapshot = await get(ref(db, 'users/' + cleanPhone));
 
                 if (userSnapshot.exists()) {
                     showNotification("An account already exists with this phone number.");
                     submitBtn.disabled = false;
-                    submitBtn.innerText = "Verify & Create Account";
+                    submitBtn.innerText = "Continue to Verification";
                     return;
                 }
 
-                submitBtn.innerText = "Saving Profile...";
+                // Cache Registration Details Payload for Step 2
+                signupPayload = {
+                    cleanPhone,
+                    fullName,
+                    email,
+                    pin,
+                    firstNameOnly: nameParts[0],
+                    formatGlobalPhone: activeSelectedPrefix + cleanPhone
+                };
+
+                // Transitioning the Form UI safely from Step 1 -> Step 2
+                document.getElementById('signupForm').style.display = 'none';
+                document.getElementById('otpView').style.display = 'flex';
+                
+                document.getElementById('stepDot1').className = 'step-dot';
+                document.getElementById('stepDot2').className = 'step-dot-active';
+                document.getElementById('screen-title').innerText = "Verify Your Email";
+                document.getElementById('referrer-label').innerHTML = `Enter the 6-digit code sent to <strong style="color:var(--primary-burgundy);">${email}</strong>`;
+
+                // Dispatch Email OTP
+                await sendVerificationOtp(email);
+
+            } catch (error) {
+                console.error("Firebase read failure: ", error);
+                showNotification("Network error. Try checking your internet connection.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Continue to Verification";
+            }
+        });
+
+        // Step 2: Validate the Entered OTP directly against DB values
+        document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
+            let enteredOtp = "";
+            otpInputs.forEach(input => enteredOtp += input.value);
+
+            if (enteredOtp.length !== 6) {
+                showNotification("Please enter all 6 digits of the OTP.");
+                return;
+            }
+
+            const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+            const sanitizedEmailKey = sanitizeEmail(signupPayload.email);
+
+            try {
+                verifyOtpBtn.disabled = true;
+                verifyOtpBtn.innerText = "Verifying...";
+
+                // Pull the precise record active on Firebase Database for comparison
+                const otpSnapshot = await get(ref(db, `otps/${sanitizedEmailKey}`));
+
+                if (!otpSnapshot.exists()) {
+                    showNotification("Verification details expired or not found. Resend code.");
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.innerText = "Verify OTP & Create Account";
+                    return;
+                }
+
+                const dbOtpRecord = otpSnapshot.val();
+
+                if (Date.now() > dbOtpRecord.expiresAt) {
+                    showNotification("This code has expired. Please request a new one.");
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.innerText = "Verify OTP & Create Account";
+                    return;
+                }
+
+                if (enteredOtp !== dbOtpRecord.otp) {
+                    showNotification("Incorrect OTP verification code. Try again.");
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.innerText = "Verify OTP & Create Account";
+                    return;
+                }
+
+                verifyOtpBtn.innerText = "Creating Account...";
+
+                // Set verification flag to true in real-time database logs
+                await set(ref(db, `otps/${sanitizedEmailKey}/verified`), true);
+
+                const cleanPhone = signupPayload.cleanPhone;
+                const final6Reversed = cleanPhone.slice(-6).split('').reverse().join('');
+                const computedCardNumber = cleanPhone + final6Reversed;
 
                 let finalizedUserNumber = 1000; 
                 try {
                     const globalCounterRef = ref(db, 'new/globalUserCounter');
-                    await runTransaction(globalCounterRef, (currentValue) => {
+                    const txResult = await runTransaction(globalCounterRef, (currentValue) => {
                         let parsedValue = parseInt(currentValue);
                         if (isNaN(parsedValue) || parsedValue < 1000) {
                             return 1001;
                         }
-                        finalizedUserNumber = parsedValue;
                         return parsedValue + 1;
                     });
+                    if (txResult.committed) {
+                        finalizedUserNumber = txResult.snapshot.val() - 1;
+                    }
                 } catch (counterErr) {
-                    console.error("Counter generation latency override fallback applied.", counterErr);
+                    console.error("Counter fallback logic run.", counterErr);
                 }
 
                 const userPayload = {
-                    phoneNumber: formatGlobalPhone,
+                    phoneNumber: signupPayload.formatGlobalPhone,
                     localPhoneRef: cleanPhone,
-                    firstName: firstNameOnly,
-                    fullName: fullName,
-                    securityPin: pin,
+                    emailAddress: signupPayload.email,
+                    firstName: signupPayload.firstNameOnly,
+                    fullName: signupPayload.fullName,
+                    securityPin: signupPayload.pin,
                     walletBalance: 0.00,
                     userNumber: finalizedUserNumber,
                     accountId: "BG-" + finalizedUserNumber, 
@@ -739,8 +1044,10 @@
                     createdAt: new Date().toISOString()
                 };
 
+                // Save profile details to Firebase database
                 await set(ref(db, 'users/' + cleanPhone), userPayload);
 
+                // Handle Referrer System Logic (Inviter gets a reward)
                 if (referrerAccountId) {
                     try {
                         const usersRef = ref(db, 'users');
@@ -773,7 +1080,7 @@
 
                                 const newTxNode = push(inviterTxRef);
                                 await set(newTxNode, {
-                                    title: `Referral Bonus (${firstNameOnly})`,
+                                    title: `Referral Bonus (${signupPayload.firstNameOnly})`,
                                     amount: fixedBonus,
                                     type: "income",
                                     timestamp: walletFormattedTime
@@ -781,20 +1088,18 @@
 
                                 const historyLogNode = push(referredHistoryRef);
                                 await set(historyLogNode, {
-                                    fullName: fullName,
+                                    fullName: signupPayload.fullName,
                                     phone: cleanPhone,
                                     timestamp: walletFormattedTime
                                 });
-                                
-                                console.log("Referral transaction completed successfully.");
                             }
                         }
                     } catch (referralError) {
-                        console.error("Referral processing error: ", referralError);
+                        console.error("Referral Engine Error: ", referralError);
                     }
                 }
 
-                showNotification("Account created successfully!", true);
+                showNotification("Account verified & created successfully!", true);
                 localStorage.setItem('auth_session_phone', cleanPhone);
 
                 setTimeout(() => {
@@ -802,10 +1107,10 @@
                 }, 1500);
 
             } catch (error) {
-                console.error("Database Write Latency Error: ", error);
-                showNotification("Connection lost. Please check your data.");
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Verify & Create Account";
+                console.error("Database Write Error: ", error);
+                showNotification("Connection lost. Please try again.");
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.innerText = "Verify OTP & Create Account";
             }
         });
     </script>
