@@ -539,7 +539,6 @@
         });
 
         function streamLiveAdminUpdatesLog() {
-            // Updated node reference path from 'adminNews' to 'newNews'
             const adminNewsRef = ref(db, `newNews`);
             onValue(adminNewsRef, (snapshot) => {
                 localCachedBroadcasts = [];
@@ -581,7 +580,7 @@
             }
         }
 
-        // Helper function to safely load standard scripts dynamically without iframe blocks
+        // Helper function to safely load standard scripts dynamically without duplicate ID conflicts
         function triggerNativeAdExecution(containerId) {
             const target = document.getElementById(containerId);
             if (!target) return;
@@ -589,12 +588,27 @@
             // Clear the placeholder container completely
             target.innerHTML = '';
 
-            // 1. Create the container div required by your script zone
+            // 1. Create a dynamically unique target child container ID using the containerId itself
+            const uniqueZoneId = "container-" + containerId;
             const zoneContainer = document.createElement('div');
-            zoneContainer.id = "container-f87729ca03d3b44c8a05cc9336ce92bf";
+            zoneContainer.id = uniqueZoneId;
             target.appendChild(zoneContainer);
 
-            // 2. Build the script element manually so the browser treats it as main thread layout
+            // 2. Build the configuration script required by the network as an inline element
+            const configScript = document.createElement('script');
+            configScript.type = 'text/javascript';
+            configScript.text = `
+                atOptions = {
+                    'key' : 'f87729ca03d3b44c8a05cc9336ce92bf',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            `;
+            target.appendChild(configScript);
+
+            // 3. Build and append the script element manually so the browser treats it as a main thread layout
             const adScript = document.createElement('script');
             adScript.async = true;
             adScript.setAttribute('data-cfasync', 'false');
@@ -672,6 +686,7 @@
                     const adCard = document.createElement('article');
                     adCard.className = "featured-broadcast-card native-ad-card";
                     
+                    // Create a dynamic ID that contains both the index and current time to stay 100% unique
                     const dynamicAdSlotId = `live-inline-zone-${index}-${Date.now()}`;
                     
                     adCard.innerHTML = `
