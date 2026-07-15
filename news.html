@@ -171,7 +171,7 @@
 
         .featured-broadcast-card.native-ad-card {
             padding: 18px 22px !important;
-            min-height: 110px !important;
+            min-height: 310px !important; 
             margin-bottom: 16px;
         }
         .featured-broadcast-card.native-ad-card::before {
@@ -180,7 +180,7 @@
 
         .ad-script-wrapper {
             width: 100%;
-            min-height: 50px;
+            min-height: 250px;
             display: block;
             position: relative;
         }
@@ -446,7 +446,7 @@
             <a href="dashboard.html" class="back-action-btn" aria-label="Navigate Back">
                 <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </a>
-            <h1 class="header-title-text">Updates Center</h1>
+            <h1 class="header-title-text"> Whats new today? </h1>
             <div class="header-spacer"></div>
         </header>
 
@@ -457,7 +457,6 @@
                 <span class="filter-pill" data-category="Promo Rewards">Promo Rewards</span>
             </div>
 
-            <!-- PROMO REDEEM CARD -->
             <section class="promo-redeem-card" id="promoRedeemSection">
                 <div class="promo-header-group">
                     <span class="promo-gift-badge">🎁</span>
@@ -472,7 +471,6 @@
                 </div>
             </section>
 
-            <!-- PROMO TAB STATIC AD CARD -->
             <article class="featured-broadcast-card native-ad-card" id="promoTabAdCard" style="display: none;">
                 <div class="badge-meta-row" style="margin-bottom: 8px;">
                     <span class="spotlight-pill inline-ad-badge">AD</span>
@@ -481,7 +479,6 @@
                 <div class="ad-script-wrapper" id="promoAdSlotWrapper"></div>
             </article>
 
-            <!-- DYNAMIC BROADCASTS CONTAINER -->
             <div class="broadcasts-container" id="broadcastsContainer">
                 <div class="featured-broadcast-card">
                     <h2 class="broadcast-title" style="font-size:16px; text-align:center;">Connecting to Server Node...</h2>
@@ -580,41 +577,56 @@
             }
         }
 
-        // Helper function to safely load standard scripts dynamically without duplicate ID conflicts
+        // Helper function to dynamically load Adsterra scripts inside unique frames with Cache Busting
         function triggerNativeAdExecution(containerId) {
             const target = document.getElementById(containerId);
             if (!target) return;
 
-            // Clear the placeholder container completely
+            // Clear placeholder container
             target.innerHTML = '';
 
-            // 1. Create a dynamically unique target child container ID using the containerId itself
-            const uniqueZoneId = "container-" + containerId;
-            const zoneContainer = document.createElement('div');
-            zoneContainer.id = uniqueZoneId;
-            target.appendChild(zoneContainer);
+            // 1. Create sandbox dynamic iframe matching 300x250 format
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '300px';
+            iframe.style.height = '250px';
+            iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden';
+            iframe.style.display = 'block';
+            iframe.style.margin = '0 auto';
+            iframe.scrolling = 'no';
 
-            // 2. Build the configuration script required by the network as an inline element
-            const configScript = document.createElement('script');
-            configScript.type = 'text/javascript';
-            configScript.text = `
-                atOptions = {
-                    'key' : 'f87729ca03d3b44c8a05cc9336ce92bf',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            `;
-            target.appendChild(configScript);
+            target.appendChild(iframe);
 
-            // 3. Build and append the script element manually so the browser treats it as a main thread layout
-            const adScript = document.createElement('script');
-            adScript.async = true;
-            adScript.setAttribute('data-cfasync', 'false');
-            adScript.src = "https://pl30332226.effectivecpmnetwork.com/f87729ca03d3b44c8a05cc9336ce92bf/invoke.js";
+            // 2. Generate a unique cache-buster parameter
+            const cacheBuster = Date.now() + Math.floor(Math.random() * 100000);
+
+            // 3. Inject Adsterra banner scripts with a unique cache-busting query parameter
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             
-            target.appendChild(adScript);
+            iframeDoc.open();
+            iframeDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; }
+                    </style>
+                </head>
+                <body>
+                    <script type="text/javascript">
+                        var atOptions = {
+                            'key' : '13b3ec570952c54b1d86d1063081641d',
+                            'format' : 'iframe',
+                            'height' : 250,
+                            'width' : 300,
+                            'params' : {}
+                        };
+                    <\/script>
+                    <script type="text/javascript" src="https://www.highperformanceformat.com/13b3ec570952c54b1d86d1063081641d/invoke.js?cb=${cacheBuster}" async="async"><\/script>
+                </body>
+                </html>
+            `);
+            iframeDoc.close();
         }
 
         function renderFilteredBroadcasts() {
@@ -698,10 +710,11 @@
                     `;
                     container.appendChild(adCard);
 
-                    // Tiny timeout guarantees the DOM element exists before appending script threads
+                    // Stagger the loading of each subsequent ad slot by 150ms increments 
+                    // to give the Adsterra ad network enough time to process and rotate the campaign pool.
                     setTimeout(() => {
                         triggerNativeAdExecution(dynamicAdSlotId);
-                    }, 20);
+                    }, index * 150 + 20);
                 }
             });
         }
