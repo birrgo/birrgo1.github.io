@@ -20,7 +20,6 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen p-6">
 
     <div class="max-w-6xl mx-auto space-y-8">
-        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-6">
             <div>
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
@@ -39,9 +38,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Side: Config & Custom Dispatch Form (1 Column) -->
             <div class="lg:col-span-1 space-y-6">
-                <!-- Brevo Configuration Card -->
                 <div class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-xl space-y-4">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-bold text-slate-200">System Gateway</h2>
@@ -74,7 +71,6 @@
                     </div>
                 </div>
 
-                <!-- Manual Test/Override OTP Dispatch -->
                 <div class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-xl space-y-4">
                     <h2 class="text-lg font-bold text-slate-200">Force Bypass Override</h2>
                     
@@ -110,7 +106,6 @@
                 </div>
             </div>
 
-            <!-- Right Side: Real-time Live Registrations Logs Database Feed (2 Columns) -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
                     <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/20">
@@ -132,7 +127,6 @@
                                 </tr>
                             </thead>
                             <tbody id="logsTableBody" class="divide-y divide-slate-800/60">
-                                <!-- Dynamic records from database inject here -->
                                 <tr>
                                     <td colspan="4" class="p-8 text-center text-slate-500">Awaiting database handshake...</td>
                                 </tr>
@@ -143,11 +137,9 @@
             </div>
         </div>
 
-        <!-- Global Operational Status Output Notification Box -->
         <div id="statusMessage" class="hidden fixed bottom-6 right-6 p-4 rounded-xl text-xs font-semibold shadow-2xl max-w-sm transition-all duration-300 transform scale-95 border"></div>
     </div>
 
-    <!-- Firebase System Module Integrations -->
     <script type="module">
         // Global Admin Session Security Gate (Updated target to new.html)
         if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
@@ -334,7 +326,7 @@
                     to: [{ email: recipientEmail }],
                     templateId: parseInt(templateIdVal, 10),
                     params: {
-                        OTP: otpCode,
+                        code: otpCode, // Fixed to match your Brevo template variable: {{ params.code }}
                         EXPIRE_MINUTES: expiryMinutes
                     }
                 };
