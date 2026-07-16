@@ -8,8 +8,19 @@
         Birrgo Team
     </author>
 
+    <!-- Point the app launch source directly to your new domain -->
     <content src="https://test.birrgo.online" />
 
+    <!-- Icon Configuration -->
+    <!-- This tells Cordova to use your icon.png from the root directory -->
+    <icon src="icon.png" />
+
+    <platform name="android">
+        <!-- Main launcher icon mapping -->
+        <icon src="icon.png" />
+    </platform>
+
+    <!-- Security Rules: Allow your app to load external resources and navigate -->
     <access origin="https://test.birrgo.online" />
     <access origin="*" />
     
