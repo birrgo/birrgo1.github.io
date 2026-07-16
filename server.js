@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { BrevoClient } = require('@getbrevo/brevo');
 const admin = require('firebase-admin');
+const { getDatabase } = require('firebase-admin/database'); // <-- FIXED: Added correct import for Database
 
 const app = express();
 
@@ -74,7 +75,9 @@ app.post('/send-otp', async (req, res) => {
     const sanitizedEmailKey = sanitizeEmail(email);
     const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes expiration
 
-    await admin.database().ref(`otps/${sanitizedEmailKey}`).set({
+    // <-- FIXED: Replaced admin.database() with getDatabase()
+    const db = getDatabase();
+    await db.ref(`otps/${sanitizedEmailKey}`).set({
       otp: secureOtp,
       expiresAt: expiresAt,
       verified: false
