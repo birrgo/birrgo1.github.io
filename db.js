@@ -2,11 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref, get, onValue, runTransaction, push, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-// Global Admin Session Security Gate
-if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
-    window.location.href = "new1.html";
-}
-
 const firebaseConfig = {
     apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
     authDomain: "birrgo-fdf7e.firebaseapp.com",
@@ -33,6 +28,7 @@ export const storage = getStorage(app);
 export const getNumericTimestamp = () => Date.now();
 
 // Clean Module Re-Exports Framework
+// Explicitly exporting individual elements keeps GitHub Pages / browser engines stable
 export { 
     ref, 
     get, 

@@ -95,6 +95,9 @@ searchInput.addEventListener('input', (e) => {
 
 let referrerAccountId = "";
 document.addEventListener('DOMContentLoaded', () => {
+    // FIX: Set explicit routing state to prevent external index redirection conflicts
+    localStorage.setItem('birrgo_last_page', 'register.html');
+
     const urlParams = new URLSearchParams(window.location.search);
     const refParam = urlParams.get('ref');
     if (refParam) {
@@ -416,6 +419,9 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
 
         showNotification("Account verified & created successfully!", true);
         localStorage.setItem('auth_session_phone', cleanPhone);
+
+        // FIX: Prior to leaving the page, switch tracking explicitly to target destination
+        localStorage.setItem('birrgo_last_page', 'dashboard.html');
 
         setTimeout(() => {
             window.location.href = "dashboard.html"; 
