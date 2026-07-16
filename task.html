@@ -32,7 +32,7 @@
             <div class="brand-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 8px 20px; position: relative; z-index: 5;">
                 <img src="birrgo-logo.png" alt="BirrGo Logo" class="brand-logo" style="height: 45px; object-fit: contain;">
                 
-                <button class="profile-btn" id="headerProfileBtn" aria-label="Profile" style="width: 44px; height: 44px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.85); border: 2px solid #ffffff; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
+                <button class="profile-btn" id="headerProfileBtn" aria-label="Profile" onclick="window.location.href='profile.html'" style="width: 44px; height: 44px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.85); border: 2px solid #ffffff; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
                     <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: #4b5563; stroke: none;">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"></path>
                     </svg>
@@ -101,25 +101,6 @@
         </nav>
     </div>
 
-    <div class="custom-popup-backdrop" id="profilePopup">
-        <div class="custom-popup-card" style="padding: 24px; max-width: 340px; border-radius: 28px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
-                <h3 style="font-size: 19px; font-weight: 800; color: #111827; margin: 0;">Account Profile</h3>
-                <button id="closeProfilePopupBtn" style="background: none; border: none; font-size: 20px; color: #6b7280; cursor: pointer; font-weight: 700;">&times;</button>
-            </div>
-            
-            <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 20px; padding: 20px; width: 100%; box-sizing: border-box; text-align: left; margin-bottom: 24px;">
-                <p style="font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.5px;">Full Name</p>
-                <h4 id="modalFullName" style="font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 16px 0; word-break: break-word;">Loading...</h4>
-                
-                <p style="font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; margin: 0 0 4px 0; letter-spacing: 0.5px;">Phone Number</p>
-                <h4 id="modalPhone" style="font-size: 16px; font-weight: 700; color: #111827; margin: 0;">Loading...</h4>
-            </div>
-
-            <button class="btn-popup-confirm" id="modalLogoutBtn" style="width: 100%; background: #9A0019; border-radius: 100px; padding: 14px; font-weight: 700; color: white; border: none; cursor: pointer;">Logout</button>
-        </div>
-    </div>
-
     <div class="custom-popup-backdrop" id="customPopup">
         <div class="custom-popup-card">
             <div class="popup-status-badge bg-success" id="popupBadge">
@@ -156,7 +137,6 @@
         let activeUserPhone = "";
         let activeAccountId = ""; 
 
-        const profilePopup = document.getElementById('profilePopup');
         const customPopup = document.getElementById('customPopup');
         const popupBadge = document.getElementById('popupBadge');
         const popupIcon = document.getElementById('popupIcon');
@@ -195,8 +175,6 @@
                 const snapshot = await get(ref(db, `users/${activeUserPhone}`));
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
-                    document.getElementById('modalFullName').innerText = userData.fullName || "Premium User";
-                    document.getElementById('modalPhone').innerText = activeUserPhone;
 
                     if (userData.accountId) {
                         activeAccountId = userData.accountId;
@@ -210,7 +188,6 @@
             }
 
             initTasks();
-            setupProfileEvents();
             setupNavigationHandlers();
         });
 
@@ -218,6 +195,7 @@
             document.getElementById('navHome').addEventListener('click', () => window.location.href = 'dashboard.html');
             document.getElementById('navLottery').addEventListener('click', () => window.location.href = 'lottery.html');
             document.getElementById('navWallet').addEventListener('click', () => window.location.href = 'wallet.html');
+            document.getElementById('headerProfileBtn').addEventListener('click', () => window.location.href = 'profile.html');
         }
 
         function displayAppModal(type, title, message, onConfirm = null) {
@@ -291,7 +269,6 @@
                     });
                 } else {
                     targetBtn.addEventListener('click', () => {
-                        // Forward user directly to the new dedicated ad page!
                         window.location.href = `taskv.html?id=${currentId}`;
                     });
                 }
@@ -338,31 +315,6 @@
             } catch (error) {
                 console.error(error);
             }
-        }
-
-        function setupProfileEvents() {
-            const openBtn = document.getElementById('headerProfileBtn');
-            const closeBtn = document.getElementById('closeProfilePopupBtn');
-            const logoutBtn = document.getElementById('modalLogoutBtn');
-
-            openBtn.onclick = () => {
-                profilePopup.style.display = 'flex';
-                setTimeout(() => profilePopup.classList.add('show-modal'), 10);
-            };
-
-            closeBtn.onclick = () => {
-                profilePopup.classList.remove('show-modal');
-                setTimeout(() => { profilePopup.style.display = 'none'; }, 300);
-            };
-
-            logoutBtn.onclick = () => {
-                profilePopup.classList.remove('show-modal');
-                profilePopup.style.display = 'none';
-                displayAppModal('lock', 'Logout', 'Are you sure you want to end your session?', () => {
-                    localStorage.removeItem('auth_session_phone');
-                    window.location.href = "new2.html";
-                });
-            };
         }
 
         function secureCopy(text) {

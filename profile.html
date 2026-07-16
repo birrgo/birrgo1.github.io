@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BirrGo - Premium Account Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-burgundy: #800020;
+            --primary-gradient: linear-gradient(135deg, #9b0026 0%, #4a0000 100%);
+            --accent-glow: rgba(128, 0, 32, 0.15);
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --border-light: #e2e8f0;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+            --success-green: #10b981;
+            --success-bg: #ecfdf5;
+            --border-radius-lg: 24px;
+            --border-radius-md: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.2px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #f1f5f9;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-view {
+            width: 100%;
+            height: 100dvh;
+            max-width: 450px;
+            background-color: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Decorative Background Waves */
+        .bg-wave {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bg-wave-top {
+            top: 0;
+            height: 12vh;
+            min-height: 80px;
+        }
+        .bg-wave-bottom {
+            bottom: 0;
+            height: 10vh;
+            min-height: 70px;
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            background-color: transparent;
+            padding: calc(20px + env(safe-area-inset-top)) 20px calc(95px + env(safe-area-inset-bottom)) 20px;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 1;
+        }
+        .app-content::-webkit-scrollbar { display: none; }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .back-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .back-btn:active {
+            transform: scale(0.9);
+        }
+
+        .profile-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .profile-avatar-section {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .profile-avatar-large {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid var(--primary-burgundy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            margin: 0 auto 10px auto;
+            box-shadow: 0 10px 20px rgba(128,0,0,0.1);
+        }
+
+        /* Fayda ID Verification Badge */
+        .verification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--success-bg);
+            color: var(--success-green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 18px 2px 10px 2px;
+        }
+
+        .profile-display-box {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+        }
+
+        .profile-info-row {
+            margin-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .profile-info-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .profile-info-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-info-val {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* Quick Interactive Actions inside details box */
+        .action-arrow {
+            color: var(--primary-burgundy);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* Biometrics Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-burgundy);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Full User Stats Grid */
+        .stats-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-md);
+            padding: 14px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background-color: #fdf2f4;
+            color: var(--primary-burgundy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .stat-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        /* Buttons styles */
+        .btn-logout-premium {
+            width: 100%;
+            height: 52px;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 16px var(--accent-glow);
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+        .btn-logout-premium:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        /* Modals & Popups styling */
+        .custom-popup-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100dvh;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            z-index: 5000;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .custom-popup-backdrop.show-modal {
+            display: flex;
+            opacity: 1;
+        }
+        .custom-popup-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 360px;
+            border-radius: var(--border-radius-lg);
+            padding: 28px 24px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+            transform: scale(0.9);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .custom-popup-backdrop.show-modal .custom-popup-card {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+        .close-modal-btn {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .input-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .text-input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-md);
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            transition: border-color 0.2s;
+        }
+        .text-input:focus {
+            border-color: var(--primary-burgundy);
+        }
+
+        /* Biometric Verification Modal specific rules */
+        .bio-iframe-container {
+            width: 100%;
+            height: 310px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .bottom-nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: calc(68px + env(safe-area-inset-bottom));
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            gap: 4px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-view">
+        
+        <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
+            <defs>
+                <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="200" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#9A0019"/>
+                    <stop offset="1" stop-color="#700010"/>
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
+        </svg>
+        
+        <div class="app-content">
+            <div class="profile-header">
+                <div class="back-btn" onclick="window.location.href='dashboard.html'">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-dark)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </div>
+                <h2 class="profile-title">Profile Hub</h2>
+                <div style="width: 40px;"></div>
+            </div>
+
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-large">👤</div>
+                <div class="verification-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Fayda ID Verified
+                </div>
+            </div>
+
+            <h3 class="section-title">Your Performance Stats</h3>
+            <div class="stats-matrix">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Tasks Done</span>
+                        <span class="stat-value" id="statsCompletedTasks">0 / 5</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Invited</span>
+                        <span class="stat-value" id="statsReferred">0 Users</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Balance</span>
+                        <span class="stat-value" id="statsBalance">0.00 Br</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-label">Lotteries</span>
+                        <span class="stat-value" id="statsLotteryCount">0 Joined</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-title">Personal Details</h3>
+            <div class="profile-display-box">
+                <div class="profile-info-row">
+                    <div class="info-col">
+                        <span class="profile-info-label">Full Name</span>
+                        <span class="profile-info-val" id="profileFullNameText">Loading...</span>
+                    </div>
+                </div>
+                <div class="profile-info-row">
+                    <div class="info-col">
+                        <span class="profile-info-label">Phone Number</span>
+                        <span class="profile-info-val" id="profilePhoneText">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-title">Security Settings</h3>
+            <div class="profile-display-box">
+                <div class="profile-info-row">
+                    <div class="info-col">
+                        <span class="profile-info-label">Biometric Login</span>
+                        <span class="profile-info-val" style="font-size:13px; font-weight:500; color:var(--text-muted);">Use fingerprint scanner</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="biometricsToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="profile-info-row" id="changePassRow">
+                    <div class="info-col">
+                        <span class="profile-info-label">Update Pin/Password</span>
+                        <span class="profile-info-val" style="font-size:13px; font-weight:500; color:var(--text-muted);">Change secure access PIN</span>
+                    </div>
+                    <span class="action-arrow">&#8250;</span>
+                </div>
+            </div>
+
+            <button class="btn-logout-premium" id="logoutConfirmBtn">Logout</button>
+        </div>
+
+        <nav class="bottom-nav-bar">
+            <a href="dashboard.html" class="nav-item">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <a href="task.html" class="nav-item">
+                <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                Tasks
+            </a>
+            <a href="lottery.html" class="nav-item">
+                <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Lottery
+            </a>
+            <a href="wallet.html" class="nav-item">
+                <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                Wallet
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- PIN Access Modal for Toggle Validation -->
+    <div class="custom-popup-backdrop" id="verifyPopup">
+        <div class="custom-popup-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Enter Security PIN</h3>
+                <span class="close-modal-btn" id="verifyCloseBtn">&times;</span>
+            </div>
+            <div class="input-group">
+                <label class="input-label" for="verifyPasswordInput">Password / Security PIN</label>
+                <input type="password" id="verifyPasswordInput" class="text-input" placeholder="Enter your 4-digit PIN">
+            </div>
+            <button class="btn-logout-premium" id="confirmVerificationBtn" style="margin-top:8px; margin-bottom:0;">Verify Identity</button>
+        </div>
+    </div>
+
+    <!-- Complete Old Password & Confirm Modal -->
+    <div class="custom-popup-backdrop" id="passPopup">
+        <div class="custom-popup-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Change PIN/Password</h3>
+                <span class="close-modal-btn" id="passCloseBtn">&times;</span>
+            </div>
+            <div class="input-group">
+                <label class="input-label" for="oldPasswordInput">Old Password / PIN</label>
+                <input type="password" id="oldPasswordInput" class="text-input" placeholder="Enter old password">
+            </div>
+            <div class="input-group">
+                <label class="input-label" for="newPasswordInput">New Password / PIN</label>
+                <input type="password" id="newPasswordInput" class="text-input" placeholder="Enter new password">
+            </div>
+            <div class="input-group">
+                <label class="input-label" for="confirmPasswordInput">Confirm New Password / PIN</label>
+                <input type="password" id="confirmPasswordInput" class="text-input" placeholder="Confirm new password">
+            </div>
+            <button class="btn-logout-premium" id="savePasswordBtn" style="margin-top:8px; margin-bottom:0;">Update Security PIN</button>
+        </div>
+    </div>
+
+    <div class="custom-popup-backdrop" id="biometricPopup">
+        <div class="custom-popup-card" style="padding: 20px 16px;">
+            <div class="modal-header" style="margin-bottom: 10px;">
+                <h3 class="modal-title" style="font-size: 16px;">Biometric Verification</h3>
+                <span class="close-modal-btn" id="biometricCloseBtn">&times;</span>
+            </div>
+            <iframe id="biometricIframe" class="bio-iframe-container" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
+            authDomain: "birrgo-fdf7e.firebaseapp.com",
+            databaseURL: "https://birrgo-fdf7e-default-rtdb.firebaseio.com",
+            projectId: "birrgo-fdf7e",
+            storageBucket: "birrgo-fdf7e.firebasestorage.app",
+            messagingSenderId: "2317445154",
+            appId: "1:2317445154:web:4275cbb0f46b28f64f827b",
+            measurementId: "G-24X13TZ43D"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let activeUserPhone = "";
+        const totalVideos = 5;
+        const cooldownDuration = 3600000;
+        let intendedToggleState = false;
+
+        const profileFullNameText = document.getElementById('profileFullNameText');
+        const profilePhoneText = document.getElementById('profilePhoneText');
+        const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
+        const biometricsToggle = document.getElementById('biometricsToggle');
+        
+        // Verification Modal for Toggle
+        const verifyPopup = document.getElementById('verifyPopup');
+        const verifyCloseBtn = document.getElementById('verifyCloseBtn');
+        const verifyPasswordInput = document.getElementById('verifyPasswordInput');
+        const confirmVerificationBtn = document.getElementById('confirmVerificationBtn');
+
+        // Pass change modal nodes
+        const passPopup = document.getElementById('passPopup');
+        const changePassRow = document.getElementById('changePassRow');
+        const passCloseBtn = document.getElementById('passCloseBtn');
+        const savePasswordBtn = document.getElementById('savePasswordBtn');
+        const oldPasswordInput = document.getElementById('oldPasswordInput');
+        const newPasswordInput = document.getElementById('newPasswordInput');
+        const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+
+        // Biometric scanning elements
+        const biometricPopup = document.getElementById('biometricPopup');
+        const biometricCloseBtn = document.getElementById('biometricCloseBtn');
+        const biometricIframe = document.getElementById('biometricIframe');
+
+        // Stats UI elements
+        const statsCompletedTasks = document.getElementById('statsCompletedTasks');
+        const statsReferred = document.getElementById('statsReferred');
+        const statsBalance = document.getElementById('statsBalance');
+        const statsLotteryCount = document.getElementById('statsLotteryCount');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            activeUserPhone = localStorage.getItem('auth_session_phone');
+            
+            if (!activeUserPhone) {
+                window.location.href = "new2.html";
+                return;
+            }
+
+            profilePhoneText.innerText = activeUserPhone;
+
+            // Load biometrics preferences safely
+            const bioSettings = localStorage.getItem('biometrics_enabled');
+            biometricsToggle.checked = bioSettings === 'true';
+
+            streamAccountData();
+            calculateLocalTaskProgress();
+        });
+
+        // Trigger PIN Access verification modal when user tries to switch biometrics
+        biometricsToggle.addEventListener('click', (e) => {
+            e.preventDefault(); // Pause UI switch action
+            intendedToggleState = !biometricsToggle.checked; 
+            
+            verifyPasswordInput.value = "";
+            verifyPopup.style.display = 'flex';
+            setTimeout(() => verifyPopup.classList.add('show-modal'), 10);
+        });
+
+        // Close Toggle Verification Modal
+        function closeVerifyModal() {
+            verifyPopup.classList.remove('show-modal');
+            setTimeout(() => { verifyPopup.style.display = 'none'; }, 300);
+            verifyPasswordInput.value = "";
+        }
+        verifyCloseBtn.addEventListener('click', closeVerifyModal);
+
+        // Verify PIN and route user to Fingerprint scan window
+        confirmVerificationBtn.addEventListener('click', async () => {
+            const enteredPin = verifyPasswordInput.value.trim();
+            if (!enteredPin) return;
+
+            try {
+                const userRef = ref(db, `users/${activeUserPhone}`);
+                const snapshot = await get(userRef);
+                
+                if (snapshot.exists()) {
+                    const dbPassword = snapshot.val().password || snapshot.val().securityPin;
+                    if (String(dbPassword) === enteredPin) {
+                        closeVerifyModal();
+                        
+                        // Proceed directly to biometric scan interface
+                        biometricIframe.src = "finger.html"; 
+                        biometricPopup.style.display = 'flex';
+                        setTimeout(() => biometricPopup.classList.add('show-modal'), 10);
+                    } else {
+                        alert("Incorrect Password/PIN. Access denied.");
+                    }
+                } else {
+                    alert("Account profile missing inside DB framework.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Database verification sync failed.");
+            }
+        });
+
+        // Safe closure of biometric scanning frame
+        function closeBiometricModal() {
+            biometricPopup.classList.remove('show-modal');
+            setTimeout(() => { 
+                biometricPopup.style.display = 'none'; 
+                biometricIframe.src = "about:blank";
+            }, 300);
+        }
+        biometricCloseBtn.addEventListener('click', closeBiometricModal);
+
+        // Receive verification status messages from iframe frame
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.status) {
+                if (event.data.status === 'SUCCESS') {
+                    biometricsToggle.checked = intendedToggleState;
+                    localStorage.setItem('biometrics_enabled', intendedToggleState);
+                    setTimeout(() => {
+                        closeBiometricModal();
+                        alert(`Biometrics successfully ${intendedToggleState ? 'enabled' : 'disabled'}!`);
+                    }, 800);
+                } else if (event.data.status === 'FAILED') {
+                    setTimeout(() => {
+                        closeBiometricModal();
+                        alert(`Biometrics verification failed: ${event.data.error || 'Unknown Error'}`);
+                    }, 800);
+                }
+            }
+        });
+
+        // Manage Change Password popups
+        changePassRow.addEventListener('click', () => {
+            passPopup.style.display = 'flex';
+            setTimeout(() => passPopup.classList.add('show-modal'), 10);
+        });
+
+        function closePasswordModal() {
+            passPopup.classList.remove('show-modal');
+            setTimeout(() => { passPopup.style.display = 'none'; }, 300);
+            oldPasswordInput.value = "";
+            newPasswordInput.value = "";
+            confirmPasswordInput.value = "";
+        }
+        passCloseBtn.addEventListener('click', closePasswordModal);
+
+        // Multi-tier Database Password update validation
+        savePasswordBtn.addEventListener('click', async () => {
+            const oldPass = oldPasswordInput.value.trim();
+            const newPass = newPasswordInput.value.trim();
+            const confirmPass = confirmPasswordInput.value.trim();
+
+            if (!oldPass || !newPass || !confirmPass) {
+                alert("All verification password columns are required.");
+                return;
+            }
+
+            if (newPass.length < 4) {
+                alert("New PIN/Password must contain at least 4 characters.");
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                alert("Confirmation PIN does not match your new PIN design.");
+                return;
+            }
+
+            try {
+                const userRef = ref(db, `users/${activeUserPhone}`);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const currentDbPass = snapshot.val().password || snapshot.val().securityPin;
+
+                    if (String(currentDbPass) !== oldPass) {
+                        alert("The old password you typed is incorrect.");
+                        return;
+                    }
+
+                    // Update both possible paths in database to preserve integrity
+                    await update(userRef, { 
+                        password: newPass,
+                        securityPin: newPass 
+                    });
+
+                    alert("Your account Security PIN has been updated successfully!");
+                    closePasswordModal();
+                } else {
+                    alert("Unable to fetch active user profile data.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("An error occurred during database transaction.");
+            }
+        });
+
+        function calculateLocalTaskProgress() {
+            let currentlyClaimed = 0;
+            const now = Date.now();
+
+            for (let i = 1; i <= totalVideos; i++) {
+                const lastWatched = localStorage.getItem(`video_cooldown_${i}`);
+                if (lastWatched && (now - lastWatched < cooldownDuration)) {
+                    currentlyClaimed++;
+                }
+            }
+            statsCompletedTasks.innerText = `${currentlyClaimed} / ${totalVideos}`;
+        }
+
+        function streamAccountData() {
+            const userProfileRef = ref(db, `users/${activeUserPhone}`);
+            onValue(userProfileRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Load Profile Name
+                    if (data.fullName) {
+                        profileFullNameText.innerText = data.fullName;
+                    } else {
+                        const fName = data.firstName || "";
+                        const mName = data.middleName || "";
+                        profileFullNameText.innerText = `${fName} ${mName}`.trim() || "N/A";
+                    }
+
+                    // Dynamic Metrics calculations
+                    let parsedBalance = parseFloat(data.walletBalance);
+                    if (isNaN(parsedBalance)) parsedBalance = 0.00;
+                    statsBalance.innerText = `${parsedBalance.toFixed(2)} Br`;
+
+                    if (data.referredUsers) {
+                        const totalInvited = Object.keys(data.referredUsers).length;
+                        statsReferred.innerText = `${totalInvited} ${totalInvited === 1 ? 'User' : 'Users'}`;
+                    } else {
+                        statsReferred.innerText = "0 Users";
+                    }
+
+                    if (data.lotteryTickets) {
+                        const totalTickets = Object.keys(data.lotteryTickets).length;
+                        statsLotteryCount.innerText = `${totalTickets} Tickets`;
+                    } else {
+                        statsLotteryCount.innerText = "0 Tickets";
+                    }
+                } else {
+                    profileFullNameText.innerText = "N/A";
+                }
+            });
+        }
+        
+        logoutConfirmBtn.addEventListener('click', () => {
+            localStorage.removeItem('auth_session_phone');
+            window.location.href = "new2.html";
+        });
+    </script>
+</body>
+</html>

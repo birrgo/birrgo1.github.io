@@ -392,53 +392,6 @@
             transform: scale(0.98);
         }
 
-        .profile-display-box {
-            text-align: left;
-            background: #f8fafc;
-            border: 1px solid var(--border-light);
-            border-radius: var(--border-radius-md);
-            padding: 16px;
-            margin-bottom: 24px;
-            width: 100%;
-        }
-        .profile-info-row {
-            margin-bottom: 14px;
-        }
-        .profile-info-row:last-child {
-            margin-bottom: 0;
-        }
-        .profile-info-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .profile-info-val {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        
-        .btn-logout-premium {
-            width: 100%;
-            height: 48px;
-            background: var(--primary-gradient);
-            color: #ffffff;
-            border: none;
-            border-radius: var(--border-radius-md);
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 6px 16px var(--accent-glow);
-            transition: all 0.2s ease;
-        }
-        .btn-logout-premium:active {
-            transform: scale(0.98);
-        }
-
         /* PREMIUM BOTTOM SHEET FOR ERRORS */
         .ui-sheet-backdrop {
             position: absolute;
@@ -637,29 +590,6 @@
             </div>
         </nav>
 
-        <!-- SYSTEM PROFILE POPUP MODAL -->
-        <div class="custom-popup-backdrop" id="profilePopup">
-            <div class="custom-popup-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; width: 100%;">
-                    <h3 class="custom-popup-title" style="margin-bottom: 0;">Account Profile</h3>
-                    <span id="closeProfilePopupBtn" style="cursor: pointer; font-size: 24px; font-weight: 700; color: var(--text-muted); line-height: 1;">&times;</span>
-                </div>
-                
-                <div class="profile-display-box">
-                    <div class="profile-info-row">
-                        <span class="profile-info-label">Full Name</span>
-                        <span class="profile-info-val" id="modalFullName">Loading...</span>
-                    </div>
-                    <div class="profile-info-row" style="margin-top: 16px;">
-                        <span class="profile-info-label">Phone Number</span>
-                        <span class="profile-info-val" id="modalPhone">Loading...</span>
-                    </div>
-                </div>
-
-                <button class="btn-logout-premium" id="modalLogoutBtn">Logout</button>
-            </div>
-        </div>
-
         <!-- System Modal Framework for Popups -->
         <div class="custom-popup-backdrop" id="customPopup">
             <div class="custom-popup-card">
@@ -690,7 +620,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
@@ -703,12 +632,10 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
         
         let activeUserPhone = "";
         let completeRawCardSequence = "";
 
-        const profilePopup = document.getElementById('profilePopup');
         const customPopup = document.getElementById('customPopup');
         const popupBadge = document.getElementById('popupBadge');
         const popupIcon = document.getElementById('popupIcon');
@@ -721,7 +648,7 @@
             window.location.replace(page);
         };
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             activeUserPhone = localStorage.getItem('auth_session_phone');
             if (!activeUserPhone) {
                 window.location.href = "new2.html";
@@ -732,24 +659,7 @@
             const final6Reversed = cleanPhone.slice(-6).split('').reverse().join('');
             completeRawCardSequence = cleanPhone + final6Reversed;
 
-            try {
-                const snapshot = await get(ref(db, `users/${activeUserPhone}`));
-                if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    if (userData.fullName) {
-                        document.getElementById('modalFullName').innerText = userData.fullName;
-                    } else {
-                        const fName = userData.firstName || "";
-                        const mName = userData.middleName || "";
-                        document.getElementById('modalFullName').innerText = `${fName} ${mName}`.trim() || "Premium User";
-                    }
-                    document.getElementById('modalPhone').innerText = activeUserPhone;
-                }
-            } catch (err) {
-                console.error("Profile sync error: ", err);
-            }
-
-            setupProfileEvents();
+            setupProfileNavigation();
             setupNavigationHandlers();
             setupGates();
             setupSheetActions();
@@ -785,29 +695,10 @@
             popupConfirmBtn.addEventListener('click', handleClosure);
         }
 
-        function setupProfileEvents() {
-            const openBtn = document.getElementById('headerProfileBtn');
-            const closeBtn = document.getElementById('closeProfilePopupBtn');
-            const logoutBtn = document.getElementById('modalLogoutBtn');
-
-            openBtn.addEventListener('click', () => {
-                profilePopup.style.display = 'flex';
-                setTimeout(() => profilePopup.classList.add('show-modal'), 10);
-            });
-
-            closeBtn.addEventListener('click', () => {
-                profilePopup.classList.remove('show-modal');
-                setTimeout(() => { profilePopup.style.display = 'none'; }, 300);
-            });
-
-            logoutBtn.addEventListener('click', () => {
-                profilePopup.classList.remove('show-modal');
-                profilePopup.style.display = 'none';
-                
-                displayAppModal('lock', 'Logout', 'Are you sure you want to end your session?', () => {
-                    localStorage.removeItem('auth_session_phone');
-                    window.location.href = "new2.html";
-                });
+        function setupProfileNavigation() {
+            const profileBtn = document.getElementById('headerProfileBtn');
+            profileBtn.addEventListener('click', () => {
+                goToPage('profile.html');
             });
         }
 

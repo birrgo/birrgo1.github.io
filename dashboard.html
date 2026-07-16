@@ -490,60 +490,12 @@
         .btn-popup-confirm:active {
             transform: scale(0.98);
         }
-
-        .profile-display-box {
-            text-align: left;
-            background: #f8fafc;
-            border: 1px solid var(--border-light);
-            border-radius: var(--border-radius-md);
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-        .profile-info-row {
-            margin-bottom: 14px;
-        }
-        .profile-info-row:last-child {
-            margin-bottom: 0;
-        }
-        .profile-info-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .profile-info-val {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        
-        .btn-logout-premium {
-            width: 100%;
-            height: 48px;
-            background: var(--primary-gradient);
-            color: #ffffff;
-            border: none;
-            border-radius: var(--border-radius-md);
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 6px 16px var(--accent-glow);
-            transition: all 0.2s ease;
-        }
-        .btn-logout-premium:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
     </style>
 </head>
 <body>
 
     <div class="app-view">
         
-        <!-- Top Wave Background Layer -->
         <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
             <defs>
@@ -554,7 +506,6 @@
             </defs>
         </svg>
 
-        <!-- Bottom Wave Background Layer -->
         <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
         </svg>
@@ -654,7 +605,6 @@
 
     </div>
 
-    <!-- Feature Locked Modal -->
     <div class="custom-popup-backdrop" id="customPopup">
         <div class="custom-popup-card">
             <div class="popup-status-badge bg-lock">
@@ -663,29 +613,6 @@
             <h3 class="custom-popup-title">Feature Locked</h3>
             <p class="custom-popup-msg" id="popupMessage">This action framework module is coming soon.</p>
             <button class="btn-popup-confirm" id="popupConfirmBtn">OK</button>
-        </div>
-    </div>
-
-    <!-- Info Account Details Profile Modal -->
-    <div class="custom-popup-backdrop" id="profilePopup">
-        <div class="custom-popup-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 class="custom-popup-title" style="margin-bottom: 0;">Account Profile</h3>
-                <span id="profileCloseBtn" style="cursor: pointer; font-size: 24px; font-weight: 700; color: var(--text-muted); line-height: 1;">&times;</span>
-            </div>
-
-            <div class="profile-display-box">
-                <div class="profile-info-row">
-                    <span class="profile-info-label">Full Name</span>
-                    <span class="profile-info-val" id="profileFullNameText">Loading...</span>
-                </div>
-                <div class="profile-info-row" style="margin-top: 16px;">
-                    <span class="profile-info-label">Phone Number</span>
-                    <span class="profile-info-val" id="profilePhoneText">Loading...</span>
-                </div>
-            </div>
-
-            <button class="btn-logout-premium" id="logoutConfirmBtn">Logout</button>
         </div>
     </div>
 
@@ -715,12 +642,6 @@
         const popupMessage = document.getElementById('popupMessage');
         const popupConfirmBtn = document.getElementById('popupConfirmBtn');
 
-        const profilePopup = document.getElementById('profilePopup');
-        const profileCloseBtn = document.getElementById('profileCloseBtn');
-        const profileFullNameText = document.getElementById('profileFullNameText');
-        const profilePhoneText = document.getElementById('profilePhoneText');
-        const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
-
         document.addEventListener('DOMContentLoaded', () => {
             activeUserPhone = localStorage.getItem('auth_session_phone');
             
@@ -745,23 +666,6 @@
             setTimeout(() => { customPopup.style.display = 'none'; }, 300);
         });
 
-        function openProfileDialog() {
-            profilePopup.style.display = 'flex';
-            setTimeout(() => profilePopup.classList.add('show-modal'), 10);
-        }
-
-        function closeProfileDialog() {
-            profilePopup.classList.remove('show-modal');
-            setTimeout(() => { profilePopup.style.display = 'none'; }, 300);
-        }
-
-        profileCloseBtn.addEventListener('click', closeProfileDialog);
-        
-        logoutConfirmBtn.addEventListener('click', () => {
-            localStorage.removeItem('auth_session_phone');
-            window.location.href = "new2.html";
-        });
-
         function updateLocalTaskMetrics() {
             let currentlyClaimed = 0;
             const now = Date.now();
@@ -782,23 +686,6 @@
             const cardLast4Digits = completeRawCardSequence.slice(-4); 
             
             document.getElementById('displayWalletId').innerText = `ID: •••• ${cardLast4Digits}`;
-            profilePhoneText.innerText = activeUserPhone;
-
-            const userProfileRef = ref(db, `users/${activeUserPhone}`);
-            onValue(userProfileRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if (data.fullName) {
-                        profileFullNameText.innerText = data.fullName;
-                    } else {
-                        const fName = data.firstName || "";
-                        const mName = data.middleName || "";
-                        profileFullNameText.innerText = `${fName} ${mName}`.trim() || "N/A";
-                    }
-                } else {
-                    profileFullNameText.innerText = "N/A";
-                }
-            });
 
             const balanceRef = ref(db, `users/${activeUserPhone}/walletBalance`);
             onValue(balanceRef, (snapshot) => {
@@ -836,7 +723,9 @@
                 displayAppModal("Telebirr automatic instant gateway settlement withdrawal systems are processing setup and coming soon.");
             });
 
-            document.getElementById('profileBadgeNode').addEventListener('click', openProfileDialog);
+            document.getElementById('profileBadgeNode').addEventListener('click', () => {
+                window.location.href = "profile.html";
+            });
 
             document.getElementById('dashboardNewsPill').addEventListener('click', () => {
                 window.location.href = "news.html";

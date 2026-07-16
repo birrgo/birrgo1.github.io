@@ -131,25 +131,6 @@
             </div>
         </nav>
 
-        <div class="custom-popup-backdrop" id="profilePopup">
-            <div class="custom-popup-card profile-popup-adjustments">
-                <div class="profile-popup-header">
-                    <h3 class="profile-popup-title">Account Profile</h3>
-                    <button id="closeProfilePopupBtn" class="profile-close-btn">&times;</button>
-                </div>
-                
-                <div class="profile-info-box">
-                    <p class="profile-info-label">Full Name</p>
-                    <h4 id="modalFullName" class="profile-info-value">Loading...</h4>
-                    
-                    <p class="profile-info-label">Phone Number</p>
-                    <h4 id="modalPhone" class="profile-info-value" style="margin: 0;">Loading...</h4>
-                </div>
-
-                <button class="btn-popup-confirm" id="modalLogoutBtn" style="background: var(--primary-burgundy);">Logout</button>
-            </div>
-        </div>
-
         <div class="custom-popup-backdrop" id="customPopup">
             <div class="custom-popup-card">
                 <div class="popup-status-badge bg-success" id="popupBadge">
@@ -206,7 +187,6 @@
         let decryptedFullName = "";
         let infoIsVisible = false;
 
-        const profilePopup = document.getElementById('profilePopup');
         const customPopup = document.getElementById('customPopup');
         const popupBadge = document.getElementById('popupBadge');
         const popupIcon = document.getElementById('popupIcon');
@@ -230,7 +210,6 @@
             startLiveWalletListeners();
             setupSecurityToggles();
             setupFeatureGateways();
-            setupProfileEvents();
             setupNavigationHandlers();
             setupNotificationBadgeHandler();
         });
@@ -265,36 +244,11 @@
             popupConfirmBtn.addEventListener('click', handleClosure);
         }
 
-        function setupProfileEvents() {
-            const openBtn = document.getElementById('headerProfileBtn');
-            const closeBtn = document.getElementById('closeProfilePopupBtn');
-            const logoutBtn = document.getElementById('modalLogoutBtn');
-
-            openBtn.addEventListener('click', () => {
-                profilePopup.style.display = 'flex';
-                setTimeout(() => profilePopup.classList.add('show-modal'), 10);
-            });
-
-            closeBtn.addEventListener('click', () => {
-                profilePopup.classList.remove('show-modal');
-                setTimeout(() => { profilePopup.style.display = 'none'; }, 300);
-            });
-
-            logoutBtn.addEventListener('click', () => {
-                profilePopup.classList.remove('show-modal');
-                profilePopup.style.display = 'none';
-                
-                displayAppModal('lock', 'Logout', 'Are you sure you want to end your session?', () => {
-                    localStorage.removeItem('auth_session_phone');
-                    window.location.href = "new2.html";
-                });
-            });
-        }
-
         function setupNavigationHandlers() {
             document.getElementById('navHome').addEventListener('click', () => goToPage('dashboard.html'));
             document.getElementById('navTasks').addEventListener('click', () => goToPage('task.html'));
             document.getElementById('navLottery').addEventListener('click', () => goToPage('lottery.html'));
+            document.getElementById('headerProfileBtn').addEventListener('click', () => goToPage('profile.html'));
         }
 
         function setupNotificationBadgeHandler() {
@@ -315,8 +269,6 @@
                 if (snapshot.exists()) {
                     const userData = snapshot.val();
                     decryptedFullName = userData.fullName || "Elite Member";
-                    document.getElementById('modalFullName').innerText = decryptedFullName;
-                    document.getElementById('modalPhone').innerText = activeUserPhone;
                 } else {
                     decryptedFullName = "Elite Member";
                 }
@@ -519,9 +471,22 @@
                         Object.keys(userData.transactions).forEach(key => {
                             const tx = userData.transactions[key];
                             
-                            // 🚀 CRITICAL FIX: Skip the transaction if the status is pending/Pending
-                            if (tx.status === 'Pending' || tx.status === 'pending' || (tx.title && tx.title.toLowerCase().includes('pending'))) {
-                                return; // Skip it entirely
+                            // Normalize fields to safely run strict matches
+                            const status = (tx.status || '').toLowerCase();
+                            const title = (tx.title || '').toLowerCase();
+
+                            // 🚀 TARGETED FILTER: Skip only pending, rejected, and cancelled transactions
+                            if (
+                                status === 'pending' || 
+                                status === 'rejected' || 
+                                status === 'canceled' || 
+                                status === 'cancelled' ||
+                                title.includes('pending') ||
+                                title.includes('rejected') ||
+                                title.includes('canceled') ||
+                                title.includes('cancelled')
+                            ) {
+                                return; // Skip these completely
                             }
 
                             let calculatedFallbackSort = 0;
