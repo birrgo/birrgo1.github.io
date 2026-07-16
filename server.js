@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-// Import the unified modern BrevoClient class directly to prevent constructor errors
-const { BrevoClient } = require('@getbrevo/brevo');
+// Import the correct Brevo SDK classes
+const SibApiV3Sdk = require('@getbrevo/brevo');
 
 const app = express();
 
@@ -27,38 +27,51 @@ app.post('/send-otp', async (req, res) => {
   }
 
   try {
-    // Initialize the modern BrevoClient instance with the active key
-    const brevo = new BrevoClient({ apiKey: activeApiKey });
+    // 1. Authenticate the SDK client instance correctly
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiKeyInstance = defaultClient.authentications['api-key'];
+    apiKeyInstance.apiKey = activeApiKey;
 
-    // Build the email payload dynamically
-    const emailPayload = {
-      sender: { 
-        name: senderName || "Birrgo", 
-        email: senderEmail || "mail@birrgo.online" 
-      },
-      to: [{ email: email }]
+    // 2. Instantiate the transactional email API
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+    // 3. Build the SendSmtpEmail payload object
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+    sendSmtpEmail.to = [{ email: email }];
+    sendSmtpEmail.sender = { 
+      name: senderName || "Birrgo", 
+      email: senderEmail || "mail@birrgo.online" 
     };
 
     // If templateId is provided by the dashboard, use it
     if (templateId) {
-      emailPayload.templateId = parseInt(templateId, 10);
-      emailPayload.params = { otp: otp };
+      sendSmtpEmail.templateId = parseInt(templateId, 10);
+      // Brevo template parameters are lowercase "params"
+      // Make sure your Brevo template uses {{ params.otp }} or {{ params.OTP }}
+      sendSmtpEmail.params = { 
+        otp: otp,
+        OTP: otp 
+      };
     } else {
       // Otherwise, fallback to a clean HTML layout
-      emailPayload.subject = "Your OTP Verification Code";
-      emailPayload.htmlContent = `<html><body><h1>Your Verification Code is: <strong>${otp}</strong></h1><p>This code will expire in 5 minutes.</p></body></html>`;
+      sendSmtpEmail.subject = "Your OTP Verification Code";
+      sendSmtpEmail.htmlContent = `<html><body><h1>Your Verification Code is: <strong>${otp}</strong></h1><p>This code will expire in 5 minutes.</p></body></html>`;
     }
 
-    // Dispatch the email using the updated SDK v4 method structure
-    const result = await brevo.transactionalEmails.sendTransacEmail(emailPayload);
+    // 4. Dispatch the email using the correct SDK v4 method
+    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log("OTP Email successfully dispatched:", result);
     
-    res.status(200).json({ success: true, message: 'OTP sent successfully' });
+    res.status(200).json({ success: true, message: 'OTP sent successfully', messageId: result.messageId });
   } catch (error) {
-    console.error("Error sending email via Brevo API:", error.response ? error.response.body : error);
+    // Handle SDK-specific response error objects cleanly
+    const errorDetails = error.response && error.response.body ? error.response.body : error.message;
+    console.error("Error sending email via Brevo API:", errorDetails);
+    
     res.status(500).json({ 
       error: 'Failed to send OTP via Brevo', 
-      details: error.response ? error.response.body : error.message 
+      details: errorDetails 
     });
   }
 });
