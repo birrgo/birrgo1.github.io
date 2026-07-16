@@ -234,8 +234,9 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    if (pin.length !== 4 || !/^\d+$/.test(pin)) {
-        showNotification("PIN must be a secure 4-digit combination.");
+    /* CHANGED: PIN length validation changed from 4 to 6 */
+    if (pin.length !== 6 || !/^\d+$/.test(pin)) {
+        showNotification("PIN must be a secure 6-digit combination.");
         return;
     }
     if (pin !== confirmPin) {
