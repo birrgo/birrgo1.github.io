@@ -177,6 +177,11 @@
         const touchArea = document.getElementById('sensorTouchArea');
         const targetOrigin = window.location.origin === "null" ? "*" : window.location.origin;
 
+        // --- PRODUCTION FLAG ---
+        // Set this to true ONLY for testing layout flows over unsecure HTTP. 
+        // MUST be false in production to enforce strict biometric cryptography.
+        const SIMULATE_SUCCESS_ON_HTTP = false; 
+
         function onFingerprintSuccess(verificationToken) {
             statusMsg.innerText = "Verified!";
             statusMsg.className = "status-text success";
@@ -197,7 +202,7 @@
             }, targetOrigin);
         }
 
-        // Helper to convert base64 back to Uint8Array for browser credentials
+        // Helper to convert base64 back to Uint8Array for WebAuthn authentication structures
         function base64ToBuffer(base64) {
             const binary = window.atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
             const bytes = new Uint8Array(binary.length);
@@ -221,11 +226,22 @@
                 return;
             }
 
-            // Clean domain parsing (strips out port numbers like :5500 or file paths)
+            // Clean domain parsing (strips out port numbers like :5500 or trailing directories)
             const cleanHostname = window.location.hostname;
 
-            // 2. Real WebAuthn Protocol - Strict Security Checks
+            // Determine if the hosting environment allows secure hardware access
             const isSecureContext = window.location.protocol === 'https:' || cleanHostname === 'localhost' || cleanHostname === '127.0.0.1';
+
+            // 2. HTTP Developer Bypass Environment Rule
+            if (!isSecureContext && SIMULATE_SUCCESS_ON_HTTP) {
+                console.warn("WebAuthn Bypassed: Simulating success over unsecure HTTP framework.");
+                setTimeout(() => {
+                    onFingerprintSuccess("simulated-http-token");
+                }, 1000);
+                return;
+            }
+
+            // 3. Real WebAuthn Protocol - Secure Context Evaluation
             const isWebAuthnSupported = window.PublicKeyCredential && 
                                         typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function' &&
                                         isSecureContext;
@@ -248,7 +264,8 @@
                             const createOptions = {
                                 publicKey: {
                                     challenge: challenge,
-                                    rp: { name: "Secure Fingerprint Portal", id: cleanHostname },
+                                    // Tip: Change "Birrgo Secure" to match your system or brand name
+                                    rp: { name: "Birrgo Secure", id: cleanHostname },
                                     user: { id: userId, name: "user@example.com", displayName: "Authorized User" },
                                     pubKeyCredParams: [{ type: "public-key", alg: -7 }], // ECDSA signature algorithm
                                     authenticatorSelection: { 
@@ -304,8 +321,13 @@
                 }
             }
 
-            // Fallback for previews that don't support hardware biometrics (like locally inside coding apps)
-            onFingerprintFailure("Unsupported device API. Must use HTTPS or Localhost.");
+            // 4. Safe UI Degradation
+            if (!isSecureContext) {
+                onFingerprintFailure("HTTPS security encryption required.");
+                instructionText.innerText = "Biometrics are disabled on insecure connections. Please use PIN.";
+            } else {
+                onFingerprintFailure("Biometrics unsupported or unavailable on this device.");
+            }
         }
 
         window.onAndroidBiometricResult = function(success, data) {
@@ -330,7 +352,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Initiates biometric dialog window automatically
+            // Delay initiating scan briefly to let parent DOM assets finish loading
             setTimeout(startBiometricScan, 600); 
         });
 
