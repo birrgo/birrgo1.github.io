@@ -2,13 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const { BrevoClient } = require('@getbrevo/brevo');
 const admin = require('firebase-admin');
-const { getDatabase } = require('firebase-admin/database'); // <-- FIXED: Added correct import for Database
+const { cert } = require('firebase-admin/app'); // <-- FIXED: Clean direct import for credential logic
+const { getDatabase } = require('firebase-admin/database'); // <-- FIXED: Added correct modular import for Database
 
 const app = express();
 
 // 1. Enable CORS securely for your frontend
 app.use(cors({
-  origin: '*', // Once live, you can replace '*' with your actual GitHub Pages URL (e.g., 'https://yourusername.github.io')
+  origin: '*', // Once live, you can replace '*' with your actual GitHub Pages URL
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
@@ -20,7 +21,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+      credential: cert(serviceAccount), // <-- FIXED: Uses the secure in-memory credential setup (No files required!)
       databaseURL: process.env.FIREBASE_DATABASE_URL
     });
     console.log("Firebase Admin securely connected!");
@@ -75,7 +76,7 @@ app.post('/send-otp', async (req, res) => {
     const sanitizedEmailKey = sanitizeEmail(email);
     const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes expiration
 
-    // <-- FIXED: Replaced admin.database() with getDatabase()
+    // <-- FIXED: Replaced crashing admin.database() with modular getDatabase()
     const db = getDatabase();
     await db.ref(`otps/${sanitizedEmailKey}`).set({
       otp: secureOtp,
