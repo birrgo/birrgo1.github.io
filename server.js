@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const Brevo = require('@getbrevo/brevo');
+const { BrevoClient } = require('@getbrevo/brevo');
 const admin = require('firebase-admin');
 
 const app = express();
 
-// 1. Enable CORS for all incoming requests (crucial for GitHub Pages / Render combo)
+// 1. Enable CORS securely for your frontend
 app.use(cors({
-  origin: '*', 
+  origin: '*', // Once live, you can replace '*' with your actual GitHub Pages URL (e.g., 'https://yourusername.github.io')
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
@@ -30,12 +30,22 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   console.warn("WARNING: FIREBASE_SERVICE_ACCOUNT env variable is missing!");
 }
 
+// 3. Initialize Brevo Client securely
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+let brevo;
+if (BREVO_API_KEY) {
+  brevo = new BrevoClient({ apiKey: BREVO_API_KEY });
+  console.log("Brevo API Client successfully initialized.");
+} else {
+  console.warn("WARNING: BREVO_API_KEY env variable is missing!");
+}
+
 // Simple health-check endpoint
 app.get('/', (req, res) => {
   res.send('BirrGo OTP Backend is live and running!');
 });
 
-// Helper function to generate a 6-digit OTP securely
+// Helper function to generate a secure 6-digit OTP
 function generateSecureOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -45,24 +55,22 @@ function sanitizeEmail(email) {
   return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
 }
 
-// 3. Endpoint to generate, save, and send OTP
+// 4. Secure Endpoint to generate, save, and send OTP
 app.post('/send-otp', async (req, res) => {
-  const { email, apiKey, senderEmail, templateId, senderName } = req.body;
+  const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
+    return res.status(400).json({ error: 'Email address is required.' });
+  }
+
+  if (!brevo) {
+    return res.status(500).json({ error: 'Mail dispatch services are temporarily unavailable.' });
   }
 
   const secureOtp = generateSecureOTP();
-  const activeApiKey = apiKey || process.env.BREVO_API_KEY;
-
-  if (!activeApiKey) {
-    console.error("Brevo API Key is missing.");
-    return res.status(400).json({ error: 'Brevo API Key is missing.' });
-  }
 
   try {
-    // A) SAVE OTP TO FIREBASE SECURELY (using server permissions)
+    // A) SAVE OTP TO FIREBASE SECURELY
     const sanitizedEmailKey = sanitizeEmail(email);
     const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes expiration
 
@@ -73,54 +81,45 @@ app.post('/send-otp', async (req, res) => {
     });
 
     // B) SEND OTP EMAIL VIA BREVO
-    let defaultClient = Brevo.ApiClient.instance;
-    let apiKeyInstance = defaultClient.authentications['api-key'];
-    apiKeyInstance.apiKey = activeApiKey;
-
-    const apiInstance = new Brevo.TransactionalEmailsApi();
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
-
-    sendSmtpEmail.to = [{ email: email }];
-    sendSmtpEmail.sender = { 
-      name: senderName || "Birrgo", 
-      email: senderEmail || "mail@birrgo.online" 
-    };
-
-    if (templateId) {
-      sendSmtpEmail.templateId = parseInt(templateId, 10);
-      sendSmtpEmail.params = { 
-        otp: secureOtp,
-        OTP: secureOtp 
-      };
-    } else {
-      sendSmtpEmail.subject = "Your OTP Verification Code";
-      sendSmtpEmail.htmlContent = `
+    const emailData = {
+      subject: "Your OTP Verification Code",
+      sender: { 
+        name: process.env.BREVO_SENDER_NAME || "BirrGo Support", 
+        email: process.env.BREVO_SENDER_EMAIL || "mail@birrgo.online" // Must be your authenticated Brevo domain
+      },
+      to: [{ email: email.toLowerCase() }],
+      htmlContent: `
         <html>
-          <body style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>Your Verification Code is: <strong style="color: #9A0019;">${secureOtp}</strong></h2>
-            <p>This code will expire in 5 minutes.</p>
+          <body style="font-family: 'Inter', Arial, sans-serif; padding: 30px; background-color: #f9f9f9; color: #333;">
+            <div style="max-width: 500px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; border: 1px solid #eee;">
+              <h2 style="color: #9A0019; margin-top: 0;">Confirm Your Email</h2>
+              <p>Welcome to BirrGo! Use the 6-digit verification code below to complete your registration:</p>
+              <div style="background: #f4f4f5; padding: 16px; text-align: center; border-radius: 6px; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #9A0019;">${secureOtp}</span>
+              </div>
+              <p style="font-size: 12px; color: #666;">This code is active for 5 minutes. If you did not sign up for an account, you can safely ignore this email.</p>
+            </div>
           </body>
         </html>
-      `;
+      `
+    };
+
+    // If using custom Brevo Dashboard Templates
+    if (process.env.BREVO_TEMPLATE_ID) {
+      emailData.templateId = parseInt(process.env.BREVO_TEMPLATE_ID, 10);
+      emailData.params = { otp: secureOtp };
+      delete emailData.htmlContent;
+      delete emailData.subject;
     }
 
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log(`OTP sent to ${email}. Message ID: ${result.messageId}`);
+    const response = await brevo.transactionalEmails.sendTransacEmail(emailData);
+    console.log(`OTP Email successfully sent to ${email}. ID: ${response.messageId}`);
     
-    res.status(200).json({ 
-      success: true, 
-      message: 'OTP processed and dispatched successfully', 
-      messageId: result.messageId 
-    });
+    return res.status(200).json({ success: true, message: 'OTP sent successfully.' });
 
   } catch (error) {
-    const errorDetails = error.response && error.response.body ? error.response.body : error.message;
-    console.error("Error inside /send-otp flow:", errorDetails);
-    
-    res.status(500).json({ 
-      error: 'Failed to complete OTP request', 
-      details: errorDetails 
-    });
+    console.error("Process Failure:", error);
+    return res.status(500).json({ error: 'Internal server error processing registration verification.' });
   }
 });
 
