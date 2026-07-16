@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows GitHub Actions to create and edit Releases
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -44,8 +46,19 @@ jobs:
           cd appcom
           cordova build android
 
-      - name: Upload Finished APK
-        uses: actions/upload-artifact@v4
+      # Renames the output file from app-debug.apk to birrgo.apk
+      - name: Rename APK Output File
+        run: |
+          mv appcom/platforms/android/app/build/outputs/apk/debug/app-debug.apk appcom/platforms/android/app/build/outputs/apk/debug/birrgo.apk
+
+      - name: Publish APK to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: birrgo-app-apk
-          path: appcom/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: latest
+          name: "Latest Birrgo App Build"
+          body: "This release contains the auto-generated APK pointing to https://test.birrgo.online. Updated on ${{ github.event.head_commit.timestamp }}."
+          draft: false
+          prerelease: false
+          files: appcom/platforms/android/app/build/outputs/apk/debug/birrgo.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
