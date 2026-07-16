@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const { BrevoClient } = require('@getbrevo/brevo');
+const Brevo = require('@getbrevo/brevo');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // Initialize Brevo Client
-const brevo = new BrevoClient({ 
+const brevo = new Brevo.BrevoClient({ 
   apiKey: process.env.BREVO_API_KEY 
 });
 
