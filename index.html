@@ -9,7 +9,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -89,14 +89,14 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center the smaller download banner elements */
+            align-items: center; 
             gap: 10px;
             margin-bottom: 2vh;
         }
 
-        /* Premium Top Download Banner - Decreased horizontal size */
+        /* Premium Top Download Banner */
         .download-banner {
-            width: 90%; /* Scale down width significantly */
+            width: 90%; 
             max-width: 340px; 
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -651,7 +651,7 @@
                 </div>
                 <div class="step-item">
                     <div class="step-num">2</div>
-                    <span>Tap on the downloaded <b>BirrGo.apk</b> file inside your browser framework.</span>
+                    <span>Tap on the downloaded <b>birrgo.apk</b> file inside your browser framework.</span>
                 </div>
                 <div class="step-item">
                     <div class="step-num">3</div>
@@ -665,7 +665,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // FIX: Explicitly store "index.html" directly instead of split path names to avoid routing loops.
             localStorage.setItem('birrgo_last_page', 'index.html');
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -683,18 +682,16 @@
             const closeBtn = document.getElementById('closeModalBtn');
 
             if (dlBtn && modal && closeBtn) {
-                // Step 1: Open the popup info layout first on click
                 dlBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     modal.classList.add('active');
                 });
 
-                // Step 2: Clear popup overlay AND trigger the download sequence when user clicks "Got it"
                 closeBtn.addEventListener('click', () => {
                     modal.classList.remove('active');
                     
-                    // Native location routing executed here safely
-                    window.location.href = "https://github.com/birrgo/birrgo1.github.io/releases/latest/download/BirrGo.apk";
+                    // Trigger the download with the updated lowercase filename
+                    window.location.href = "https://github.com/birrgo/birrgo1.github.io/releases/latest/download/birrgo.apk";
                 });
             }
         });
