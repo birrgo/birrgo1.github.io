@@ -36,6 +36,8 @@ function initializeLiveLogs() {
     
     onValue(otpsRef, (snapshot) => {
         const tbody = document.getElementById('logsTableBody');
+        if (!tbody) return; // Guard clause to prevent errors if the elements haven't loaded yet
+        
         tbody.innerHTML = "";
 
         if (!snapshot.exists()) {
@@ -50,6 +52,8 @@ function initializeLiveLogs() {
         
         Object.keys(data).forEach((key) => {
             const record = data[key];
+            if (!record) return;
+            
             const currentTime = Date.now();
             const isExpired = currentTime > record.expiresAt;
             
@@ -69,7 +73,7 @@ function initializeLiveLogs() {
             tr.className = "hover:bg-slate-900/30 transition-colors";
             tr.innerHTML = `
                 <td class="p-4 font-medium text-slate-300 font-mono">${displayEmail}</td>
-                <td class="p-4 text-center font-bold tracking-widest text-emerald-400 font-mono text-sm">${record.otp}</td>
+                <td class="p-4 text-center font-bold tracking-widest text-emerald-400 font-mono text-sm">${record.otp || '------'}</td>
                 <td class="p-4 text-center text-slate-400 font-mono">${expiryFormatted}</td>
                 <td class="p-4 text-right">${statusBadge}</td>
             `;
@@ -77,12 +81,14 @@ function initializeLiveLogs() {
         });
     }, (error) => {
         const tbody = document.getElementById('logsTableBody');
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="p-8 text-center text-rose-400 font-semibold bg-rose-950/20 border border-rose-900/30">
-                    🔒 Database Access Blocked: ${error.message}
-                </td>
-            </tr>`;
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="p-8 text-center text-rose-400 font-semibold bg-rose-950/20 border border-rose-900/30">
+                        🔒 Database Access Blocked: ${error.message}
+                    </td>
+                </tr>`;
+        }
     });
 }
 
@@ -93,112 +99,127 @@ async function loadBrevoSettings() {
         const snapshot = await get(settingsRef);
         if (snapshot.exists()) {
             const data = snapshot.val();
-            if (data.apiKey) {
+            const apiKeyEl = document.getElementById('apiKey');
+            const senderEmailEl = document.getElementById('senderEmail');
+            const templateIdEl = document.getElementById('templateId');
+            const senderNameEl = document.getElementById('senderName');
+
+            if (data.apiKey && apiKeyEl) {
                 storedApiKey = data.apiKey;
-                document.getElementById('apiKey').value = "••••••••••••••••••••••••••••••••";
+                apiKeyEl.value = "••••••••••••••••••••••••••••••••";
             }
-            if (data.senderEmail) document.getElementById('senderEmail').value = data.senderEmail;
-            if (data.templateId) document.getElementById('templateId').value = data.templateId;
-            if (data.senderName) document.getElementById('senderName').value = data.senderName;
+            if (data.senderEmail && senderEmailEl) senderEmailEl.value = data.senderEmail;
+            if (data.templateId && templateIdEl) templateIdEl.value = data.templateId;
+            if (data.senderName && senderNameEl) senderNameEl.value = data.senderName;
         }
     } catch (error) {
         console.error("Failed configuration handshake:", error);
     }
 }
 
-document.getElementById('apiKey').addEventListener('focus', function() {
-    if (this.value.includes("••••")) {
-        this.value = storedApiKey;
-    }
-});
+const apiKeyInput = document.getElementById('apiKey');
+if (apiKeyInput) {
+    apiKeyInput.addEventListener('focus', function() {
+        if (this.value.includes("••••")) {
+            this.value = storedApiKey;
+        }
+    });
 
-document.getElementById('apiKey').addEventListener('blur', function() {
-    if (this.value === storedApiKey && storedApiKey !== "") {
-        this.value = "••••••••••••••••••••••••••••••••";
-    }
-});
+    apiKeyInput.addEventListener('blur', function() {
+        if (this.value === storedApiKey && storedApiKey !== "") {
+            this.value = "••••••••••••••••••••••••••••••••";
+        }
+    });
+}
 
 // 3. Save Settings to Firebase
-document.getElementById('saveConfigBtn').addEventListener('click', async () => {
-    const apiKeyValue = document.getElementById('apiKey').value.trim();
-    const senderEmail = document.getElementById('senderEmail').value.trim();
-    const templateIdInput = document.getElementById('templateId').value.trim();
-    const senderName = document.getElementById('senderName').value.trim();
+const saveConfigBtn = document.getElementById('saveConfigBtn');
+if (saveConfigBtn) {
+    saveConfigBtn.addEventListener('click', async () => {
+        const apiKeyValue = document.getElementById('apiKey').value.trim();
+        const senderEmail = document.getElementById('senderEmail').value.trim();
+        const templateIdInput = document.getElementById('templateId').value.trim();
+        const senderName = document.getElementById('senderName').value.trim();
 
-    let finalApiKey = apiKeyValue;
-    if (apiKeyValue.includes("••••")) {
-        finalApiKey = storedApiKey;
-    }
+        let finalApiKey = apiKeyValue;
+        if (apiKeyValue.includes("••••")) {
+            finalApiKey = storedApiKey;
+        }
 
-    if (!finalApiKey || !senderEmail || !templateIdInput) {
-        showToast("Fill in all credentials before saving.", "red");
-        return;
-    }
+        if (!finalApiKey || !senderEmail || !templateIdInput) {
+            showToast("Fill in all credentials before saving.", "red");
+            return;
+        }
 
-    const templateId = parseInt(templateIdInput, 10);
-    if (isNaN(templateId)) {
-        showToast("Template ID must be a valid number.", "red");
-        return;
-    }
+        const templateId = parseInt(templateIdInput, 10);
+        if (isNaN(templateId)) {
+            showToast("Template ID must be a valid number.", "red");
+            return;
+        }
 
-    try {
-        await set(ref(db, 'admin/settings/brevo'), {
-            apiKey: finalApiKey,
-            senderEmail,
-            templateId,
-            senderName: senderName || "BirrGo Security",
-            updatedAt: Date.now()
-        });
-        storedApiKey = finalApiKey;
-        document.getElementById('apiKey').value = "••••••••••••••••••••••••••••••••";
-        showToast("Configuration saved successfully!", "green");
-    } catch (error) {
-        showToast(`Sync Failed: ${error.message}`, "red");
-    }
-});
+        try {
+            await set(ref(db, 'admin/settings/brevo'), {
+                apiKey: finalApiKey,
+                senderEmail,
+                templateId,
+                senderName: senderName || "BirrGo Security",
+                updatedAt: Date.now()
+            });
+            storedApiKey = finalApiKey;
+            document.getElementById('apiKey').value = "••••••••••••••••••••••••••••••••";
+            showToast("Configuration saved successfully!", "green");
+        } catch (error) {
+            showToast(`Sync Failed: ${error.message}`, "red");
+        }
+    });
+}
 
 // 4. Secure Backend API Dispatch
-document.getElementById('otpForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const dispatchBtn = document.getElementById('dispatchOtpBtn');
-    const recipientEmail = document.getElementById('recipientEmail').value.trim();
+const otpForm = document.getElementById('otpForm');
+if (otpForm) {
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const dispatchBtn = document.getElementById('dispatchOtpBtn');
+        const recipientEmail = document.getElementById('recipientEmail').value.trim();
 
-    dispatchBtn.disabled = true;
-    showToast("Initiating secure send pipeline via Render Backend...", "green");
+        if (dispatchBtn) dispatchBtn.disabled = true;
+        showToast("Initiating secure send pipeline via Render Backend...", "green");
 
-    try {
-        const backendUrl = 'https://birrgo-otp-backend.onrender.com/send-otp'; 
+        try {
+            const backendUrl = 'https://birrgo-otp-backend.onrender.com/send-otp'; 
 
-        const payload = {
-            email: recipientEmail
-        };
+            const payload = {
+                email: recipientEmail
+            };
 
-        const response = await fetch(backendUrl, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify(payload)
-        });
+            const response = await fetch(backendUrl, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(payload)
+            });
 
-        if (response.ok) {
-            showToast(`Success! OTP generated and dispatched to ${recipientEmail}`, "green");
-            document.getElementById('recipientEmail').value = "";
-        } else {
-            const errResponse = await response.json().catch(() => ({}));
-            throw new Error(errResponse.error || `Server responded with status: ${response.status}`);
+            if (response.ok) {
+                showToast(`Success! OTP generated and dispatched to ${recipientEmail}`, "green");
+                document.getElementById('recipientEmail').value = "";
+            } else {
+                const errResponse = await response.json().catch(() => ({}));
+                throw new Error(errResponse.error || `Server responded with status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Backend dispatch error details:", error);
+            showToast(`Pipeline Error: ${error.message || "Could not contact server."}`, "red");
+        } finally {
+            if (dispatchBtn) dispatchBtn.disabled = false;
         }
-    } catch (error) {
-        console.error("Backend dispatch error details:", error);
-        showToast(`Pipeline Error: ${error.message || "Could not contact server."}`, "red");
-    } finally {
-        dispatchBtn.disabled = false;
-    }
-});
+    });
+}
 
 // Toast Notifications
 function showToast(msg, type) {
+    if (!statusDiv) return;
     statusDiv.className = "fixed bottom-6 right-6 p-4 rounded-xl text-xs font-semibold shadow-2xl max-w-sm border transition-all duration-300 transform scale-100 block z-50";
     if (type === "green") {
         statusDiv.className += " bg-emerald-950/90 border-emerald-800 text-emerald-400";
@@ -215,5 +236,3 @@ function showToast(msg, type) {
 // Initialize Workspace
 loadBrevoSettings();
 initializeLiveLogs();
-
-
