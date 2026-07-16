@@ -152,11 +152,11 @@
                 <svg viewBox="0 0 24 24" id="modalIconSvg"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             </div>
             <h3 class="security-modal-title" id="modalTitle">Enter PIN</h3>
-            <p class="security-modal-desc" id="modalDesc">Please input your 4-digit account security PIN to decrypt your secure ledger identity details.</p>
+            <p class="security-modal-desc" id="modalDesc">Please input your 6-digit account security PIN to decrypt your secure ledger identity details.</p>
             
             <div class="modal-error-banner" id="modalErrorBanner"></div>
 
-            <input type="password" maxlength="4" inputmode="numeric" class="security-password-input" id="securePassInput" placeholder="••••">
+            <input type="password" maxlength="6" inputmode="numeric" class="security-password-input" id="securePassInput" placeholder="••••••">
             <div class="security-modal-actions" id="modalActionsGroup">
                 <button class="btn-modal-cancel" id="closeModalBtn">Cancel</button>
                 <button class="btn-modal-submit" id="submitPassBtn">Verify</button>
@@ -324,7 +324,7 @@
                     iconBox.className = "security-modal-icon";
                     iconSvg.innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>`;
                     title.innerText = "Enter PIN";
-                    desc.innerText = "Please input your 4-digit account security PIN to decrypt your secure ledger identity details.";
+                    desc.innerText = "Please input your 6-digit account security PIN to decrypt your secure ledger identity details.";
                     passInput.style.display = "block";
                     passInput.value = "";
                     actionsGroup.className = "security-modal-actions";
