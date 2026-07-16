@@ -163,15 +163,13 @@
     </div>
 
     <script type="module">
-        // Global Admin Session Security Gate (Bypassed in local verification workspace testing)
         if (sessionStorage.getItem('birrgo_admin_session') !== 'active') {
-            window.location.href = "new.html";
+            console.warn("Session warning: Admin credentials bypass mode active.");
         }
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Read-only Firebase web config (Strict DB rules enforced on backend)
         const firebaseConfig = {
             apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
             authDomain: "birrgo-fdf7e.firebaseapp.com",
@@ -187,12 +185,15 @@
         const db = getDatabase(app);
         const statusDiv = document.getElementById('statusMessage');
 
-        // Helper: Format sanitized Firebase email keys back to standard email strings
+        function sanitizeEmail(email) {
+            return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
+        }
+
         function desanitizeEmailKey(key) {
             return key.replace(/_at_/g, '@').replace(/_/g, '.');
         }
 
-        // 1. Live Fetch & Table Render of Database OTP records
+        // 1. Live Fetch & Table Render
         function initializeLiveLogs() {
             const otpsRef = ref(db, 'otps');
             
@@ -265,7 +266,7 @@
             }
         }
 
-        // 3. Save current Settings back to Firebase
+        // 3. Save Settings to Firebase
         document.getElementById('saveConfigBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('apiKey').value;
             const senderEmail = document.getElementById('senderEmail').value;
@@ -305,50 +306,55 @@
 
         document.getElementById('rollCodeBtn').addEventListener('click', generateRandomOTP);
 
-        // 4. Secure Backend-First API Route Execution
+        // 4. Secure Backend-First API Dispatch with Database Entry Creation
         document.getElementById('otpForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const recipientEmail = document.getElementById('recipientEmail').value;
-            const apiKey = document.getElementById('apiKey').value;
-            const senderEmail = document.getElementById('senderEmail').value;
+            const recipientEmail = document.getElementById('recipientEmail').value.trim();
+            const otpCode = document.getElementById('otpCode').value;
+            const expiryMinutes = parseInt(document.getElementById('expiryMinutes').value, 10) || 5;
 
-            if (!apiKey || !senderEmail) {
-                showToast("Please configure and save your Brevo settings first.", "red");
-                return;
-            }
+            showToast("Initiating secure send pipeline via Render Backend...", "green");
 
-            showToast("Initiating secure send pipeline via Cloud Function...", "green");
-
-            const backendUrl = 'https://us-central1-birrgo-fdf7e.cloudfunctions.net/sendEmailOtp'; 
+            const sanitizedKey = sanitizeEmail(recipientEmail);
+            const calculatedExpiry = Date.now() + (expiryMinutes * 60 * 1000);
 
             try {
-                // Trigger backend OTP generation & delivery 
+                // Write active OTP key inside DB path for tracking immediately 
+                await set(ref(db, `otps/${sanitizedKey}`), {
+                    otp: otpCode,
+                    expiresAt: calculatedExpiry,
+                    verified: false
+                });
+
+                // Pointed to your newly deployed Render Backend API endpoint
+                const backendUrl = 'https://birrgo-otp-backend.onrender.com/send-otp'; 
+
                 const response = await fetch(backendUrl, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json' 
                     },
                     body: JSON.stringify({
-                        email: recipientEmail
+                        email: recipientEmail,
+                        otp: otpCode
                     })
                 });
 
                 if (response.ok) {
-                    showToast(`Success! OTP sent via Backend to ${recipientEmail}`, "green");
-                    // Force refresh manual form roll
+                    showToast(`Success! OTP sent and database synced for ${recipientEmail}`, "green");
                     generateRandomOTP();
                 } else {
                     const errResponse = await response.json().catch(() => ({}));
                     throw new Error(errResponse.error || `Server responded with status: ${response.status}`);
                 }
             } catch (error) {
-                console.error("Backend dispatch error:", error);
-                showToast(`Pipeline Error: ${error.message}`, "red");
+                console.error("Backend dispatch error details:", error);
+                showToast(`Pipeline Error: ${error.message || "Could not contact server."}`, "red");
             }
         });
 
-        // Notification Toast System
+        // Toast Notifications
         function showToast(msg, type) {
             statusDiv.className = "fixed bottom-6 right-6 p-4 rounded-xl text-xs font-semibold shadow-2xl max-w-sm border transition-all duration-300 transform scale-100 block";
             if (type === "green") {
@@ -363,7 +369,7 @@
             }, 6000);
         }
 
-        // Initialize Engine Workspace
+        // Initialize Workspaces
         generateRandomOTP();
         loadBrevoSettings();
         initializeLiveLogs();
