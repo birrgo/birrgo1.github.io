@@ -115,8 +115,8 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-slate-400">Expiry (Mins)</label>
-                                <input type="number" id="expiryMinutes" required value="10" 
-                                    class="mt-1 w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-xs text-slate-300">
+                                <input type="number" id="expiryMinutes" required value="5" readonly
+                                    class="mt-1 w-full p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-400 focus:outline-none cursor-not-allowed">
                             </div>
                         </div>
 
@@ -187,9 +187,9 @@
         const db = getDatabase(app);
         const statusDiv = document.getElementById('statusMessage');
 
-        // Helper: Format Emails safely as Firebase keys
-        function sanitizeEmail(email) {
-            return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
+        // Helper: Format sanitized Firebase email keys back to standard email strings
+        function desanitizeEmailKey(key) {
+            return key.replace(/_at_/g, '@').replace(/_/g, '.');
         }
 
         // 1. Live Fetch & Table Render of Database OTP records
@@ -225,11 +225,12 @@
                     }
 
                     const expiryFormatted = new Date(record.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const displayEmail = desanitizeEmailKey(key);
 
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-900/30 transition-colors";
                     tr.innerHTML = `
-                        <td class="p-4 font-medium text-slate-300 font-mono">${record.email}</td>
+                        <td class="p-4 font-medium text-slate-300 font-mono">${displayEmail}</td>
                         <td class="p-4 text-center font-bold tracking-widest text-emerald-400 font-mono text-sm">${record.otp}</td>
                         <td class="p-4 text-center text-slate-400 font-mono">${expiryFormatted}</td>
                         <td class="p-4 text-right">${statusBadge}</td>
@@ -309,52 +310,41 @@
             e.preventDefault();
             
             const recipientEmail = document.getElementById('recipientEmail').value;
-            const otpCode = document.getElementById('otpCode').value;
-            const expiryMinutesVal = document.getElementById('expiryMinutes').value;
             const apiKey = document.getElementById('apiKey').value;
-            const templateIdVal = document.getElementById('templateId').value;
             const senderEmail = document.getElementById('senderEmail').value;
-            const senderName = document.getElementById('senderName').value || "BirrGo Security";
 
-            if (!apiKey || !templateIdVal || !senderEmail) {
+            if (!apiKey || !senderEmail) {
                 showToast("Please configure and save your Brevo settings first.", "red");
                 return;
             }
 
             showToast("Initiating secure send pipeline via Cloud Function...", "green");
 
-            const expiryMinutes = parseInt(expiryMinutesVal, 10) || 10;
-
-            // Direct POST execution payload matching your Firebase Cloud Function specs
             const backendUrl = 'https://us-central1-birrgo-fdf7e.cloudfunctions.net/sendEmailOtp'; 
 
             try {
+                // Trigger backend OTP generation & delivery 
                 const response = await fetch(backendUrl, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json' 
                     },
                     body: JSON.stringify({
-                        email: recipientEmail,
-                        otp: otpCode, // Backend verifies execution parameters
-                        expireMinutes: expiryMinutes,
-                        apiKey: apiKey, // Passes encrypted form factors down safe pipe
-                        senderEmail: senderEmail,
-                        senderName: senderName,
-                        templateId: parseInt(templateIdVal, 10)
+                        email: recipientEmail
                     })
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
                     showToast(`Success! OTP sent via Backend to ${recipientEmail}`, "green");
+                    // Force refresh manual form roll
+                    generateRandomOTP();
                 } else {
                     const errResponse = await response.json().catch(() => ({}));
                     throw new Error(errResponse.error || `Server responded with status: ${response.status}`);
                 }
             } catch (error) {
                 console.error("Backend dispatch error:", error);
-                showToast(`Pipeline Error: ${error.message}. Is your Cloud Function deployed and configured?`, "red");
+                showToast(`Pipeline Error: ${error.message}`, "red");
             }
         });
 
