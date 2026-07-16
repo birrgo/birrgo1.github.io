@@ -1,0 +1,14 @@
+{
+  "name": "birrgo-otp-backend",
+  "version": "1.0.0",
+  "description": "OTP Email Verification Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "@getbrevo/brevo": "^2.2.0"
+  }
+}
