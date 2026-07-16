@@ -146,23 +146,22 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, set, runTransaction, push, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        // Import configured DB instances from db.js cleanly
+        import { 
+            db, 
+            ref, 
+            get, 
+            set, 
+            runTransaction, 
+            push 
+        } from "./db.js";
 
-        // Firebase Web Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCRHoIZf1ZPR9m3YYTv-I9CfwyGqsSOMWo",
-            authDomain: "birrgo-fdf7e.firebaseapp.com",
-            databaseURL: "https://birrgo-fdf7e-default-rtdb.firebaseio.com",
-            projectId: "birrgo-fdf7e",
-            storageBucket: "birrgo-fdf7e.firebasestorage.app",
-            messagingSenderId: "2317445154",
-            appId: "1:2317445154:web:4275cbb0f46b28f64f827b",
-            measurementId: "G-24X13TZ43D"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // Import additional query tools explicitly from the modular CDN
+        import { 
+            query, 
+            orderByChild, 
+            equalTo 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const countries = [
             { name: "Ethiopia", code: "+251", flag: "🇪🇹" },
@@ -306,19 +305,58 @@
             });
         });
 
-        // SECURE SYSTEM: Sending code via Secure Backend (Ensures API key security & bypasses CORS blocks)
+        // Helper: Generate a secure random 6-digit OTP
+        function generate6DigitOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // SECURE SYSTEM: Sends OTP via Render Backend (Ensures API key security & resolves CORS blocks)
         async function sendVerificationOtp(email) {
             try {
-                const backendUrl = 'https://us-central1-birrgo-fdf7e.cloudfunctions.net/sendEmailOtp'; 
+                // 1. Generate the OTP and calculate a 5-minute expiration timestamp
+                const otp = generate6DigitOTP();
+                const expiresAt = Date.now() + (5 * 60 * 1000);
+                const sanitizedEmailKey = sanitizeEmail(email);
+
+                // 2. Pre-save the active OTP inside Firebase Database for secure client verification
+                await set(ref(db, `otps/${sanitizedEmailKey}`), {
+                    otp: otp,
+                    expiresAt: expiresAt,
+                    verified: false
+                });
+
+                // 3. Fetch current system administration credentials directly from Firebase
+                let customConfig = {};
+                try {
+                    const settingsRef = ref(db, 'admin/settings/brevo');
+                    const configSnapshot = await get(settingsRef);
+                    if (configSnapshot.exists()) {
+                        customConfig = configSnapshot.val();
+                    }
+                } catch (dbErr) {
+                    console.warn("Could not retrieve custom administrative credentials, defaulting to server variables:", dbErr);
+                }
+
+                // 4. Point to your Render Backend deployment URL
+                const backendUrl = 'https://birrgo-otp-backend.onrender.com/send-otp'; 
+
+                // 5. Structure payload incorporating settings securely
+                const payload = {
+                    email: email.toLowerCase(),
+                    otp: otp
+                };
+
+                if (customConfig.apiKey) payload.apiKey = customConfig.apiKey;
+                if (customConfig.senderEmail) payload.senderEmail = customConfig.senderEmail;
+                if (customConfig.templateId) payload.templateId = parseInt(customConfig.templateId, 10);
+                if (customConfig.senderName) payload.senderName = customConfig.senderName;
 
                 const response = await fetch(backendUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        email: email.toLowerCase()
-                    })
+                    body: JSON.stringify(payload)
                 }).catch(err => {
                     throw new Error("Unable to contact verification servers. Check your internet connection.");
                 });
