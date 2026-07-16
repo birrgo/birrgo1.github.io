@@ -1,13 +1,20 @@
 const express = require('express');
 const cors = require('cors');
-const Brevo = require('@getbrevo/brevo');
+const BrevoSDK = require('@getbrevo/brevo');
+
+// Handle the CommonJS ESM "default" wrapper difference
+const BrevoClient = BrevoSDK.BrevoClient || BrevoSDK.default?.BrevoClient;
+
+if (!BrevoClient) {
+  console.error("Critical Error: Could not resolve BrevoClient from the SDK.");
+}
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Initialize Brevo Client
-const brevo = new Brevo.BrevoClient({ 
+// Initialize Brevo Client safely
+const brevo = new BrevoClient({ 
   apiKey: process.env.BREVO_API_KEY 
 });
 
@@ -23,7 +30,7 @@ app.post('/send-otp', async (req, res) => {
     const result = await brevo.transactionalEmails.sendTransacEmail({
       subject: "Your OTP Verification Code",
       htmlContent: `<html><body><h1>Your Verification Code is: <strong>${otp}</strong></h1><p>This code will expire in 10 minutes.</p></body></html>`,
-      sender: { name: "Birrgo", email: "no-reply@birrgo.online" }, // Make sure this email is verified in your Brevo account
+      sender: { name: "Birrgo", email: "no-reply@birrgo.online" }, // Ensure this sender is verified in Brevo
       to: [{ email: email }]
     });
 
