@@ -7,8 +7,9 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "@getbrevo/brevo": "^2.2.0",
     "cors": "^2.8.5",
-    "@getbrevo/brevo": "^2.2.0"
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.0"
   }
 }
