@@ -38,7 +38,6 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen p-6">
 
     <div class="max-w-6xl mx-auto space-y-8">
-        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-6">
             <div>
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
@@ -47,7 +46,7 @@
                 <p class="text-slate-400 text-sm mt-1">Configure global registration credentials, monitor real-time verification logs, and send secure custom OTPs.</p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="index.html" class="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-xs font-semibold tracking-wide transition">
+                <a href="dashboard.html" class="px-4 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-xs font-semibold tracking-wide transition">
                     ← Core Dashboard
                 </a>
                 <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -58,7 +57,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1 space-y-6">
-                <!-- System Gateway Credentials -->
                 <div class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-xl space-y-4">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-bold text-slate-200">System Gateway</h2>
@@ -91,7 +89,6 @@
                     </div>
                 </div>
 
-                <!-- Manual Force Bypass Override -->
                 <div class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-xl space-y-4">
                     <h2 class="text-lg font-bold text-slate-200">Force Bypass Override</h2>
                     
@@ -120,14 +117,13 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full mt-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow-lg">
+                        <button type="submit" id="dispatchOtpBtn" class="w-full mt-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow-lg">
                             Dispatch Secure Backend OTP
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Real-Time Database Event Logs -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl shadow-xl overflow-hidden">
                     <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/20">
@@ -184,6 +180,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const statusDiv = document.getElementById('statusMessage');
+        
+        let storedApiKey = ""; // Local state storage for absolute raw API key
 
         function sanitizeEmail(email) {
             return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
@@ -249,14 +247,18 @@
             });
         }
 
-        // 2. Load Brevo parameters from Realtime DB
+        // 2. Load Brevo parameters from Realtime DB safely
         async function loadBrevoSettings() {
             try {
                 const settingsRef = ref(db, 'admin/settings/brevo');
                 const snapshot = await get(settingsRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    if (data.apiKey) document.getElementById('apiKey').value = data.apiKey;
+                    if (data.apiKey) {
+                        storedApiKey = data.apiKey;
+                        // Mask the key on visual UI display to prevent over-the-shoulder leaks
+                        document.getElementById('apiKey').value = "••••••••••••••••••••••••••••••••";
+                    }
                     if (data.senderEmail) document.getElementById('senderEmail').value = data.senderEmail;
                     if (data.templateId) document.getElementById('templateId').value = data.templateId;
                     if (data.senderName) document.getElementById('senderName').value = data.senderName;
@@ -266,14 +268,33 @@
             }
         }
 
+        // Preserve raw text input if admin interacts with the apiKey element
+        document.getElementById('apiKey').addEventListener('focus', function() {
+            if (this.value.includes("••••")) {
+                this.value = storedApiKey;
+            }
+        });
+
+        document.getElementById('apiKey').addEventListener('blur', function() {
+            if (this.value === storedApiKey && storedApiKey !== "") {
+                this.value = "••••••••••••••••••••••••••••••••";
+            }
+        });
+
         // 3. Save Settings to Firebase
         document.getElementById('saveConfigBtn').addEventListener('click', async () => {
-            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiKeyValue = document.getElementById('apiKey').value.trim();
             const senderEmail = document.getElementById('senderEmail').value.trim();
             const templateIdInput = document.getElementById('templateId').value.trim();
             const senderName = document.getElementById('senderName').value.trim();
 
-            if (!apiKey || !senderEmail || !templateIdInput) {
+            // Determine if key changed or remains masked
+            let finalApiKey = apiKeyValue;
+            if (apiKeyValue.includes("••••")) {
+                finalApiKey = storedApiKey;
+            }
+
+            if (!finalApiKey || !senderEmail || !templateIdInput) {
                 showToast("Fill in all credentials before saving.", "red");
                 return;
             }
@@ -286,12 +307,14 @@
 
             try {
                 await set(ref(db, 'admin/settings/brevo'), {
-                    apiKey,
+                    apiKey: finalApiKey,
                     senderEmail,
                     templateId,
                     senderName: senderName || "BirrGo Security",
                     updatedAt: Date.now()
                 });
+                storedApiKey = finalApiKey;
+                document.getElementById('apiKey').value = "••••••••••••••••••••••••••••••••";
                 showToast("Configuration saved successfully!", "green");
             } catch (error) {
                 showToast(`Sync Failed: ${error.message}`, "red");
@@ -310,16 +333,20 @@
         document.getElementById('otpForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const dispatchBtn = document.getElementById('dispatchOtpBtn');
             const recipientEmail = document.getElementById('recipientEmail').value.trim();
             const otpCode = document.getElementById('otpCode').value;
             const expiryMinutes = parseInt(document.getElementById('expiryMinutes').value, 10) || 5;
 
-            // Gather the live credentials typed into the form
-            const apiKey = document.getElementById('apiKey').value.trim();
+            // Gather the live config values
+            const apiKeyValue = document.getElementById('apiKey').value.trim();
             const senderEmail = document.getElementById('senderEmail').value.trim();
             const templateIdInput = document.getElementById('templateId').value.trim();
             const senderName = document.getElementById('senderName').value.trim();
 
+            let activeKeyToSend = apiKeyValue.includes("••••") ? storedApiKey : apiKeyValue;
+
+            dispatchBtn.disabled = true;
             showToast("Initiating secure send pipeline via Render Backend...", "green");
 
             const sanitizedKey = sanitizeEmail(recipientEmail);
@@ -333,17 +360,15 @@
                     verified: false
                 });
 
-                // Pointed to your newly deployed Render Backend API endpoint
                 const backendUrl = 'https://birrgo-otp-backend.onrender.com/send-otp'; 
 
-                // Format custom properties cleanly
                 const payload = {
                     email: recipientEmail,
                     otp: otpCode
                 };
 
-                // Add Gateway Settings dynamically if they are populated
-                if (apiKey) payload.apiKey = apiKey;
+                // Add Gateway Settings dynamically to the pipeline if populated
+                if (activeKeyToSend) payload.apiKey = activeKeyToSend;
                 if (senderEmail) payload.senderEmail = senderEmail;
                 if (templateIdInput) payload.templateId = parseInt(templateIdInput, 10);
                 if (senderName) payload.senderName = senderName;
@@ -366,6 +391,8 @@
             } catch (error) {
                 console.error("Backend dispatch error details:", error);
                 showToast(`Pipeline Error: ${error.message || "Could not contact server."}`, "red");
+            } finally {
+                dispatchBtn.disabled = false;
             }
         });
 

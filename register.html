@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Link to external stylesheet -->
     <link rel="stylesheet" href="register.css">
 </head>
 <body>
@@ -146,7 +145,6 @@
     </div>
 
     <script type="module">
-        // Import configured DB instances from db.js cleanly
         import { 
             db, 
             ref, 
@@ -156,7 +154,6 @@
             push 
         } from "./db.js";
 
-        // Import additional query tools explicitly from the modular CDN
         import { 
             query, 
             orderByChild, 
@@ -191,11 +188,9 @@
         const listScrollContainer = document.getElementById('countryListScroll');
         const searchInput = document.getElementById('modalSearchInput');
 
-        // OTP State Variables
         let signupPayload = {};
         let countdownTimer;
 
-        // Helper: Sanitize Email as safe Firebase path key
         function sanitizeEmail(email) {
             return email.toLowerCase().replace(/\./g, '_').replace(/@/g, '_at_');
         }
@@ -269,7 +264,6 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3500);
         }
 
-        // Custom Dynamic Back Navigation logic
         document.getElementById('navBackBtn').addEventListener('click', () => {
             const signupForm = document.getElementById('signupForm');
             const otpView = document.getElementById('otpView');
@@ -288,7 +282,6 @@
             }
         });
 
-        // OTP inputs auto-advance logic
         const otpInputs = document.querySelectorAll('.otp-input');
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
@@ -305,51 +298,28 @@
             });
         });
 
-        // Helper: Generate a secure random 6-digit OTP
         function generate6DigitOTP() {
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // SECURE SYSTEM: Sends OTP via Render Backend (Ensures API key security & resolves CORS blocks)
         async function sendVerificationOtp(email) {
             try {
-                // 1. Generate the OTP and calculate a 5-minute expiration timestamp
                 const otp = generate6DigitOTP();
                 const expiresAt = Date.now() + (5 * 60 * 1000);
                 const sanitizedEmailKey = sanitizeEmail(email);
 
-                // 2. Pre-save the active OTP inside Firebase Database for secure client verification
                 await set(ref(db, `otps/${sanitizedEmailKey}`), {
                     otp: otp,
                     expiresAt: expiresAt,
                     verified: false
                 });
 
-                // 3. Fetch current system administration credentials directly from Firebase
-                let customConfig = {};
-                try {
-                    const settingsRef = ref(db, 'admin/settings/brevo');
-                    const configSnapshot = await get(settingsRef);
-                    if (configSnapshot.exists()) {
-                        customConfig = configSnapshot.val();
-                    }
-                } catch (dbErr) {
-                    console.warn("Could not retrieve custom administrative credentials, defaulting to server variables:", dbErr);
-                }
-
-                // 4. Point to your Render Backend deployment URL
                 const backendUrl = 'https://birrgo-otp-backend.onrender.com/send-otp'; 
 
-                // 5. Structure payload incorporating settings securely
                 const payload = {
                     email: email.toLowerCase(),
                     otp: otp
                 };
-
-                if (customConfig.apiKey) payload.apiKey = customConfig.apiKey;
-                if (customConfig.senderEmail) payload.senderEmail = customConfig.senderEmail;
-                if (customConfig.templateId) payload.templateId = parseInt(customConfig.templateId, 10);
-                if (customConfig.senderName) payload.senderName = customConfig.senderName;
 
                 const response = await fetch(backendUrl, {
                     method: 'POST',
@@ -398,7 +368,6 @@
             }
         });
 
-        // Step 1: Handling Details Form submission & Routing to Verification Stage
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -441,7 +410,6 @@
                 submitBtn.disabled = true;
                 submitBtn.innerText = "Checking Availability...";
 
-                // Validate phone availability inside DB
                 const userSnapshot = await get(ref(db, 'users/' + cleanPhone));
 
                 if (userSnapshot.exists()) {
@@ -451,7 +419,6 @@
                     return;
                 }
 
-                // Cache Registration Details Payload for Step 2
                 signupPayload = {
                     cleanPhone,
                     fullName,
@@ -461,7 +428,6 @@
                     formatGlobalPhone: activeSelectedPrefix + cleanPhone
                 };
 
-                // Transitioning the Form UI safely from Step 1 -> Step 2
                 document.getElementById('signupForm').style.display = 'none';
                 document.getElementById('otpView').style.display = 'flex';
                 
@@ -470,7 +436,6 @@
                 document.getElementById('screen-title').innerText = "Verify Your Email";
                 document.getElementById('referrer-label').innerHTML = `Enter the 6-digit code sent to <strong style="color:var(--primary-burgundy);">${email}</strong>`;
 
-                // Dispatch Email OTP via Backend
                 await sendVerificationOtp(email);
 
             } catch (error) {
@@ -482,7 +447,6 @@
             }
         });
 
-        // Step 2: Validate the Entered OTP directly against DB values
         document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
             let enteredOtp = "";
             otpInputs.forEach(input => enteredOtp += input.value);
@@ -499,7 +463,6 @@
                 verifyOtpBtn.disabled = true;
                 verifyOtpBtn.innerText = "Verifying...";
 
-                // Pull the precise record active on Firebase Database for comparison
                 const otpSnapshot = await get(ref(db, `otps/${sanitizedEmailKey}`));
 
                 if (!otpSnapshot.exists()) {
@@ -527,7 +490,6 @@
 
                 verifyOtpBtn.innerText = "Creating Account...";
 
-                // Set verification flag to true in real-time database logs
                 await set(ref(db, `otps/${sanitizedEmailKey}/verified`), true);
 
                 const cleanPhone = signupPayload.cleanPhone;
@@ -565,10 +527,8 @@
                     createdAt: new Date().toISOString()
                 };
 
-                // Save profile details to Firebase database
                 await set(ref(db, 'users/' + cleanPhone), userPayload);
 
-                // Handle Referrer System Logic (Inviter gets a reward)
                 if (referrerAccountId) {
                     try {
                         const usersRef = ref(db, 'users');
