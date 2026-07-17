@@ -75,11 +75,10 @@
             pointer-events: none;
         }
         
-        /* REDUCED TOP CURVE SIZE HERE */
+        /* DESKTOP & MOBILE FIX: Changed vh to px to lock proportions */
         .bg-wave-top {
             top: 0;
-            height: 9vh;
-            min-height: 65px;
+            height: 75px;
         }
         
         .bg-wave-bottom {
@@ -93,7 +92,8 @@
             display: flex;
             flex-direction: column;
             background-color: transparent;
-            padding: calc(20px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)) 16px;
+            /* Enhanced top padding constraint for cleaner content spacing */
+            padding: calc(16px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)) 16px;
             overflow-y: auto;
             scrollbar-width: none;
             position: relative;
