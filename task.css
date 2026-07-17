@@ -22,19 +22,27 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* Responsive Adaptive Body Canvas */
 html, body {
     width: 100%;
-    height: 100dvh;
-    overflow: hidden;
-    background-color: #f1f5f9;
-}
-
-body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #0f172a; /* Sophisticated dark backdrop for larger viewports */
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
+/* Desktop & Tablet Ambient Lighting */
+@media (min-width: 480px) {
+    body {
+        background: radial-gradient(circle at top left, #2e0813 0%, #0f172a 60%);
+    }
+}
+
+/* Main Container Framework - Adapts to all viewports natively */
 .app-view {
     width: 100%;
     height: 100dvh;
@@ -43,8 +51,20 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Tablet/Desktop Card View Transformation */
+@media (min-width: 480px) and (min-height: 600px) {
+    .app-view {
+        height: 92vh;
+        max-height: 880px;
+        border-radius: 40px;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 
+                    0 0 0 12px rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 }
 
 /* --- Global Background Waves --- */
@@ -493,12 +513,13 @@ body {
     stroke-width: 2.5;
 }
 
+/* Updated Immersive Overlays to clip cleanly inside simulated phone frames */
 .immersive-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100dvh;
+    height: 100%; /* Changed from 100dvh to map strictly within .app-view container */
     background: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -521,7 +542,8 @@ body {
 
 .ad-container-frame {
     width: 100%;
-    height: 30dvh;
+    height: 30%; /* Updated dynamically relative to nested container height */
+    min-height: 200px;
     position: relative !important;
     display: flex !important;
     justify-content: center !important;
@@ -531,7 +553,7 @@ body {
 
 .youtube-player-box {
     width: 100%;
-    height: 70dvh;
+    height: 70%;
     background: #000000;
     overflow: hidden;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -599,12 +621,13 @@ body {
     box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
 }
 
+/* Modals backdrop mapped inside .app-view scope limits */
 .custom-popup-backdrop {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100dvh;
+    height: 100%; /* Strictly match simulated boundary height */
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);

@@ -121,7 +121,7 @@
             -webkit-backdrop-filter: blur(4px);
         }
 
-        /* Segmented tab control to swap between Page 1 and Page 2 (Young) */
+        /* Segmented tab control to swap between Page 1 and Page 2 */
         .sub-tab-container {
             display: flex;
             background: #e2e8f0;
@@ -130,6 +130,7 @@
             margin-bottom: 16px;
             z-index: 2;
             position: relative;
+            flex-shrink: 0;
         }
 
         .sub-tab-btn {
@@ -155,6 +156,7 @@
             display: none;
             flex-direction: column;
             gap: 14px;
+            padding-bottom: 20px; /* Extra bottom breathing room during scroll */
         }
 
         .page-view-section.active-view {
@@ -163,7 +165,7 @@
 
         .featured-card {
             width: 100%;
-            height: 125px;
+            min-height: 115px; /* Replaced fixed height with flexible minimum height */
             border-radius: var(--border-radius-lg);
             overflow: hidden;
             background: var(--primary-gradient);
@@ -174,7 +176,7 @@
             cursor: pointer;
             transition: transform 0.2s ease;
             display: flex;
-            align-items: center;
+            align-items: stretch; /* Stretches children to equal height */
         }
 
         .featured-card:active {
@@ -182,8 +184,7 @@
         }
 
         .card-img-wrapper {
-            width: 35%;
-            height: 100%;
+            width: 32%; /* Sightly scaled down to give text more breathing room */
             background-color: #0f172a;
             position: relative;
             display: flex;
@@ -217,30 +218,29 @@
 
         .featured-card-body {
             flex: 1;
-            padding: 14px 14px 14px 16px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
-            justify-content: center; 
-            gap: 4px;
-            height: 100%;
-            min-width: 0; 
+            justify-content: space-between; /* Spreads title, meta, and button evenly */
+            gap: 6px;
+            min-width: 0; /* Prevents text elements from breaking layout container */
         }
 
         .featured-title {
-            font-size: 17px; 
+            font-size: 15px; /* Sightly optimized size for narrow screens */
             font-weight: 800;
             letter-spacing: -0.4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 50px; 
+            padding-right: 75px; /* Prevents overlaps with the premium badge */
             color: #ffffff;
         }
 
         .featured-meta {
-            font-size: 12px; 
+            font-size: 11px; 
             color: rgba(255, 255, 255, 0.88);
-            line-height: 1.4;
+            line-height: 1.3;
             font-weight: 500;
         }
 
@@ -252,7 +252,6 @@
         .card-footer-row {
             display: flex;
             justify-content: flex-start;
-            margin-top: 2px;
         }
 
         .countdown-pill {
@@ -264,7 +263,7 @@
             font-size: 10px;
             font-weight: 700;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 4px;
         }
@@ -583,7 +582,7 @@
                         <h3 class="featured-title">Premium Grand Wheel</h3>
                         <p class="featured-meta">Price: <span>3,000 Birr</span><br>Prize: Dynamic Mega Jackpot</p>
                         <div class="card-footer-row">
-                            <span class="countdown-pill" style="background: rgba(127, 0, 255, 0.25);">🔒 Password Locked</span>
+                            <span class="countdown-pill" style="background: rgba(127, 0, 255, 0.25); color: #fff;">🔒 Password Locked</span>
                         </div>
                     </div>
                 </div>
@@ -643,7 +642,7 @@
                         <h3 class="featured-title">iPhone 17 Pro Max</h3>
                         <p class="featured-meta">Price: <span>100 Birr</span><br>Target: Ultra Premium Mobile</p>
                         <div class="card-footer-row">
-                            <span class="countdown-pill" style="background: rgba(0, 210, 255, 0.25);">⚡ Active Draw</span>
+                            <span class="countdown-pill" style="background: rgba(0, 210, 255, 0.25); color: #000;">⚡ Active Draw</span>
                         </div>
                     </div>
                 </div>
@@ -858,11 +857,20 @@
             }
         });
 
+        // Quick verification auto-click for UX 
+        popupPasswordField.addEventListener('input', () => {
+            if (popupPasswordField.value.trim().length === 6) {
+                popupConfirmBtn.click();
+            }
+        });
+
         function setupProfileNavigation() {
             const profileBtn = document.getElementById('headerProfileBtn');
-            profileBtn.addEventListener('click', () => {
-                goToPage('profile.html');
-            });
+            if (profileBtn) {
+                profileBtn.addEventListener('click', () => {
+                    goToPage('profile.html');
+                });
+            }
         }
 
         function setupNavigationHandlers() {
@@ -871,10 +879,6 @@
             document.getElementById('navWallet').addEventListener('click', () => goToPage('wallet.html'));
         }
 
-        /*******************************************************
-         * Note: Security password verification now ONLY activates
-         * on click for the Premium Lotto card.
-         *******************************************************/
         function setupGates() {
             // 1. Premium Lotto: Requires Password Verification
             const premiumCard = document.getElementById('premiumLottoCard');

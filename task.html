@@ -11,9 +11,9 @@
 </head>
 <body>
 
-    <div class="toast-container" id="toast">Invite Link Copied!</div>
-
     <div class="app-view">
+        <div class="toast-container" id="toast">Invite Link Copied!</div>
+        
         <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
             <defs>
@@ -99,18 +99,18 @@
                 Wallet
             </div>
         </nav>
-    </div>
 
-    <div class="custom-popup-backdrop" id="customPopup">
-        <div class="custom-popup-card">
-            <div class="popup-status-badge bg-success" id="popupBadge">
-                <svg viewBox="0 0 24 24" id="popupIcon">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+        <div class="custom-popup-backdrop" id="customPopup">
+            <div class="custom-popup-card">
+                <div class="popup-status-badge bg-success" id="popupBadge">
+                    <svg viewBox="0 0 24 24" id="popupIcon">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h3 class="custom-popup-title" id="popupTitle">Notification</h3>
+                <p class="custom-popup-msg" id="popupMessage">Message info goes here natively.</p>
+                <button class="btn-popup-confirm" id="popupConfirmBtn">Done</button>
             </div>
-            <h3 class="custom-popup-title" id="popupTitle">Notification</h3>
-            <p class="custom-popup-msg" id="popupMessage">Message info goes here natively.</p>
-            <button class="btn-popup-confirm" id="popupConfirmBtn">Done</button>
         </div>
     </div>
 
