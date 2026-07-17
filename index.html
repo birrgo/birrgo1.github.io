@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <title>BirrGo Mobile Wallet | Fast & Secure Payments</title>
     <meta name="description" content="Welcome to BirrGo Mobile Wallet. Send and receive money instantly, secure your funds with bank-level protection, and grow your future safely.">
@@ -35,19 +35,26 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        html, body {
+        /* Full viewport natively */
+        html {
+            background-color: var(--bg-light); 
             width: 100%;
-            min-height: 100vh;
-            background-color: var(--bg-light);
+            height: 100%;
         }
 
+        /* App Frame Structure - 100% scaling */
         body {
             display: flex;
             flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            margin: 0; 
+            background-color: var(--bg-light);
             position: relative;
         }
 
-        /* Decorative Background Waves - Modified to scale organically across 100% viewports */
+        /* Decorative Background Waves */
         .bg-wave {
             position: absolute;
             left: 0;
@@ -58,43 +65,51 @@
         
         .bg-wave-top {
             top: 0;
-            height: 120px;
+            height: 10vh;
+            min-height: 75px;
         }
         
+        /* Frame for the bottom footer */
         .bg-wave-bottom {
             bottom: 0;
-            height: 100px; 
+            height: 75px; 
         }
 
-        /* Main Viewport Wrapper - Stretches naturally to full screen */
+        /* Main Scrollable Viewport Wrapper */
         .app-view {
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            padding: calc(20px + env(safe-area-inset-top)) 24px 0 24px;
+            padding: calc(15px + env(safe-area-inset-top)) 20px 0 20px;
             position: relative;
             z-index: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .app-view::-webkit-scrollbar {
+            display: none;
         }
 
-        /* Top Header Area */
+        /* Top Header Area - Compacted */
         .header-top-area {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center; 
-            gap: 16px;
-            margin-bottom: 16px; 
+            gap: 12px;
+            margin-bottom: 10px; 
             flex-shrink: 0;
         }
 
-        /* Premium Top Download Banner */
+        /* Premium Top Download Banner - Compacted sizing */
         .download-banner {
             width: 100%; 
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            padding: 10px 16px;
+            border-radius: 12px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -105,15 +120,15 @@
         .download-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .apk-icon-box {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: #ffffff;
             color: var(--primary-burgundy);
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -121,19 +136,19 @@
         }
 
         .apk-icon-box svg {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
 
         .download-text-main {
-            font-size: 13px;
+            font-size: 11.5px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: -0.01em;
         }
 
         .download-text-sub {
-            font-size: 10px;
+            font-size: 9px;
             color: rgba(255, 255, 255, 0.85);
             margin-top: 1px;
         }
@@ -142,10 +157,10 @@
             background: #ffffff;
             color: var(--primary-burgundy);
             text-decoration: none;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 5px 11px;
+            border-radius: 6px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s ease;
             cursor: pointer;
@@ -167,29 +182,29 @@
         }
 
         .logo-image {
-            width: 150px; 
+            width: 140px; 
             height: auto;
             object-fit: contain;
         }
 
-        /* Middle Content Layout */
+        /* Middle Content Layout containing Logo, Welcomes, Features, and main Action Buttons */
         .main-body-content {
             display: flex;
             flex-direction: column;
             justify-content: flex-start; 
             flex-grow: 1;
-            margin: 10px 0 0 0; 
+            margin: 5px 0 0 0; 
         }
 
         /* Welcome Text */
         .welcome-content {
             text-align: center;
-            margin-bottom: 20px; 
+            margin-bottom: 12px; 
         }
 
         .welcome-content h1 {
-            font-size: 28px; 
-            font-weight: 800; 
+            font-size: 24px; 
+            font-weight: 700; 
             color: var(--text-dark);
             letter-spacing: -0.03em; 
         }
@@ -202,31 +217,31 @@
         .features-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 8px;
             width: 100%;
-            margin-bottom: 24px; 
+            margin-bottom: 15px; 
         }
 
         .feature-card {
             background: #ffffff;
-            border-radius: 20px;
+            border-radius: 16px;
             box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 12px; 
+            padding: 14px 8px; 
             text-align: center;
             border: 1px solid rgba(0,0,0,0.02);
         }
 
         .icon-circle {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             flex-shrink: 0;
         }
 
@@ -235,24 +250,24 @@
         .card-3-icon { background-color: #fdf4e7; color: #f57c00; }
 
         .feature-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700; 
             color: var(--text-dark);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: -0.01em;
         }
 
         .feature-desc {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
-            line-height: 1.4;
-            margin-bottom: 12px;
+            line-height: 1.35;
+            margin-bottom: 10px;
             flex-grow: 1;
             font-weight: 400;
         }
 
         .indicator-dash {
-            width: 20px;
+            width: 14px;
             height: 3px;
             border-radius: 2px;
             margin-top: auto;
@@ -262,17 +277,17 @@
         .dash-2 { background-color: #1976d2; }
         .dash-3 { background-color: #f57c00; }
 
-        /* Media queries for fluid responsive layouts on different viewports */
-        @media (max-width: 600px) {
+        /* Tablet/Mobile Layout shift when space is too tight */
+        @media (max-width: 375px) {
             .features-container {
                 grid-template-columns: 1fr;
-                gap: 12px;
+                gap: 10px;
             }
             .feature-card {
                 flex-direction: row;
                 text-align: left;
-                padding: 16px 20px;
-                gap: 16px;
+                padding: 12px 16px;
+                gap: 14px;
             }
             .icon-circle {
                 margin-bottom: 0;
@@ -285,25 +300,25 @@
             }
         }
 
-        /* Action buttons container */
+        /* Action buttons container shifted directly under features */
         .action-area {
             display: flex;
             flex-direction: column;
             gap: 12px;
             width: 100%;
-            margin-bottom: 24px;
+            margin-bottom: 15px;
         }
 
         .btn {
             width: 100%;
-            height: 56px; 
-            border-radius: 18px;
-            font-size: 16px;
+            height: 54px; 
+            border-radius: 16px;
+            font-size: 15px;
             font-weight: 600; 
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 20px;
             cursor: pointer;
             transition: transform 0.1s ease;
             text-decoration: none;
@@ -324,8 +339,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: #ffffff;
             flex-shrink: 0;
@@ -354,7 +369,7 @@
             margin-left: -8px; 
         }
 
-        /* Footer links container stretched full-width at the bottom */
+        /* Footer links container stays locked at the very bottom over red wave */
         .footer-area {
             margin-top: auto;
             width: 100%;
@@ -368,12 +383,12 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 8px;
-            font-size: 12px; 
+            gap: 6px;
+            font-size: 11px; 
             color: #ffffff; 
             font-weight: 700; 
-            padding-top: 30px; 
-            padding-bottom: calc(16px + env(safe-area-inset-bottom)); 
+            padding-top: 22px; 
+            padding-bottom: calc(12px + env(safe-area-inset-bottom)); 
             text-align: center;
         }
 
@@ -397,7 +412,7 @@
         .footer-icon {
             color: var(--primary-burgundy);
             background: #ffffff; 
-            padding: 4px;
+            padding: 3px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -410,7 +425,7 @@
             font-weight: 700;
         }
 
-        /* Installation Guide Modal Overlay - Adjusted to Fixed Fullscreen Window */
+        /* Installation Guide Modal Overlay */
         .modal-overlay {
             position: fixed; 
             top: 0;
@@ -419,7 +434,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
-            z-index: 1000;
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -437,9 +452,9 @@
         .modal-card {
             background: #ffffff;
             width: 100%;
-            max-width: 420px;
+            max-width: 380px;
             border-radius: 24px;
-            padding: 28px;
+            padding: 24px;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             transform: scale(0.9);
@@ -451,8 +466,8 @@
         }
 
         .modal-icon {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             background: #e8f0fe;
             color: #1976d2;
             border-radius: 50%;
@@ -463,14 +478,14 @@
         }
 
         .modal-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--text-dark);
             margin-bottom: 8px;
         }
 
         .modal-desc {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
             line-height: 1.5;
             margin-bottom: 20px;
@@ -479,19 +494,19 @@
         .step-list {
             text-align: left;
             background: var(--bg-light);
-            padding: 16px;
-            border-radius: 14px;
+            padding: 14px;
+            border-radius: 12px;
             margin-bottom: 20px;
         }
 
         .step-item {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-dark);
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .step-item:last-child { margin-bottom: 0; }
@@ -499,9 +514,9 @@
         .step-num {
             background: var(--primary-burgundy);
             color: #ffffff;
-            font-size: 11px;
-            width: 20px;
-            height: 20px;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -510,17 +525,20 @@
             flex-shrink: 0;
         }
 
-        .modal-close-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary-gradient);
-            color: #ffffff;
-            border: none;
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: var(--btn-shadow);
+        /* Smart Responsiveness for Short Mobile Viewports */
+        @media (max-height: 660px) {
+            .logo-image { width: 110px; } 
+            .brand-section { margin-top: 10px; }
+            .welcome-content { margin-bottom: 10px; }
+            .welcome-content h1 { font-size: 20px; }
+            .feature-card { padding: 10px 4px; }
+            .icon-circle { width: 32px; height: 32px; margin-bottom: 6px; }
+            .feature-title { font-size: 10px; }
+            .feature-desc { font-size: 9px; margin-bottom: 4px; }
+            .btn { height: 46px; font-size: 14px; }
+            .download-banner { padding: 5px 10px; }
+            .download-text-main { font-size: 10.5px; }
+            .download-text-sub { font-size: 8.5px; }
         }
     </style>
 </head>
@@ -624,7 +642,7 @@
                 </div>
             </div>
 
-            <!-- Call To Actions -->
+            <!-- Call To Actions (Interchanged: Log In first/primary, Create Account second/secondary) -->
             <div class="action-area">
                 <a href="new2.html" class="btn btn-primary">
                     <div class="btn-left">
