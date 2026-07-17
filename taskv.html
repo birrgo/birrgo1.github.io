@@ -41,15 +41,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 12px 20px;
+            padding: 10px 20px;
             background: #ffffff;
             border-bottom: 1px solid #e2e8f0;
             position: relative;
             z-index: 10;
+            height: 45px;
         }
 
         .brand-logo-task {
-            height: 24px;
+            height: 22px;
             object-fit: contain;
         }
 
@@ -64,39 +65,40 @@
             overflow: hidden;
         }
 
-        /* Flexible Advertisement Block */
+        /* Ad Space Size */
         .ad-container-frame {
             width: 100%;
-            height: auto;
-            min-height: 140px;
+            height: 85px;
+            min-height: 85px;
             position: relative;
             background: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        /* Optimized Specifically to Frame Vertical YouTube Shorts Content */
+        /* Workspace container altered to pull the video directly down to the bottom bar */
         .youtube-player-box {
             display: flex;
             flex: 1;
             width: 100%;
             justify-content: center;
-            align-items: flex-start;
-            padding: 0;
+            align-items: flex-end; /* Pulls the video frame down to the bottom */
+            padding: 0 0 12px 0;   /* Sets a precise small cushion above the bottom bar */
             background-color: #ffffff;
             position: relative;
             overflow: hidden;
         }
 
-        /* Dynamically scales to exact maximum screen availability under layout boundaries */
+        /* Size constraints strictly maintained to keep video size identical */
         .shorts-wrapper-frame {
             width: auto;
             height: 100%;
-            max-height: calc(100vh - 210px);
+            max-height: calc(100vh - 220px); 
             position: relative;
             aspect-ratio: 9 / 16;
             background: #000000;
-            border-radius: 20px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
         .shorts-wrapper-frame iframe {
@@ -110,9 +112,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 8px 20px;
+            padding: 10px 20px;
             background-color: #ffffff;
             border-top: 1px solid #e2e8f0;
+            height: 55px;
         }
 
         /* Universal App Counter Control Action Button */
@@ -177,7 +180,6 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        /* Hidden to make the popup text-only */
         .popup-status-badge {
             display: none !important;
         }
@@ -300,7 +302,6 @@
         const popupConfirmBtn = document.getElementById('popupConfirmBtn');
         const popupCancelBtn = document.getElementById('popupCancelBtn');
 
-        // Page refresh or close browser trap handling
         window.onbeforeunload = function(e) {
             if (!taskCompleted) {
                 e.preventDefault();
@@ -308,7 +309,6 @@
             }
         };
 
-        // System gesture back button interception trap
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function() {
             if (!taskCompleted) {
@@ -493,8 +493,8 @@
             if (videoId && videoId.length === 11) {
                 youtubePlayerContainer.innerHTML = `
                     <div class="shorts-wrapper-frame">
-                        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+                        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&showinfo=0&fs=0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
                         </iframe>
                     </div>`;
             } else {
