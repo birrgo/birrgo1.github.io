@@ -37,19 +37,22 @@
         html, body {
             width: 100%;
             height: 100%;
-            height: 100dvh;
+            min-height: 100vh;
+            min-height: 100dvh;
             background-color: var(--bg-light); 
         }
 
-        /* Fully Responsive Fluid Wrapper */
+        /* Fully Responsive Fluid Viewport Wrapper */
         .app-view {
             width: 100%;
             height: 100%;
-            height: 100dvh;
+            min-height: 100vh;
+            min-height: 100dvh;
             background-color: var(--bg-light);
             display: flex;
             flex-direction: column;
             position: relative;
+            overflow-x: hidden;
         }
 
         .bg-wave {
@@ -63,12 +66,14 @@
         
         .bg-wave-top {
             top: 0;
-            height: 75px;
+            height: 12vh;
+            min-height: 75px;
         }
         
         .bg-wave-bottom {
             bottom: 0;
-            height: 95px; 
+            height: 12vh;
+            min-height: 95px; 
         }
 
         .app-content {
@@ -76,7 +81,8 @@
             display: flex;
             flex-direction: column;
             background-color: transparent;
-            padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
+            /* Padding bottom calibrated to prevent navigation bar overlapping any content */
+            padding: calc(16px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)) 16px;
             overflow-y: auto;
             scrollbar-width: none;
             position: relative;
@@ -260,16 +266,9 @@
             gap: 4px;
         }
 
-        .bottom-spacer {
-            height: calc(85px + env(safe-area-inset-bottom));
-            width: 100%;
-            flex-shrink: 0;
-            pointer-events: none;
-        }
-
-        /* Fluid Navigation Bar */
+        /* Fixed Navigation Bar Dynamic Positioning */
         .bottom-nav-bar {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
@@ -326,13 +325,14 @@
             stroke-width: 2.4;
         }
 
-        /* Popup Overlays */
+        /* Fixed Viewport Backdrops for Popups */
         .custom-popup-backdrop {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
             background-color: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
@@ -446,10 +446,11 @@
         }
 
         .ui-sheet-backdrop {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 100vw;
+            height: 100vh;
             height: 100dvh;
             background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(6px);
@@ -625,8 +626,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="bottom-spacer"></div>
             </div>
 
             <div class="page-view-section" id="sectionPageYoung">
@@ -686,8 +685,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="bottom-spacer"></div>
             </div>
 
         </div>
@@ -869,6 +866,7 @@
             }
         }
 
+        // Integrated Navigation System
         function setupNavigationHandlers() {
             document.getElementById('navHome').addEventListener('click', () => goToPage('dashboard.html'));
             document.getElementById('navTasks').addEventListener('click', () => goToPage('task.html'));
