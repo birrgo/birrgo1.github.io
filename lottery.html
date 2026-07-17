@@ -67,7 +67,6 @@
             }
         }
 
-        /* FIX: Made sure SVGs span absolutely edge-to-edge horizontally */
         .bg-wave {
             position: absolute;
             left: 0;
@@ -84,7 +83,7 @@
         
         .bg-wave-bottom {
             bottom: 0;
-            height: 95px; /* Locked bottom wave size proportionally */
+            height: 95px; 
         }
 
         .app-content {
@@ -92,7 +91,8 @@
             display: flex;
             flex-direction: column;
             background-color: transparent;
-            padding: calc(16px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)) 16px;
+            /* Added padding-bottom explicitly to avoid cutting off items */
+            padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
             overflow-y: auto;
             scrollbar-width: none;
             position: relative;
@@ -165,7 +165,6 @@
             display: none;
             flex-direction: column;
             gap: 16px;
-            padding-bottom: 30px; 
         }
 
         .page-view-section.active-view {
@@ -275,6 +274,14 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+        }
+
+        /* FIX: Added spacer to prevent contents from ducking under nav bar */
+        .bottom-spacer {
+            height: calc(85px + env(safe-area-inset-bottom));
+            width: 100%;
+            flex-shrink: 0;
+            pointer-events: none;
         }
 
         /* Fixed Navigation */
@@ -552,7 +559,6 @@
 
     <div class="app-view">
         
-        <!-- FIXED SVG TOP WAVE: Width set to 100% and aspect ratio stretched horizontally -->
         <svg class="bg-wave bg-wave-top" viewBox="0 0 375 80" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0H375V40C375 40 280 80 0 50V0Z" fill="url(#paint0_linear)"/>
             <defs>
@@ -563,7 +569,6 @@
             </defs>
         </svg>
 
-        <!-- FIXED SVG BOTTOM WAVE: Standardized to sit flush edge-to-edge -->
         <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M375 100H0V40C0 40 120 -10 375 25V100Z" fill="#9A0019"/>
         </svg>
@@ -638,6 +643,8 @@
                     </div>
                 </div>
 
+                <!-- Spacer nested directly in the section to ensure full scrolling clearance -->
+                <div class="bottom-spacer"></div>
             </div>
 
             <div class="page-view-section" id="sectionPageYoung">
@@ -698,6 +705,8 @@
                     </div>
                 </div>
 
+                <!-- Spacer nested directly in the section to ensure full scrolling clearance -->
+                <div class="bottom-spacer"></div>
             </div>
 
         </div>
