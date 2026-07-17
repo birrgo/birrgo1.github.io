@@ -22,6 +22,8 @@
             --success-bg: #ecfdf5;
             --warning-amber: #f59e0b;
             --warning-bg: #fffbeb;
+            --error-red: #ef4444;
+            --error-bg: #fef2f2;
             --border-radius-lg: 24px;
             --border-radius-md: 16px;
         }
@@ -57,7 +59,6 @@
             position: relative;
         }
 
-        /* Decorative Background Waves */
         .bg-wave {
             position: absolute;
             left: 0;
@@ -212,10 +213,6 @@
             border-radius: 12px;
             text-transform: uppercase;
         }
-        .status-badge-inline.verified {
-            background-color: var(--success-bg);
-            color: var(--success-green);
-        }
         .status-badge-inline.locked {
             background-color: #f1f5f9;
             color: var(--text-muted);
@@ -232,7 +229,6 @@
             padding: 4px;
         }
 
-        /* Biometrics Switch Styles */
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -292,7 +288,7 @@
             opacity: 0.9;
         }
 
-        /* Modals & Popups styling */
+        /* Modals & Popups System Layouts */
         .custom-popup-backdrop {
             position: fixed;
             top: 0;
@@ -379,12 +375,68 @@
             border: none;
             overflow: hidden;
         }
+
+        /* Custom Dynamic Notification UI Center */
+        .toast-container {
+            position: fixed;
+            top: calc(20px + env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            width: calc(100% - 40px);
+            max-width: 335px;
+            background: #ffffff;
+            border-radius: var(--border-radius-md);
+            padding: 16px;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .toast-content {
+            flex: 1;
+        }
+        .toast-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+        .toast-desc {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Toast Notification Overlay Component -->
+    <div class="toast-container" id="toastBox">
+        <div class="toast-icon" id="toastIconBlock"></div>
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitleTxt">System Status</div>
+            <div class="toast-desc" id="toastDescTxt">Operation complete.</div>
+        </div>
+    </div>
+
     <div class="app-view">
-        
         <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
             <defs>
@@ -423,7 +475,6 @@
                 </div>
             </div>
 
-            <!-- Verification Methods Section -->
             <h3 class="section-title">Verification Methods</h3>
             <div class="profile-display-box" style="margin-bottom: 24px;">
                 <div class="profile-info-row" style="opacity: 0.7;">
@@ -497,7 +548,6 @@
 
             <button class="btn-logout-premium" id="logoutConfirmBtn">Logout</button>
         </div>
-
     </div>
 
     <!-- PIN Access Modal for Toggle Validation -->
@@ -569,6 +619,7 @@
 
         let activeUserPhone = "";
         let intendedToggleState = false;
+        let originalToggleState = false;
 
         const profileFullNameText = document.getElementById('profileFullNameText');
         const profilePhoneText = document.getElementById('profilePhoneText');
@@ -576,13 +627,11 @@
         const biometricsToggle = document.getElementById('biometricsToggle');
         const biometricsStatusText = document.getElementById('biometricsStatusText');
         
-        // Verification Modal for Toggle
         const verifyPopup = document.getElementById('verifyPopup');
         const verifyCloseBtn = document.getElementById('verifyCloseBtn');
         const verifyPasswordInput = document.getElementById('verifyPasswordInput');
         const confirmVerificationBtn = document.getElementById('confirmVerificationBtn');
 
-        // Pass change modal nodes
         const passPopup = document.getElementById('passPopup');
         const changePassRow = document.getElementById('changePassRow');
         const passCloseBtn = document.getElementById('passCloseBtn');
@@ -591,19 +640,37 @@
         const newPasswordInput = document.getElementById('newPasswordInput');
         const confirmPasswordInput = document.getElementById('confirmPasswordInput');
 
-        // Biometric scanning elements
         const biometricPopup = document.getElementById('biometricPopup');
         const biometricCloseBtn = document.getElementById('biometricCloseBtn');
         const biometricIframe = document.getElementById('biometricIframe');
 
+        // Premium Toast Notification Utility 
+        function showToast(title, message, type = "success") {
+            const toastBox = document.getElementById('toastBox');
+            const iconBlock = document.getElementById('toastIconBlock');
+            const titleTxt = document.getElementById('toastTitleTxt');
+            const descTxt = document.getElementById('toastDescTxt');
+
+            titleTxt.innerText = title;
+            descTxt.innerText = message;
+
+            if (type === "success") {
+                iconBlock.style.backgroundColor = "var(--success-green)";
+                iconBlock.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            } else {
+                iconBlock.style.backgroundColor = "var(--error-red)";
+                iconBlock.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            }
+
+            toastBox.classList.add('show');
+            setTimeout(() => { toastBox.classList.remove('show'); }, 3500);
+        }
+
         function formatEthiopianPhone(phone) {
             if (!phone) return "N/A";
             let clean = phone.replace(/\D/g, ''); 
-            if (clean.startsWith('251')) {
-                clean = clean.substring(3);
-            } else if (clean.startsWith('0')) {
-                clean = clean.substring(1);
-            }
+            if (clean.startsWith('251')) { clean = clean.substring(3); } 
+            else if (clean.startsWith('0')) { clean = clean.substring(1); }
             if (clean.length === 9) {
                 return `+251 ${clean.substring(0, 3)} ${clean.substring(3, 6)} ${clean.substring(6)}`;
             }
@@ -619,21 +686,20 @@
 
             profilePhoneText.innerText = formatEthiopianPhone(activeUserPhone);
 
-            // Fetch setting on boot
             const bioSettings = localStorage.getItem('biometrics_enabled');
             const isEnabled = bioSettings === 'true';
             biometricsToggle.checked = isEnabled;
+            originalToggleState = isEnabled;
             biometricsStatusText.innerText = isEnabled ? "Biometrics Active" : "Use fingerprint scanner";
 
             streamAccountData();
         });
 
-        // Trigger dynamic modal when user clicks to turn ON or OFF
+        // Toggle Interception
         biometricsToggle.addEventListener('click', (e) => {
-            e.preventDefault(); // Stop raw toggle flip before PIN check
-            
-            // Deduce what setting change is being attempted
-            intendedToggleState = !biometricsToggle.checked; 
+            e.preventDefault(); 
+            originalToggleState = biometricsToggle.checked;
+            intendedToggleState = !originalToggleState; 
             
             verifyPasswordInput.value = "";
             verifyPopup.style.display = 'flex';
@@ -647,7 +713,6 @@
         }
         verifyCloseBtn.addEventListener('click', closeVerifyModal);
 
-        // Verify PIN and open custom biometric simulation layout
         confirmVerificationBtn.addEventListener('click', async () => {
             const enteredPin = verifyPasswordInput.value.trim();
             if (!enteredPin) return;
@@ -661,19 +726,31 @@
                     if (String(dbPassword) === enteredPin) {
                         closeVerifyModal();
                         
-                        // Load biometrics frame simulation
+                        // Pass confirmation state down into local storage before frame syncs
+                        localStorage.setItem('biometrics_enabled', intendedToggleState);
+                        
                         biometricIframe.src = "finger.html"; 
                         biometricPopup.style.display = 'flex';
-                        setTimeout(() => biometricPopup.classList.add('show-modal'), 10);
+                        setTimeout(() => {
+                            biometricPopup.classList.add('show-modal');
+                            // Fallback sync message directly into the sub-frame window context
+                            setTimeout(() => {
+                                if (biometricIframe.contentWindow) {
+                                    biometricIframe.contentWindow.postMessage({
+                                        type: 'UPDATE_BIOMETRIC_STATUS',
+                                        enabled: intendedToggleState
+                                    }, '*');
+                                }
+                            }, 300);
+                        }, 10);
                     } else {
-                        alert("Incorrect Password/PIN. Access denied.");
+                        showToast("Access Denied", "Incorrect Security PIN credential.", "error");
                     }
                 } else {
-                    alert("Account profile missing inside database.");
+                    showToast("Profile Error", "Account profile missing in database.", "error");
                 }
             } catch (error) {
-                console.error(error);
-                alert("Database verification failed.");
+                showToast("System Error", "Database validation failed.", "error");
             }
         });
 
@@ -683,32 +760,41 @@
                 biometricIframe.src = "about:blank";
                 biometricPopup.style.display = 'none'; 
             }, 300);
+            // Revert state if closed without validation confirmation
+            const bioSettings = localStorage.getItem('biometrics_enabled') === 'true';
+            biometricsToggle.checked = bioSettings;
+            biometricsStatusText.innerText = bioSettings ? "Biometrics Active" : "Use fingerprint scanner";
         }
         biometricCloseBtn.addEventListener('click', closeBiometricModal);
 
-        // Intercept biometric scanner completion messages (works for ON & OFF actions)
+        // Handle child interface status message feedback
         window.addEventListener('message', (event) => {
             if (event.data && event.data.status) {
                 if (event.data.status === 'SUCCESS') {
-                    // Update layout
                     biometricsToggle.checked = intendedToggleState;
                     localStorage.setItem('biometrics_enabled', intendedToggleState);
                     biometricsStatusText.innerText = intendedToggleState ? "Biometrics Active" : "Use fingerprint scanner";
                     
                     setTimeout(() => {
-                        closeBiometricModal();
-                        alert(`Biometric login has been successfully ${intendedToggleState ? 'ENABLED' : 'DISABLED'}.`);
-                    }, 800);
+                        biometricPopup.classList.remove('show-modal');
+                        setTimeout(() => { biometricPopup.style.display = 'none'; }, 300);
+                        showToast("Security Updated", `Biometrics successfully ${intendedToggleState ? 'activated' : 'deactivated'}.`, "success");
+                    }, 600);
                 } else if (event.data.status === 'FAILED') {
                     setTimeout(() => {
-                        closeBiometricModal();
-                        alert(`Biometrics update failed: ${event.data.error || 'Unknown Error'}`);
-                    }, 800);
+                        // Roll back configurations on security session faults
+                        localStorage.setItem('biometrics_enabled', originalToggleState);
+                        biometricsToggle.checked = originalToggleState;
+                        biometricsStatusText.innerText = originalToggleState ? "Biometrics Active" : "Use fingerprint scanner";
+                        
+                        biometricPopup.classList.remove('show-modal');
+                        setTimeout(() => { biometricPopup.style.display = 'none'; }, 300);
+                        showToast("Process Cancelled", event.data.error || "Authentication window closed.", "error");
+                    }, 600);
                 }
             }
         });
 
-        // Pass change modal flow
         changePassRow.addEventListener('click', () => {
             passPopup.style.display = 'flex';
             setTimeout(() => passPopup.classList.add('show-modal'), 10);
@@ -729,17 +815,15 @@
             const confirmPass = confirmPasswordInput.value.trim();
 
             if (!oldPass || !newPass || !confirmPass) {
-                alert("All password fields are required.");
+                showToast("Missing Fields", "All password fields are required.", "error");
                 return;
             }
-
             if (newPass.length !== 6) {
-                alert("New PIN must contain exactly 6 characters.");
+                showToast("Invalid PIN", "New PIN must contain exactly 6 characters.", "error");
                 return;
             }
-
             if (newPass !== confirmPass) {
-                alert("Confirmation PIN does not match.");
+                showToast("Match Mismatch", "Confirmation PIN entries do not match.", "error");
                 return;
             }
 
@@ -751,7 +835,7 @@
                     const currentDbPass = snapshot.val().password || snapshot.val().securityPin;
 
                     if (String(currentDbPass) !== oldPass) {
-                        alert("The old password you entered is incorrect.");
+                        showToast("Authentication Fault", "The old password entered is incorrect.", "error");
                         return;
                     }
 
@@ -760,14 +844,13 @@
                         securityPin: newPass 
                     });
 
-                    alert("Your account Security PIN has been updated successfully!");
+                    showToast("Security Updated", "Account PIN updated successfully!", "success");
                     closePasswordModal();
                 } else {
-                    alert("Unable to fetch user profile data.");
+                    showToast("Profile Error", "Unable to fetch user data.", "error");
                 }
             } catch (error) {
-                console.error(error);
-                alert("An error occurred during database transaction.");
+                showToast("Transaction Error", "Database update failed.", "error");
             }
         });
 
