@@ -37,27 +37,24 @@
 
         html, body {
             width: 100%;
-            height: 100dvh;
-            overflow: hidden;
-            background-color: #f1f5f9;
+            height: 100%;
+            background-color: var(--bg-light);
         }
 
         body {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            position: relative;
         }
 
         .app-view {
             width: 100%;
+            height: 100vh;
             height: 100dvh;
-            max-width: 450px;
             background-color: var(--bg-light);
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
         }
 
         /* Decorative Background Waves */
@@ -83,7 +80,7 @@
             flex: 1;
             overflow-y: auto;
             background-color: transparent;
-            padding: calc(20px + env(safe-area-inset-top)) 20px calc(95px + env(safe-area-inset-bottom)) 20px;
+            padding: calc(20px + env(safe-area-inset-top)) 20px calc(30px + env(safe-area-inset-bottom)) 20px;
             scrollbar-width: none;
             position: relative;
             z-index: 1;
@@ -140,7 +137,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
-        /* Unverified Badge under profile */
         .verification-badge {
             display: inline-flex;
             align-items: center;
@@ -209,7 +205,6 @@
             color: var(--text-dark);
         }
 
-        /* Inline badges for verified vs locked items */
         .status-badge-inline {
             font-size: 11px;
             font-weight: 800;
@@ -229,7 +224,6 @@
             gap: 4px;
         }
 
-        /* Quick Interactive Actions inside details box */
         .action-arrow {
             color: var(--primary-burgundy);
             font-size: 18px;
@@ -279,7 +273,6 @@
             transform: translateX(20px);
         }
 
-        /* Buttons styles */
         .btn-logout-premium {
             width: 100%;
             height: 52px;
@@ -301,11 +294,11 @@
 
         /* Modals & Popups styling */
         .custom-popup-backdrop {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100dvh;
+            height: 100%;
             background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
@@ -380,51 +373,11 @@
             border-color: var(--primary-burgundy);
         }
 
-        /* Biometric Verification Modal specific rules */
         .bio-iframe-container {
             width: 100%;
             height: 310px;
             border: none;
             overflow: hidden;
-        }
-
-        .bottom-nav-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: calc(68px + env(safe-area-inset-bottom));
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid var(--border-light);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 10;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 11px;
-            font-weight: 700;
-            gap: 4px;
-            flex: 1;
-            height: 100%;
-        }
-
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            stroke: currentColor;
-            fill: none;
-            transition: all 0.2s ease;
         }
     </style>
 </head>
@@ -526,7 +479,7 @@
                 <div class="profile-info-row">
                     <div class="info-col">
                         <span class="profile-info-label">Biometric Login</span>
-                        <span class="profile-info-val" style="font-size:13px; font-weight:500; color:var(--text-muted);">Use fingerprint scanner</span>
+                        <span class="profile-info-val" id="biometricsStatusText">Use fingerprint scanner</span>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" id="biometricsToggle">
@@ -544,28 +497,6 @@
 
             <button class="btn-logout-premium" id="logoutConfirmBtn">Logout</button>
         </div>
-
-        <nav class="bottom-nav-bar">
-            <a href="dashboard.html" class="nav-item">
-                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Home
-            </a>
-            <a href="task.html" class="nav-item">
-                <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                Tasks
-            </a>
-            <a href="lottery.html" class="nav-item">
-                <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                Lottery
-            </a>
-            <a href="wallet.html" class="nav-item">
-                <svg viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                Wallet
-            </a>
-        </nav>
 
     </div>
 
@@ -607,6 +538,7 @@
         </div>
     </div>
 
+    <!-- Biometrics Scan Iframe Popup -->
     <div class="custom-popup-backdrop" id="biometricPopup">
         <div class="custom-popup-card" style="padding: 20px 16px;">
             <div class="modal-header" style="margin-bottom: 10px;">
@@ -642,6 +574,7 @@
         const profilePhoneText = document.getElementById('profilePhoneText');
         const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
         const biometricsToggle = document.getElementById('biometricsToggle');
+        const biometricsStatusText = document.getElementById('biometricsStatusText');
         
         // Verification Modal for Toggle
         const verifyPopup = document.getElementById('verifyPopup');
@@ -663,17 +596,14 @@
         const biometricCloseBtn = document.getElementById('biometricCloseBtn');
         const biometricIframe = document.getElementById('biometricIframe');
 
-        // Utility to format phone numbers cleanly with Ethiopian prefix (+251)
         function formatEthiopianPhone(phone) {
             if (!phone) return "N/A";
             let clean = phone.replace(/\D/g, ''); 
-            
             if (clean.startsWith('251')) {
                 clean = clean.substring(3);
             } else if (clean.startsWith('0')) {
                 clean = clean.substring(1);
             }
-            
             if (clean.length === 9) {
                 return `+251 ${clean.substring(0, 3)} ${clean.substring(3, 6)} ${clean.substring(6)}`;
             }
@@ -682,7 +612,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             activeUserPhone = localStorage.getItem('auth_session_phone');
-            
             if (!activeUserPhone) {
                 window.location.href = "new2.html";
                 return;
@@ -690,15 +619,20 @@
 
             profilePhoneText.innerText = formatEthiopianPhone(activeUserPhone);
 
+            // Fetch setting on boot
             const bioSettings = localStorage.getItem('biometrics_enabled');
-            biometricsToggle.checked = bioSettings === 'true';
+            const isEnabled = bioSettings === 'true';
+            biometricsToggle.checked = isEnabled;
+            biometricsStatusText.innerText = isEnabled ? "Biometrics Active" : "Use fingerprint scanner";
 
             streamAccountData();
         });
 
-        // Trigger PIN Access verification modal when user tries to switch biometrics
+        // Trigger dynamic modal when user clicks to turn ON or OFF
         biometricsToggle.addEventListener('click', (e) => {
-            e.preventDefault(); 
+            e.preventDefault(); // Stop raw toggle flip before PIN check
+            
+            // Deduce what setting change is being attempted
             intendedToggleState = !biometricsToggle.checked; 
             
             verifyPasswordInput.value = "";
@@ -706,7 +640,6 @@
             setTimeout(() => verifyPopup.classList.add('show-modal'), 10);
         });
 
-        // Close Toggle Verification Modal
         function closeVerifyModal() {
             verifyPopup.classList.remove('show-modal');
             setTimeout(() => { verifyPopup.style.display = 'none'; }, 300);
@@ -714,7 +647,7 @@
         }
         verifyCloseBtn.addEventListener('click', closeVerifyModal);
 
-        // Verify PIN and route user to Fingerprint scan window
+        // Verify PIN and open custom biometric simulation layout
         confirmVerificationBtn.addEventListener('click', async () => {
             const enteredPin = verifyPasswordInput.value.trim();
             if (!enteredPin) return;
@@ -728,6 +661,7 @@
                     if (String(dbPassword) === enteredPin) {
                         closeVerifyModal();
                         
+                        // Load biometrics frame simulation
                         biometricIframe.src = "finger.html"; 
                         biometricPopup.style.display = 'flex';
                         setTimeout(() => biometricPopup.classList.add('show-modal'), 10);
@@ -735,44 +669,46 @@
                         alert("Incorrect Password/PIN. Access denied.");
                     }
                 } else {
-                    alert("Account profile missing inside DB framework.");
+                    alert("Account profile missing inside database.");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Database verification sync failed.");
+                alert("Database verification failed.");
             }
         });
 
-        // Safe closure of biometric scanning frame
         function closeBiometricModal() {
             biometricPopup.classList.remove('show-modal');
             setTimeout(() => { 
-                biometricPopup.style.display = 'none'; 
                 biometricIframe.src = "about:blank";
+                biometricPopup.style.display = 'none'; 
             }, 300);
         }
         biometricCloseBtn.addEventListener('click', closeBiometricModal);
 
-        // Receive verification status messages from iframe frame
+        // Intercept biometric scanner completion messages (works for ON & OFF actions)
         window.addEventListener('message', (event) => {
             if (event.data && event.data.status) {
                 if (event.data.status === 'SUCCESS') {
+                    // Update layout
                     biometricsToggle.checked = intendedToggleState;
                     localStorage.setItem('biometrics_enabled', intendedToggleState);
+                    biometricsStatusText.innerText = intendedToggleState ? "Biometrics Active" : "Use fingerprint scanner";
+                    
                     setTimeout(() => {
                         closeBiometricModal();
-                        alert(`Biometrics successfully ${intendedToggleState ? 'enabled' : 'disabled'}!`);
+                        alert(`Biometric login has been successfully ${intendedToggleState ? 'ENABLED' : 'DISABLED'}.`);
                     }, 800);
                 } else if (event.data.status === 'FAILED') {
                     setTimeout(() => {
                         closeBiometricModal();
-                        alert(`Biometrics verification failed: ${event.data.error || 'Unknown Error'}`);
+                        alert(`Biometrics update failed: ${event.data.error || 'Unknown Error'}`);
                     }, 800);
                 }
             }
         });
 
-        // Manage Change Password popups
+        // Pass change modal flow
         changePassRow.addEventListener('click', () => {
             passPopup.style.display = 'flex';
             setTimeout(() => passPopup.classList.add('show-modal'), 10);
@@ -787,14 +723,13 @@
         }
         passCloseBtn.addEventListener('click', closePasswordModal);
 
-        // Multi-tier Database Password update validation (strictly 6-digits)
         savePasswordBtn.addEventListener('click', async () => {
             const oldPass = oldPasswordInput.value.trim();
             const newPass = newPasswordInput.value.trim();
             const confirmPass = confirmPasswordInput.value.trim();
 
             if (!oldPass || !newPass || !confirmPass) {
-                alert("All verification password columns are required.");
+                alert("All password fields are required.");
                 return;
             }
 
@@ -804,7 +739,7 @@
             }
 
             if (newPass !== confirmPass) {
-                alert("Confirmation PIN does not match your new PIN design.");
+                alert("Confirmation PIN does not match.");
                 return;
             }
 
@@ -816,7 +751,7 @@
                     const currentDbPass = snapshot.val().password || snapshot.val().securityPin;
 
                     if (String(currentDbPass) !== oldPass) {
-                        alert("The old password you typed is incorrect.");
+                        alert("The old password you entered is incorrect.");
                         return;
                     }
 
@@ -828,7 +763,7 @@
                     alert("Your account Security PIN has been updated successfully!");
                     closePasswordModal();
                 } else {
-                    alert("Unable to fetch active user profile data.");
+                    alert("Unable to fetch user profile data.");
                 }
             } catch (error) {
                 console.error(error);
