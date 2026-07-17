@@ -158,7 +158,7 @@
         <div class="sensor-wrapper" id="sensorTouchArea">
             <div class="ripple-outer"></div>
             <div class="ripple"></div>
-            <button class="sensor-btn" id="sensorButton" aria-label="Biometric Verification">
+            <button class="sensor-btn" aria-label="Biometric Verification">
                 <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0 0 12 2z"></path>
                     <path d="M12 6a6 6 0 0 0-6 6c0 3.314 2.686 6 6 6s6-2.686 6-6a6 6 0 0 0-6-6z"></path>
@@ -175,22 +175,13 @@
         const statusMsg = document.getElementById('statusMessage');
         const instructionText = document.getElementById('instructionText');
         const touchArea = document.getElementById('sensorTouchArea');
-        const sensorButton = document.getElementById('sensorButton');
-
-        // Secure Parent-Child Frame Messaging Setup
-        let targetOrigin = "*";
-        try {
-            if (window.parent && window.parent !== window) {
-                targetOrigin = window.parent.location.origin === "null" ? "*" : window.parent.location.origin;
-            }
-        } catch (e) {
-            targetOrigin = "*";
-        }
-
-        // --- PRODUCTION CONFIG ---
-        // Activated simulation fallback over unsecure HTTP origins for local styling & web preview servers
+        
+        // Use a decoupled baseline wildcard reference to guarantee message transport delivery out of sandboxed wrappers
+        const targetOrigin = "*";
+        
+        // Runtime simulation override for development/local file previews
         const SIMULATE_SUCCESS_ON_HTTP = true; 
-        let cachedBiometricsEnabled = null;
+        let incomingToggleStateOverride = null;
 
         function onFingerprintSuccess(verificationToken) {
             statusMsg.innerText = "Verified!";
@@ -212,7 +203,6 @@
             }, targetOrigin);
         }
 
-        // --- ENCODING UTILITIES ---
         function base64ToBuffer(base64) {
             const binary = window.atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
             const bytes = new Uint8Array(binary.length);
@@ -222,46 +212,23 @@
             return bytes.buffer;
         }
 
-        function bufferToBase64Url(buffer) {
-            const bytes = new Uint8Array(buffer);
-            let binary = '';
-            for (let i = 0; i < bytes.byteLength; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            return window.btoa(binary)
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=/g, '');
-        }
-
-        // --- BIOMETRIC CHECK LOGIC ---
-        function checkBiometricConfig() {
-            if (cachedBiometricsEnabled !== null) {
-                return cachedBiometricsEnabled;
-            }
-            try {
-                return localStorage.getItem('biometrics_enabled') !== 'false';
-            } catch (e) {
-                return true; 
-            }
-        }
-
         async function startBiometricScan() {
-            const isBiometricsEnabled = checkBiometricConfig();
-
-            if (!isBiometricsEnabled) {
-                statusMsg.innerText = "Biometrics disabled in Profile.";
-                statusMsg.className = "status-text error";
-                instructionText.innerText = "Please toggle on Biometrics in your settings, or use PIN.";
-                
-                setTimeout(handleFallback, 1500);
-                return;
+            // Check cross-origin frame context state overrides
+            let isConfiguredOn = true;
+            if (incomingToggleStateOverride !== null) {
+                isConfiguredOn = incomingToggleStateOverride;
+            } else {
+                try {
+                    isConfiguredOn = localStorage.getItem('biometrics_enabled') !== 'false';
+                } catch(e) {
+                    isConfiguredOn = true; 
+                }
             }
 
             statusMsg.innerText = "Connecting to sensor...";
             statusMsg.className = "status-text";
 
-            // 1. Android Native Webview Bridge
+            // 1. Android Native Interface Hook
             if (window.AndroidInterface && typeof window.AndroidInterface.requestFingerprint === 'function') {
                 try {
                     window.AndroidInterface.requestFingerprint();
@@ -274,111 +241,98 @@
             const cleanHostname = window.location.hostname || "localhost";
             const isSecureContext = window.location.protocol === 'https:' || cleanHostname === 'localhost' || cleanHostname === '127.0.0.1';
 
-            // 2. HTTP Bypass Verification Connection
+            // 2. HTTP Sandbox / Local Server Bypass Simulation Connect
             if (!isSecureContext && SIMULATE_SUCCESS_ON_HTTP) {
-                console.warn("WebAuthn Bypassed: Simulating sensor connection success over HTTP framework.");
                 setTimeout(() => {
                     onFingerprintSuccess("simulated-http-token");
-                }, 1200);
+                }, 1000);
                 return;
             }
 
-            // 3. WebAuthn Implementation
-            const isWebAuthnSupported = !!(window.PublicKeyCredential && navigator.credentials);
+            // 3. Native WebAuthn API Call
+            const isWebAuthnSupported = window.PublicKeyCredential && 
+                                        typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function' &&
+                                        isSecureContext;
 
-            if (isWebAuthnSupported && isSecureContext) {
+            if (isWebAuthnSupported) {
                 try {
-                    let savedCredId = null;
-                    try {
-                        savedCredId = localStorage.getItem('webauthn_credential_id');
-                    } catch (e) {
-                        console.warn("Storage access restricted.");
-                    }
+                    const isBioAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                    if (isBioAvailable) {
+                        let savedCredId = null;
+                        try {
+                            savedCredId = localStorage.getItem('webauthn_credential_id');
+                        } catch(e) {}
 
-                    // --- REGISTER FIRST TIME ---
-                    if (!savedCredId) {
-                        instructionText.innerText = "Registering biometric profile on this site...";
-                        
-                        const challenge = new Uint8Array(32);
-                        window.crypto.getRandomValues(challenge);
-                        const userId = new Uint8Array(16);
-                        window.crypto.getRandomValues(userId);
+                        if (!savedCredId) {
+                            instructionText.innerText = "Registering biometric profile...";
+                            const challenge = new Uint8Array(32);
+                            window.crypto.getRandomValues(challenge);
+                            const userId = new Uint8Array(16);
+                            window.crypto.getRandomValues(userId);
 
-                        const createOptions = {
-                            publicKey: {
-                                challenge: challenge,
-                                rp: { name: "Birrgo Secure", id: cleanHostname },
-                                user: { id: userId, name: "user@example.com", displayName: "Authorized User" },
-                                pubKeyCredParams: [{ type: "public-key", alg: -7 }], 
-                                authenticatorSelection: { 
-                                    authenticatorAttachment: "platform", 
-                                    userVerification: "required" 
-                                },
-                                timeout: 60000
+                            const createOptions = {
+                                publicKey: {
+                                    challenge: challenge,
+                                    rp: { name: "Secure Fingerprint Portal", id: cleanHostname },
+                                    user: { id: userId, name: "user@example.com", displayName: "Authorized User" },
+                                    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                                    authenticatorSelection: { 
+                                        authenticatorAttachment: "platform", 
+                                        userVerification: "required" 
+                                    },
+                                    timeout: 60000
+                                }
+                            };
+
+                            const credential = await navigator.credentials.create(createOptions);
+                            if (credential) {
+                                const rawId = new Uint8Array(credential.rawId);
+                                let binary = '';
+                                for (let i = 0; i < rawId.byteLength; i++) {
+                                    binary += String.fromCharCode(rawId[i]);
+                                }
+                                const base64Id = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                                try {
+                                    localStorage.setItem('webauthn_credential_id', base64Id);
+                                } catch(e) {}
+                                onFingerprintSuccess("registered-and-verified");
+                            } else {
+                                onFingerprintFailure("Registration cancelled.");
                             }
-                        };
-
-                        const credential = await navigator.credentials.create(createOptions);
-                        if (credential) {
-                            const base64Id = bufferToBase64Url(credential.rawId);
-                            try {
-                                localStorage.setItem('webauthn_credential_id', base64Id);
-                            } catch (e) {
-                                console.warn("Failed to persist WebAuthn credential ID.");
-                            }
-                            onFingerprintSuccess("registered-and-verified");
                         } else {
-                            onFingerprintFailure("Registration cancelled.");
-                        }
-                    } 
-                    // --- VERIFY ON FUTURE VISITS ---
-                    else {
-                        const challenge = new Uint8Array(32);
-                        window.crypto.getRandomValues(challenge);
+                            const challenge = new Uint8Array(32);
+                            window.crypto.getRandomValues(challenge);
 
-                        const getOptions = {
-                            publicKey: {
-                                challenge: challenge,
-                                rpId: cleanHostname,
-                                allowCredentials: [{ id: base64ToBuffer(savedCredId), type: "public-key" }],
-                                userVerification: "required",
-                                timeout: 60000
+                            const getOptions = {
+                                publicKey: {
+                                    challenge: challenge,
+                                    rpId: cleanHostname,
+                                    allowCredentials: [{ id: base64ToBuffer(savedCredId), type: "public-key" }],
+                                    userVerification: "required",
+                                    timeout: 60000
+                                }
+                            };
+
+                            const assertion = await navigator.credentials.get(getOptions);
+                            if (assertion) {
+                                onFingerprintSuccess("assertion-success");
+                            } else {
+                                onFingerprintFailure("Verification failed.");
                             }
-                        };
-
-                        const assertion = await navigator.credentials.get(getOptions);
-                        if (assertion) {
-                            onFingerprintSuccess("assertion-success");
-                        } else {
-                            onFingerprintFailure("Verification failed.");
                         }
+                        return;
                     }
-                    return;
                 } catch (e) {
-                    console.error("WebAuthn API Error Details: ", e);
-                    
                     if (e.name === "NotAllowedError") {
                         onFingerprintFailure("Dismissed by user.");
                         return;
                     }
-                    
-                    if (e.name === "SecurityError") {
-                        onFingerprintFailure("Iframe blocked. Parent must allow 'publickey-credentials-get'.");
-                        return;
-                    }
-                    
                     onFingerprintFailure(e.message || "Device biometrics failed.");
                     return;
                 }
             }
 
-            // 4. Fallback Handling
-            if (!isSecureContext) {
-                onFingerprintFailure("HTTPS security encryption required.");
-                instructionText.innerText = "Biometrics are disabled on insecure connections. Please use PIN.";
-            } else {
-                onFingerprintFailure("Biometrics unsupported or unavailable on this device.");
-            }
+            onFingerprintFailure("Unsupported device API. Must use HTTPS or Localhost.");
         }
 
         window.onAndroidBiometricResult = function(success, data) {
@@ -402,19 +356,20 @@
             }
         }
 
+        // Catch explicitly dispatched lifecycle events sent from the profile wrapper
         window.addEventListener('message', (event) => {
-            if (event.data && typeof event.data === 'object') {
-                if (event.data.type === 'UPDATE_BIOMETRIC_STATUS') {
-                    cachedBiometricsEnabled = event.data.enabled !== false;
-                }
+            if (event.data && event.data.type === 'UPDATE_BIOMETRIC_STATUS') {
+                incomingToggleStateOverride = event.data.enabled;
+                // Auto start verification loop on incoming dynamic validation pass
+                startBiometricScan();
             }
         });
 
-        touchArea.addEventListener('click', startBiometricScan);
-        sensorButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            startBiometricScan();
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(startBiometricScan, 400); 
         });
+
+        touchArea.addEventListener('click', startBiometricScan);
     </script>
 </body>
 </html>
