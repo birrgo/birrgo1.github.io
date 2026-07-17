@@ -67,15 +67,16 @@
             }
         }
 
+        /* FIX: Made sure SVGs span absolutely edge-to-edge horizontally */
         .bg-wave {
             position: absolute;
             left: 0;
+            right: 0;
             width: 100%;
             z-index: 0;
             pointer-events: none;
         }
         
-        /* DESKTOP & MOBILE FIX: Changed vh to px to lock proportions */
         .bg-wave-top {
             top: 0;
             height: 75px;
@@ -83,8 +84,7 @@
         
         .bg-wave-bottom {
             bottom: 0;
-            height: 12vh;
-            min-height: 80px;
+            height: 95px; /* Locked bottom wave size proportionally */
         }
 
         .app-content {
@@ -92,7 +92,6 @@
             display: flex;
             flex-direction: column;
             background-color: transparent;
-            /* Enhanced top padding constraint for cleaner content spacing */
             padding: calc(16px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)) 16px;
             overflow-y: auto;
             scrollbar-width: none;
@@ -132,7 +131,6 @@
             -webkit-backdrop-filter: blur(4px);
         }
 
-        /* Segmented tab control to swap between Page 1 and Page 2 */
         .sub-tab-container {
             display: flex;
             background: #e2e8f0;
@@ -279,7 +277,7 @@
             gap: 4px;
         }
 
-        /* Fixed Navigation Framework */
+        /* Fixed Navigation */
         .bottom-nav-bar {
             position: absolute;
             bottom: 0;
@@ -338,7 +336,7 @@
             stroke-width: 2.4;
         }
 
-        /* SYSTEM DIALOG POPUPS & BACKDROPS */
+        /* Dialog system */
         .custom-popup-backdrop {
             position: absolute;
             top: 0;
@@ -419,7 +417,6 @@
             font-weight: 500;
         }
 
-        /* Password Verification Elements */
         .password-input-container {
             width: 100%;
             margin-bottom: 20px;
@@ -458,7 +455,6 @@
             transform: scale(0.98);
         }
 
-        /* PREMIUM BOTTOM SHEET FOR ERRORS */
         .ui-sheet-backdrop {
             position: absolute;
             top: 0;
@@ -556,18 +552,20 @@
 
     <div class="app-view">
         
-        <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 0H375V80C375 80 280 200 0 120V0Z" fill="url(#paint0_linear)"/>
+        <!-- FIXED SVG TOP WAVE: Width set to 100% and aspect ratio stretched horizontally -->
+        <svg class="bg-wave bg-wave-top" viewBox="0 0 375 80" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0H375V40C375 40 280 80 0 50V0Z" fill="url(#paint0_linear)"/>
             <defs>
-                <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="200" gradientUnits="userSpaceOnUse">
+                <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="80" gradientUnits="userSpaceOnUse">
                     <stop stop-color="#9A0019"/>
                     <stop offset="1" stop-color="#700010"/>
                 </linearGradient>
             </defs>
         </svg>
 
-        <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
+        <!-- FIXED SVG BOTTOM WAVE: Standardized to sit flush edge-to-edge -->
+        <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M375 100H0V40C0 40 120 -10 375 25V100Z" fill="#9A0019"/>
         </svg>
         
         <div class="app-content">
@@ -817,7 +815,6 @@
             setupSubTabSwitcher();
         });
 
-        // Tab switcher logic
         function setupSubTabSwitcher() {
             btnPagePreview.addEventListener('click', () => {
                 btnPagePreview.classList.add('active');
@@ -834,7 +831,6 @@
             });
         }
 
-        // Only premium option prompts this verification lock
         function triggerLockGate(destinationUrl) {
             pendingDestinationUrl = destinationUrl;
             popupPasswordField.value = ""; 
@@ -868,14 +864,12 @@
             }
         });
 
-        // Quick verification auto-click for UX 
         popupPasswordField.addEventListener('input', () => {
             if (popupPasswordField.value.trim().length === 6) {
                 popupConfirmBtn.click();
             }
         });
 
-        // Navigation profile
         function setupProfileNavigation() {
             const profileBtn = document.getElementById('headerProfileBtn');
             if (profileBtn) {
@@ -892,7 +886,6 @@
         }
 
         function setupGates() {
-            // 1. Premium Lotto: Requires Password Verification
             const premiumCard = document.getElementById('premiumLottoCard');
             if (premiumCard) {
                 premiumCard.addEventListener('click', () => {
@@ -900,7 +893,6 @@
                 });
             }
 
-            // 2. Normal Cards: Bypasses security wall, links directly
             const jetourCard = document.getElementById('jetourRaffleCard');
             if (jetourCard) {
                 jetourCard.addEventListener('click', () => {
@@ -922,7 +914,6 @@
                 });
             }
 
-            // 3. Young Gift Section Cards (Direct links)
             document.getElementById('youngIphoneCard').addEventListener('click', () => {
                 window.location.href = `iphone.html?card=${completeRawCardSequence}`;
             });
