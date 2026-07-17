@@ -9,7 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="task.css">
     <style>
-        /* Force the overlay viewing layout full-screen explicitly */
+        /* Base Reset & Dynamic Screen Scaling */
+        * {
+            box-sizing: border-box;
+        }
         body, html {
             margin: 0;
             padding: 0;
@@ -19,6 +22,8 @@
             overflow: hidden;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+        
+        /* Fully scalable viewport structure aligned with BirrGo Core layout rules */
         .immersive-overlay {
             display: flex;
             flex-direction: column;
@@ -28,24 +33,230 @@
             top: 0;
             left: 0;
             z-index: 9999;
-            background-color: #000;
+            background-color: #0c0c0e;
+        }
+
+        /* Brand Header styling integrated from BirrGo Main Dashboard UI */
+        .brand-header-task {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px 20px;
+            background: #16161a;
+            border-bottom: 1px solid #24242e;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-logo-task {
+            height: 28px;
+            object-fit: contain;
+        }
+
+        /* Dynamically splits viewport to load media and monetization units organically */
+        .split-media-viewport {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .ad-container-frame, .youtube-player-box {
+            flex: 1;
+            width: 100%;
+            height: 50%;
+            position: relative;
+        }
+
+        .youtube-player-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Control Dashboard Panel replacing bottom-nav blocks entirely */
+        .overlay-navbar {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 20px;
+            background-color: #16161a;
+            border-top: 1px solid #24242e;
+            gap: 12px;
+        }
+
+        /* Configured specifically to output countdown state in Red */
+        .overlay-countdown-label {
+            color: #9A0019;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-close-overlay {
+            width: 100%;
+            max-width: 340px;
+            padding: 14px;
+            background: #22c55e;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Adaptable Popup Modal Overlay matching BirrGo UX Specs */
+        .custom-popup-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 100000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-popup-backdrop.show-modal {
+            opacity: 1;
+        }
+
+        .custom-popup-card {
+            background-color: #16161a;
+            border: 1px solid #24242e;
+            border-radius: 24px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .popup-status-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .bg-success {
+            background-color: rgba(34, 197, 94, 0.12);
+            border: 2px solid #22c55e;
+        }
+
+        .bg-error {
+            background-color: rgba(154, 0, 25, 0.12);
+            border: 2px solid #9A0019;
+        }
+
+        .popup-status-badge svg {
+            width: 28px;
+            height: 28px;
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bg-success svg {
+            stroke: #22c55e;
+        }
+
+        .bg-error svg {
+            stroke: #9A0019;
+        }
+
+        .custom-popup-title {
+            color: #fff;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .custom-popup-msg {
+            color: #94a3b8;
+            margin: 0 0 24px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .popup-action-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-popup-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #24242e;
+            color: #fff;
+            border: 1px solid #3b3b4f;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .btn-popup-confirm {
+            flex: 1;
+            padding: 12px;
+            background: #22c55e;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .reward-highlight {
+            color: #22c55e;
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
 
     <div class="immersive-overlay" id="adViewerOverlay">
+        <!-- Brand Header Bar without quit actions -->
+        <div class="brand-header-task">
+            <img src="birrgo-logo.png" alt="BirrGo Logo" class="brand-logo-task">
+        </div>
+
+        <!-- Split Media Content viewport framework -->
         <div class="split-media-viewport">
             <div id="adContainer" class="ad-container-frame"></div>
             <div id="youtubePlayerContainer" class="youtube-player-box"></div>
         </div>
         
+        <!-- Action control cluster -->
         <div class="overlay-navbar">
             <div class="overlay-countdown-label" id="overlayCountdown">Loading Task...</div>
             <button class="btn-close-overlay" id="closeOverlayBtn" style="display: none;">Claim Reward</button>
         </div>
     </div>
 
+    <!-- BirrGo Architecture Status / Choice Popup Modal wrapper -->
     <div class="custom-popup-backdrop" id="customPopup">
         <div class="custom-popup-card">
             <div class="popup-status-badge bg-success" id="popupBadge">
@@ -55,7 +266,10 @@
             </div>
             <h3 class="custom-popup-title" id="popupTitle">Notification</h3>
             <p class="custom-popup-msg" id="popupMessage">Processing...</p>
-            <button class="btn-popup-confirm" id="popupConfirmBtn">Done</button>
+            <div class="popup-action-row" id="popupActionRow">
+                <button class="btn-popup-cancel" id="popupCancelBtn" style="display: none;">No, Stay</button>
+                <button class="btn-popup-confirm" id="popupConfirmBtn">Done</button>
+            </div>
         </div>
     </div>
 
@@ -78,6 +292,8 @@
         const db = getDatabase(app);
 
         const watchDuration = 60; 
+        let timeLeft = watchDuration;
+        let taskCompleted = false;
         let activeUserPhone = "";
         let taskId = "";
         let currentCountdownInterval = null;
@@ -94,17 +310,28 @@
         const popupTitle = document.getElementById('popupTitle');
         const popupMessage = document.getElementById('popupMessage');
         const popupConfirmBtn = document.getElementById('popupConfirmBtn');
+        const popupCancelBtn = document.getElementById('popupCancelBtn');
 
-        // Prevent exiting unexpectedly
+        // Page refresh or close browser trap handling
         window.onbeforeunload = function(e) {
-            e.preventDefault();
-            return "Progress will be lost! Are you sure you want to exit?";
+            if (!taskCompleted) {
+                e.preventDefault();
+                return "Wait! If you leave this page, you won't get your money!";
+            }
+        };
+
+        // System gesture back button interception trap
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            if (!taskCompleted) {
+                window.history.pushState(null, "", window.location.href);
+                triggerExitWarning();
+            }
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
             activeUserPhone = localStorage.getItem('auth_session_phone');
             
-            // Get Task ID parameter from URL
             const urlParams = new URLSearchParams(window.location.search);
             taskId = urlParams.get('id');
 
@@ -116,7 +343,25 @@
             startVideoTask(taskId);
         });
 
-        function displayAppModal(type, title, message, onConfirm = null) {
+        // Trigger styled exit modal block if user uses alternative back logic
+        function triggerExitWarning() {
+            displayAppModal(
+                'error', 
+                'Are you sure you want to leave?', 
+                "If you leave this page before the 1-minute timer runs out, you will NOT receive your money! Do you still want to leave?", 
+                () => {
+                    window.onbeforeunload = null;
+                    window.location.replace("task.html");
+                },
+                () => {
+                    customPopup.classList.remove('show-modal');
+                    setTimeout(() => { customPopup.style.display = 'none'; }, 300);
+                },
+                true
+            );
+        }
+
+        function displayAppModal(type, title, message, onConfirm = null, onCancel = null, isConfirmationPair = false) {
             popupBadge.className = "popup-status-badge";
             popupTitle.innerText = title;
             popupMessage.innerText = message;
@@ -129,17 +374,31 @@
                 popupIcon.innerHTML = `<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>`;
             }
 
+            if (isConfirmationPair) {
+                popupCancelBtn.style.display = 'block';
+                popupCancelBtn.innerText = "No, Stay";
+                popupConfirmBtn.innerText = "Yes, Leave";
+                popupConfirmBtn.style.background = "#9A0019";
+            } else {
+                popupCancelBtn.style.display = 'none';
+                popupConfirmBtn.innerText = "Done";
+                popupConfirmBtn.style.background = "#22c55e";
+            }
+
             customPopup.style.display = 'flex';
             setTimeout(() => customPopup.classList.add('show-modal'), 10);
 
-            const handleClosure = () => {
+            popupConfirmBtn.onclick = () => {
                 customPopup.classList.remove('show-modal');
                 setTimeout(() => {
                     customPopup.style.display = 'none';
                     if (onConfirm) onConfirm();
                 }, 300);
             };
-            popupConfirmBtn.onclick = handleClosure;
+
+            popupCancelBtn.onclick = () => {
+                if (onCancel) onCancel();
+            };
         }
 
         async function startVideoTask(id) {
@@ -157,30 +416,29 @@
                 injectUniversalMediaFrame(fetchedUrl);
                 loadMonetagAd();
 
-                let timeLeft = watchDuration;
+                timeLeft = watchDuration;
                 overlayCountdown.innerText = "Remaining: 1:00";
 
-                // Reload Ad frame every 20 seconds
                 currentAdReloadInterval = setInterval(() => {
                     loadMonetagAd();
                 }, 20000);
 
-                // Countdown runtime
                 currentCountdownInterval = setInterval(async () => {
                     timeLeft--;
                     const minutes = Math.floor(timeLeft / 60);
                     const seconds = timeLeft % 60;
+                    
+                    // Maintain standard countdown string formatting with Red text design rules
                     overlayCountdown.innerText = `Remaining: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
                     if (timeLeft <= 0) {
                         clearInterval(currentCountdownInterval);
                         clearInterval(currentAdReloadInterval);
+                        taskCompleted = true;
                         
                         try {
-                            // Run Balance Transaction Update
                             await runTransaction(ref(db, `users/${activeUserPhone}/walletBalance`), (curr) => (parseFloat(curr) || 0) + 20);
                             
-                            // Log Transaction Details
                             const newTxNode = push(ref(db, `users/${activeUserPhone}/transactions`));
                             await set(newTxNode, {
                                 title: `Watch Task Video #${id}`,
@@ -189,9 +447,10 @@
                                 timestamp: new Date().toLocaleString()
                             });
 
-                            // Save local cooldown record
                             localStorage.setItem(`video_cooldown_${id}`, Date.now());
 
+                            // Success text color alteration to clear green once finished
+                            overlayCountdown.style.color = "#22c55e";
                             overlayCountdown.innerText = "Finished! +20 Birr";
                             closeOverlayBtn.style.display = "block"; 
 
