@@ -178,7 +178,6 @@
         const targetOrigin = window.location.origin === "null" ? "*" : window.location.origin;
 
         // --- PRODUCTION CONFIG ---
-        // Keep this false in production so users authenticate securely.
         const SIMULATE_SUCCESS_ON_HTTP = false; 
 
         function onFingerprintSuccess(verificationToken) {
@@ -211,6 +210,20 @@
         }
 
         async function startBiometricScan() {
+            // --- PROFILE SETTINGS CHECK ---
+            // Inside your profile.html, save this preference using: localStorage.setItem('biometrics_enabled', 'true' or 'false')
+            const isBiometricsEnabled = localStorage.getItem('biometrics_enabled') !== 'false'; 
+
+            if (!isBiometricsEnabled) {
+                statusMsg.innerText = "Biometrics disabled in Profile.";
+                statusMsg.className = "status-text error";
+                instructionText.innerText = "Please toggle on Biometrics in your settings, or use PIN.";
+                
+                // Optional: Automatically trigger fallback to PIN after 1.5 seconds if disabled
+                setTimeout(handleFallback, 1500);
+                return;
+            }
+
             statusMsg.innerText = "Connecting to sensor...";
             statusMsg.className = "status-text";
 
@@ -349,10 +362,7 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(startBiometricScan, 600); 
-        });
-
+        // ONLY Trigger scan via active click interaction
         touchArea.addEventListener('click', startBiometricScan);
     </script>
 </body>
