@@ -7,6 +7,9 @@
     <title>BirrGo Mobile Wallet | Fast & Secure Payments</title>
     <meta name="description" content="Welcome to BirrGo Mobile Wallet. Send and receive money instantly, secure your funds with bank-level protection, and grow your future safely.">
     
+    <!-- Link PWA Web Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
@@ -32,18 +35,23 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* Desktop Background Container */
         html {
             background-color: #e5e7eb; 
             width: 100%;
-            height: 100dvh;
-        }
-
-        body {
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        /* App Frame Structure - Handles Mobile vs Desktop */
+        body {
+            display: flex;
+            flex-direction: column;
             width: 100%;
             max-width: 450px; 
+            height: 100vh;
             height: 100dvh;
             margin: 0 auto; 
             background-color: var(--bg-light);
@@ -63,23 +71,23 @@
         
         .bg-wave-top {
             top: 0;
-            height: 11vh;
-            min-height: 85px;
+            height: 15vh;
+            min-height: 110px;
         }
         .bg-wave-bottom {
             bottom: 0;
-            height: 10vh;
-            min-height: 70px;
+            height: 12vh;
+            min-height: 85px;
         }
 
         /* Main Container */
         .app-view {
             width: 100%;
-            height: 100dvh;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: calc(1vh + env(safe-area-inset-top)) 20px calc(12vh + env(safe-area-inset-bottom)) 20px;
+            padding: calc(15px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
             position: relative;
             z-index: 1;
         }
@@ -90,18 +98,18 @@
             display: flex;
             flex-direction: column;
             align-items: center; 
-            gap: 10px;
-            margin-bottom: 2vh;
+            gap: 12px;
+            margin-bottom: auto;
         }
 
         /* Premium Top Download Banner */
         .download-banner {
-            width: 90%; 
-            max-width: 340px; 
+            width: 100%; 
+            max-width: 380px; 
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 14px;
-            padding: 8px 12px;
+            padding: 10px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -116,25 +124,25 @@
         }
 
         .apk-icon-box {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background: #ffffff;
             color: var(--primary-burgundy);
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .download-text-main {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: -0.01em;
         }
 
         .download-text-sub {
-            font-size: 9px;
+            font-size: 10px;
             color: rgba(255, 255, 255, 0.85);
             margin-top: 1px;
         }
@@ -143,10 +151,10 @@
             background: #ffffff;
             color: var(--primary-burgundy);
             text-decoration: none;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 5px 12px;
-            border-radius: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s ease;
             cursor: pointer;
@@ -163,11 +171,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 1vh;
+            margin-top: 10px;
         }
 
         .logo-image {
-            width: 150px; 
+            width: 140px; 
             height: auto;
             object-fit: contain;
         }
@@ -178,19 +186,19 @@
             flex-direction: column;
             justify-content: center;
             flex-grow: 1;
+            margin: 20px 0;
         }
 
         /* Welcome Text */
         .welcome-content {
             text-align: center;
-            margin-bottom: 3vh;
+            margin-bottom: 25px;
         }
 
         .welcome-content h1 {
             font-size: 24px; 
             font-weight: 700; 
             color: var(--text-dark);
-            margin-bottom: 8px;
             letter-spacing: -0.03em; 
         }
 
@@ -198,35 +206,35 @@
             color: var(--primary-burgundy);
         }
 
-        /* Feature Cards */
+        /* Feature Cards Grid layout */
         .features-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 4vh; 
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 15px; 
         }
 
         .feature-card {
-            flex: 1;
             background: #ffffff;
             border-radius: 16px;
             box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 16px 8px 12px; 
+            padding: 14px 6px; 
             text-align: center;
             border: 1px solid rgba(0,0,0,0.02);
         }
 
         .icon-circle {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .card-1-icon { background-color: #fceceb; color: #d32f2f; }
@@ -234,18 +242,18 @@
         .card-3-icon { background-color: #fdf4e7; color: #f57c00; }
 
         .feature-title {
-            font-size: 12px;
-            font-weight: 600; 
+            font-size: 11px;
+            font-weight: 700; 
             color: var(--text-dark);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: -0.01em;
         }
 
         .feature-desc {
-            font-size: 10px;
+            font-size: 9.5px;
             color: var(--text-muted);
-            line-height: 1.4;
-            margin-bottom: 12px;
+            line-height: 1.3;
+            margin-bottom: 10px;
             flex-grow: 1;
             font-weight: 400;
         }
@@ -254,6 +262,7 @@
             width: 14px;
             height: 3px;
             border-radius: 2px;
+            margin-top: auto;
         }
 
         .dash-1 { background-color: #d32f2f; }
@@ -266,12 +275,12 @@
             flex-direction: column;
             gap: 12px;
             width: 100%;
-            padding-bottom: 28px; 
+            margin-top: auto;
         }
 
         .btn {
             width: 100%;
-            height: 56px; 
+            height: 54px; 
             border-radius: 16px;
             font-size: 15px;
             font-weight: 600; 
@@ -328,20 +337,17 @@
             margin-left: -8px; 
         }
 
-        /* Footer Links */
+        /* Footer Links inside app viewport */
         .footer-links {
-            position: absolute; 
-            bottom: calc(4vh + env(safe-area-inset-bottom));
-            left: 0;
-            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            font-size: 12px; 
+            font-size: 11px; 
             color: #ffffff;
             font-weight: 600; 
-            z-index: 10;
+            margin-top: 15px;
+            padding-bottom: 5px;
         }
 
         .footer-links a {
@@ -360,7 +366,7 @@
         .footer-icon {
             color: var(--primary-burgundy);
             background: #ffffff;
-            padding: 4px;
+            padding: 3px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -368,8 +374,7 @@
         }
         
         .divider {
-            color: rgba(255, 255, 255, 0.7); 
-            margin: 0 2px;
+            color: rgba(255, 255, 255, 0.6); 
         }
 
         /* Installation Guide Modal Overlay */
@@ -483,20 +488,25 @@
             cursor: pointer;
         }
 
-        /* Small screen adjustments */
-        @media (max-height: 650px) {
-            .bg-wave-top { height: 12vh; min-height: 80px; }
-            .logo-image { width: 120px; } 
-            .welcome-content h1 { font-size: 20px; margin-bottom: 4px; }
-            .feature-card { padding: 12px 6px 10px; }
-            .icon-circle { width: 32px; height: 32px; margin-bottom: 8px; }
-            .btn { height: 50px; }
-            .download-banner { padding: 8px 12px; }
+        /* Smart Responsiveness for Ultra-Short Phones */
+        @media (max-height: 660px) {
+            .logo-image { width: 110px; } 
+            .welcome-content { margin-bottom: 12px; }
+            .welcome-content h1 { font-size: 19px; }
+            .feature-card { padding: 10px 4px; }
+            .icon-circle { width: 32px; height: 32px; margin-bottom: 6px; }
+            .feature-title { font-size: 10px; }
+            .feature-desc { font-size: 8.5px; margin-bottom: 4px; }
+            .btn { height: 46px; font-size: 14px; }
+            .download-banner { padding: 6px 12px; }
+            .download-text-main { font-size: 11px; }
+            .download-text-sub { font-size: 9px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Background Art Top -->
     <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 0H375V110C375 110 280 230 0 150V0Z" fill="url(#paint0_linear)"/>
         <defs>
@@ -507,12 +517,14 @@
         </defs>
     </svg>
 
+    <!-- Background Art Bottom -->
     <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
     </svg>
 
     <div class="app-view">
         
+        <!-- Header -->
         <div class="header-top-area">
             <div class="download-banner" id="apkDownloadBanner">
                 <div class="download-info">
@@ -536,6 +548,7 @@
             </div>
         </div>
 
+        <!-- Body -->
         <div class="main-body-content">
             <div class="welcome-content">
                 <h1>Welcome to <span>BirrGo!</span></h1>
@@ -544,7 +557,7 @@
             <div class="features-container">
                 <div class="feature-card">
                     <div class="icon-circle card-1-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="1" x2="12" y2="23"></line>
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
@@ -556,7 +569,7 @@
 
                 <div class="feature-card">
                     <div class="icon-circle card-2-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             <rect x="9" y="11" width="6" height="6" rx="1"></rect>
                             <path d="M12 11V9a2 2 0 1 1 4 0"></path>
@@ -569,7 +582,7 @@
 
                 <div class="feature-card">
                     <div class="icon-circle card-3-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 2 7 22 7 12 2"></polygon>
                             <polyline points="2 17 22 17"></polyline>
                             <polyline points="2 22 22 22"></polyline>
@@ -586,6 +599,7 @@
             </div>
         </div>
 
+        <!-- Call To Actions -->
         <div class="action-area">
             <a href="register.html" id="createAccountBtn" class="btn btn-primary">
                 <div class="btn-left">
@@ -633,6 +647,7 @@
 
     </div>
 
+    <!-- Modal Popup Box -->
     <div class="modal-overlay" id="installGuideModal">
         <div class="modal-card">
             <div class="modal-icon">
@@ -689,8 +704,6 @@
 
                 closeBtn.addEventListener('click', () => {
                     modal.classList.remove('active');
-                    
-                    // Trigger the download with the updated lowercase filename
                     window.location.href = "https://github.com/birrgo/birrgo1.github.io/releases/latest/download/birrgo.apk";
                 });
             }
