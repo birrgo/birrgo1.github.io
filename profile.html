@@ -644,7 +644,6 @@
         const biometricCloseBtn = document.getElementById('biometricCloseBtn');
         const biometricIframe = document.getElementById('biometricIframe');
 
-        // Premium Toast Notification Utility 
         function showToast(title, message, type = "success") {
             const toastBox = document.getElementById('toastBox');
             const iconBlock = document.getElementById('toastIconBlock');
@@ -695,10 +694,12 @@
             streamAccountData();
         });
 
-        // Toggle Interception
+        // Fixed Toggle Interception
         biometricsToggle.addEventListener('click', (e) => {
             e.preventDefault(); 
-            originalToggleState = biometricsToggle.checked;
+            
+            // Read what the state *was* before the user tapped it
+            originalToggleState = localStorage.getItem('biometrics_enabled') === 'true';
             intendedToggleState = !originalToggleState; 
             
             verifyPasswordInput.value = "";
@@ -726,23 +727,19 @@
                     if (String(dbPassword) === enteredPin) {
                         closeVerifyModal();
                         
-                        // Pass confirmation state down into local storage before frame syncs
-                        localStorage.setItem('biometrics_enabled', intendedToggleState);
-                        
                         biometricIframe.src = "finger.html"; 
                         biometricPopup.style.display = 'flex';
-                        setTimeout(() => {
-                            biometricPopup.classList.add('show-modal');
-                            // Fallback sync message directly into the sub-frame window context
-                            setTimeout(() => {
-                                if (biometricIframe.contentWindow) {
-                                    biometricIframe.contentWindow.postMessage({
-                                        type: 'UPDATE_BIOMETRIC_STATUS',
-                                        enabled: intendedToggleState
-                                    }, '*');
-                                }
-                            }, 300);
-                        }, 10);
+                        biometricPopup.classList.add('show-modal');
+
+                        // Wait for iframe window parsing context to securely lock in sync channel data
+                        biometricIframe.onload = () => {
+                            if (biometricIframe.contentWindow) {
+                                biometricIframe.contentWindow.postMessage({
+                                    type: 'UPDATE_BIOMETRIC_STATUS',
+                                    enabled: intendedToggleState
+                                }, '*');
+                            }
+                        };
                     } else {
                         showToast("Access Denied", "Incorrect Security PIN credential.", "error");
                     }
@@ -760,14 +757,13 @@
                 biometricIframe.src = "about:blank";
                 biometricPopup.style.display = 'none'; 
             }, 300);
-            // Revert state if closed without validation confirmation
+            
             const bioSettings = localStorage.getItem('biometrics_enabled') === 'true';
             biometricsToggle.checked = bioSettings;
             biometricsStatusText.innerText = bioSettings ? "Biometrics Active" : "Use fingerprint scanner";
         }
         biometricCloseBtn.addEventListener('click', closeBiometricModal);
 
-        // Handle child interface status message feedback
         window.addEventListener('message', (event) => {
             if (event.data && event.data.status) {
                 if (event.data.status === 'SUCCESS') {
@@ -782,7 +778,6 @@
                     }, 600);
                 } else if (event.data.status === 'FAILED') {
                     setTimeout(() => {
-                        // Roll back configurations on security session faults
                         localStorage.setItem('biometrics_enabled', originalToggleState);
                         biometricsToggle.checked = originalToggleState;
                         biometricsStatusText.innerText = originalToggleState ? "Biometrics Active" : "Use fingerprint scanner";
