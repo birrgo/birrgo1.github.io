@@ -38,33 +38,18 @@
             width: 100%;
             height: 100%;
             height: 100dvh;
-            overflow: hidden;
-            background-color: #0f172a; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: var(--bg-light); 
         }
 
-        /* Responsive Wrapper */
+        /* Fully Responsive Fluid Wrapper */
         .app-view {
             width: 100%;
             height: 100%;
             height: 100dvh;
-            max-width: 480px; 
             background-color: var(--bg-light);
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            transition: max-width 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            .app-view {
-                max-width: 100%; 
-                box-shadow: none;
-            }
         }
 
         .bg-wave {
@@ -91,7 +76,6 @@
             display: flex;
             flex-direction: column;
             background-color: transparent;
-            /* Added padding-bottom explicitly to avoid cutting off items */
             padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
             overflow-y: auto;
             scrollbar-width: none;
@@ -276,7 +260,6 @@
             gap: 4px;
         }
 
-        /* FIX: Added spacer to prevent contents from ducking under nav bar */
         .bottom-spacer {
             height: calc(85px + env(safe-area-inset-bottom));
             width: 100%;
@@ -284,7 +267,7 @@
             pointer-events: none;
         }
 
-        /* Fixed Navigation */
+        /* Fluid Navigation Bar */
         .bottom-nav-bar {
             position: absolute;
             bottom: 0;
@@ -343,7 +326,7 @@
             stroke-width: 2.4;
         }
 
-        /* Dialog system */
+        /* Popup Overlays */
         .custom-popup-backdrop {
             position: absolute;
             top: 0;
@@ -643,7 +626,6 @@
                     </div>
                 </div>
 
-                <!-- Spacer nested directly in the section to ensure full scrolling clearance -->
                 <div class="bottom-spacer"></div>
             </div>
 
@@ -705,7 +687,6 @@
                     </div>
                 </div>
 
-                <!-- Spacer nested directly in the section to ensure full scrolling clearance -->
                 <div class="bottom-spacer"></div>
             </div>
 
