@@ -35,19 +35,27 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Responsive Adaptive Body Canvas */
         html, body {
             width: 100%;
-            height: 100dvh;
-            overflow: hidden;
-            background-color: #f1f5f9;
-        }
-
-        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a; /* Sophisticated dark backdrop for larger viewports */
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
+        /* Desktop & Tablet Ambient Lighting */
+        @media (min-width: 480px) {
+            body {
+                background: radial-gradient(circle at top left, #2e0813 0%, #0f172a 60%);
+            }
+        }
+
+        /* Main Container Framework - Adapts to all viewports natively */
         .app-view {
             width: 100%;
             height: 100dvh;
@@ -56,8 +64,20 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Tablet/Desktop Card View Transformation */
+        @media (min-width: 480px) and (min-height: 600px) {
+            .app-view {
+                height: 92vh;
+                max-height: 880px;
+                border-radius: 40px;
+                box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 
+                            0 0 0 12px rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
         }
 
         /* Decorative Background Waves pinned inside container */
@@ -82,7 +102,7 @@
         .app-content {
             flex: 1;
             overflow-y: auto;
-            background-color: transparent; /* Allows waves to display underneath cleanly */
+            background-color: transparent;
             padding: calc(16px + env(safe-area-inset-top)) 20px calc(95px + env(safe-area-inset-bottom)) 20px;
             scrollbar-width: none;
             position: relative;
@@ -188,19 +208,6 @@
             pointer-events: none;
         }
 
-        .balance-card::after {
-            content: '';
-            position: absolute;
-            right: 16px;
-            bottom: 16px;
-            width: 85px;
-            height: 85px;
-            background: url('33164.png') no-repeat center;
-            background-size: contain;
-            opacity: 0.15;
-            filter: brightness(0) invert(1);
-        }
-
         .balance-meta {
             display: flex;
             justify-content: space-between;
@@ -217,13 +224,14 @@
         }
 
         .balance-amount {
-            font-size: 40px;
+            font-size: clamp(32px, 8vw, 40px);
             font-weight: 800;
             letter-spacing: -1.2px;
             margin-bottom: 20px;
             display: flex;
             align-items: baseline;
             gap: 6px;
+            flex-wrap: wrap;
         }
 
         .balance-currency {
@@ -238,6 +246,8 @@
             align-items: center;
             border-top: 1px solid rgba(255, 255, 255, 0.12);
             padding-top: 14px;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
         .wallet-id {
@@ -307,8 +317,9 @@
         }
 
         .action-icon-box {
-            width: 58px;
-            height: 58px;
+            width: 100%;
+            max-width: 58px;
+            aspect-ratio: 1 / 1;
             background-color: #ffffff;
             border: 1px solid var(--border-light);
             border-radius: 18px;
@@ -322,8 +333,8 @@
         }
 
         .action-icon-box svg {
-            width: 24px;
-            height: 24px;
+            width: 45%;
+            height: 45%;
             fill: none;
             stroke: currentColor;
         }
@@ -348,6 +359,7 @@
             text-align: center;
         }
 
+        /* Scoped Bottom Navigation Bar */
         .bottom-nav-bar {
             position: absolute;
             bottom: 0;
@@ -405,12 +417,13 @@
             stroke-width: 2.4;
         }
 
+        /* Scoped Modals Container Layer */
         .custom-popup-backdrop {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100dvh;
+            height: 100%;
             background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
@@ -429,7 +442,7 @@
         .custom-popup-card {
             background: #ffffff;
             width: 100%;
-            max-width: 360px;
+            max-width: 340px;
             border-radius: var(--border-radius-lg);
             padding: 28px 24px 24px 24px;
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
@@ -603,17 +616,17 @@
             </a>
         </nav>
 
-    </div>
-
-    <div class="custom-popup-backdrop" id="customPopup">
-        <div class="custom-popup-card">
-            <div class="popup-status-badge bg-lock">
-                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <div class="custom-popup-backdrop" id="customPopup">
+            <div class="custom-popup-card">
+                <div class="popup-status-badge bg-lock">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h3 class="custom-popup-title">Feature Locked</h3>
+                <p class="custom-popup-msg" id="popupMessage">This action framework module is coming soon.</p>
+                <button class="btn-popup-confirm" id="popupConfirmBtn">OK</button>
             </div>
-            <h3 class="custom-popup-title">Feature Locked</h3>
-            <p class="custom-popup-msg" id="popupMessage">This action framework module is coming soon.</p>
-            <button class="btn-popup-confirm" id="popupConfirmBtn">OK</button>
         </div>
+
     </div>
 
     <script type="module">
