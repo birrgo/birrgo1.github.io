@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <title>BirrGo Mobile Wallet | Fast & Secure Payments</title>
     <meta name="description" content="Welcome to BirrGo Mobile Wallet. Send and receive money instantly, secure your funds with bank-level protection, and grow your future safely.">
@@ -35,43 +35,19 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Desktop/Tablet Background Layout */
-        html {
-            background-color: #e5e7eb; 
+        html, body {
             width: 100%;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: var(--bg-light);
         }
 
-        /* App Frame Structure */
         body {
             display: flex;
             flex-direction: column;
-            width: 100%;
-            max-width: 450px; 
-            height: 100vh;
-            height: 100dvh;
-            margin: 0 auto; 
-            background-color: var(--bg-light);
             position: relative;
-            overflow: hidden;
-            box-shadow: none;
         }
 
-        /* Apply container styling only on Desktop & Tablets */
-        @media (min-width: 480px) {
-            body {
-                height: 85vh;
-                max-height: 850px;
-                min-height: 650px;
-                border-radius: 30px;
-                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-            }
-        }
-
-        /* Decorative Background Waves */
+        /* Decorative Background Waves - Modified to scale organically across 100% viewports */
         .bg-wave {
             position: absolute;
             left: 0;
@@ -82,51 +58,43 @@
         
         .bg-wave-top {
             top: 0;
-            height: 10vh;
-            min-height: 75px;
+            height: 120px;
         }
         
-        /* Frame for the bottom footer */
         .bg-wave-bottom {
             bottom: 0;
-            height: 75px; 
+            height: 100px; 
         }
 
-        /* Main Scrollable Viewport Wrapper */
+        /* Main Viewport Wrapper - Stretches naturally to full screen */
         .app-view {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: calc(15px + env(safe-area-inset-top)) 20px 0 20px;
+            padding: calc(20px + env(safe-area-inset-top)) 24px 0 24px;
             position: relative;
             z-index: 1;
-            overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .app-view::-webkit-scrollbar {
-            display: none;
         }
 
-        /* Top Header Area - Compacted */
+        /* Top Header Area */
         .header-top-area {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center; 
-            gap: 12px;
-            margin-bottom: 10px; 
+            gap: 16px;
+            margin-bottom: 16px; 
             flex-shrink: 0;
         }
 
-        /* Premium Top Download Banner - Compacted sizing */
+        /* Premium Top Download Banner */
         .download-banner {
             width: 100%; 
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 6px 12px;
+            border-radius: 14px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -137,15 +105,15 @@
         .download-info {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
         .apk-icon-box {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background: #ffffff;
             color: var(--primary-burgundy);
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -153,19 +121,19 @@
         }
 
         .apk-icon-box svg {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
         }
 
         .download-text-main {
-            font-size: 11.5px;
+            font-size: 13px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: -0.01em;
         }
 
         .download-text-sub {
-            font-size: 9px;
+            font-size: 10px;
             color: rgba(255, 255, 255, 0.85);
             margin-top: 1px;
         }
@@ -174,10 +142,10 @@
             background: #ffffff;
             color: var(--primary-burgundy);
             text-decoration: none;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
-            padding: 5px 11px;
-            border-radius: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s ease;
             cursor: pointer;
@@ -199,29 +167,29 @@
         }
 
         .logo-image {
-            width: 140px; 
+            width: 150px; 
             height: auto;
             object-fit: contain;
         }
 
-        /* Middle Content Layout containing Logo, Welcomes, Features, and main Action Buttons */
+        /* Middle Content Layout */
         .main-body-content {
             display: flex;
             flex-direction: column;
             justify-content: flex-start; 
             flex-grow: 1;
-            margin: 5px 0 0 0; 
+            margin: 10px 0 0 0; 
         }
 
         /* Welcome Text */
         .welcome-content {
             text-align: center;
-            margin-bottom: 12px; 
+            margin-bottom: 20px; 
         }
 
         .welcome-content h1 {
-            font-size: 24px; 
-            font-weight: 700; 
+            font-size: 28px; 
+            font-weight: 800; 
             color: var(--text-dark);
             letter-spacing: -0.03em; 
         }
@@ -234,31 +202,31 @@
         .features-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 16px;
             width: 100%;
-            margin-bottom: 15px; 
+            margin-bottom: 24px; 
         }
 
         .feature-card {
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 20px;
             box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 14px 8px; 
+            padding: 20px 12px; 
             text-align: center;
             border: 1px solid rgba(0,0,0,0.02);
         }
 
         .icon-circle {
-            width: 38px;
-            height: 38px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             flex-shrink: 0;
         }
 
@@ -267,24 +235,24 @@
         .card-3-icon { background-color: #fdf4e7; color: #f57c00; }
 
         .feature-title {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700; 
             color: var(--text-dark);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             letter-spacing: -0.01em;
         }
 
         .feature-desc {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-muted);
-            line-height: 1.35;
-            margin-bottom: 10px;
+            line-height: 1.4;
+            margin-bottom: 12px;
             flex-grow: 1;
             font-weight: 400;
         }
 
         .indicator-dash {
-            width: 14px;
+            width: 20px;
             height: 3px;
             border-radius: 2px;
             margin-top: auto;
@@ -294,17 +262,17 @@
         .dash-2 { background-color: #1976d2; }
         .dash-3 { background-color: #f57c00; }
 
-        /* Tablet/Mobile Layout shift when space is too tight */
-        @media (max-width: 375px) {
+        /* Media queries for fluid responsive layouts on different viewports */
+        @media (max-width: 600px) {
             .features-container {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 12px;
             }
             .feature-card {
                 flex-direction: row;
                 text-align: left;
-                padding: 12px 16px;
-                gap: 14px;
+                padding: 16px 20px;
+                gap: 16px;
             }
             .icon-circle {
                 margin-bottom: 0;
@@ -317,25 +285,25 @@
             }
         }
 
-        /* Action buttons container shifted directly under features */
+        /* Action buttons container */
         .action-area {
             display: flex;
             flex-direction: column;
             gap: 12px;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 24px;
         }
 
         .btn {
             width: 100%;
-            height: 54px; 
-            border-radius: 16px;
-            font-size: 15px;
+            height: 56px; 
+            border-radius: 18px;
+            font-size: 16px;
             font-weight: 600; 
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 24px;
             cursor: pointer;
             transition: transform 0.1s ease;
             text-decoration: none;
@@ -356,8 +324,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: #ffffff;
             flex-shrink: 0;
@@ -386,7 +354,7 @@
             margin-left: -8px; 
         }
 
-        /* Footer links container stays locked at the very bottom over red wave */
+        /* Footer links container stretched full-width at the bottom */
         .footer-area {
             margin-top: auto;
             width: 100%;
@@ -400,12 +368,12 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 6px;
-            font-size: 11px; 
+            gap: 8px;
+            font-size: 12px; 
             color: #ffffff; 
             font-weight: 700; 
-            padding-top: 22px; 
-            padding-bottom: calc(12px + env(safe-area-inset-bottom)); 
+            padding-top: 30px; 
+            padding-bottom: calc(16px + env(safe-area-inset-bottom)); 
             text-align: center;
         }
 
@@ -429,7 +397,7 @@
         .footer-icon {
             color: var(--primary-burgundy);
             background: #ffffff; 
-            padding: 3px;
+            padding: 4px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -442,16 +410,16 @@
             font-weight: 700;
         }
 
-        /* Installation Guide Modal Overlay */
+        /* Installation Guide Modal Overlay - Adjusted to Fixed Fullscreen Window */
         .modal-overlay {
-            position: absolute; 
+            position: fixed; 
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
-            z-index: 100;
+            z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -469,9 +437,9 @@
         .modal-card {
             background: #ffffff;
             width: 100%;
-            max-width: 380px;
+            max-width: 420px;
             border-radius: 24px;
-            padding: 24px;
+            padding: 28px;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             transform: scale(0.9);
@@ -483,8 +451,8 @@
         }
 
         .modal-icon {
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             background: #e8f0fe;
             color: #1976d2;
             border-radius: 50%;
@@ -495,14 +463,14 @@
         }
 
         .modal-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--text-dark);
             margin-bottom: 8px;
         }
 
         .modal-desc {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-muted);
             line-height: 1.5;
             margin-bottom: 20px;
@@ -511,19 +479,19 @@
         .step-list {
             text-align: left;
             background: var(--bg-light);
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 14px;
             margin-bottom: 20px;
         }
 
         .step-item {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-dark);
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .step-item:last-child { margin-bottom: 0; }
@@ -531,9 +499,9 @@
         .step-num {
             background: var(--primary-burgundy);
             color: #ffffff;
-            font-size: 10px;
-            width: 18px;
-            height: 18px;
+            font-size: 11px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -542,20 +510,17 @@
             flex-shrink: 0;
         }
 
-        /* Smart Responsiveness for Short Mobile Viewports */
-        @media (max-height: 660px) {
-            .logo-image { width: 110px; } 
-            .brand-section { margin-top: 10px; }
-            .welcome-content { margin-bottom: 10px; }
-            .welcome-content h1 { font-size: 20px; }
-            .feature-card { padding: 10px 4px; }
-            .icon-circle { width: 32px; height: 32px; margin-bottom: 6px; }
-            .feature-title { font-size: 10px; }
-            .feature-desc { font-size: 9px; margin-bottom: 4px; }
-            .btn { height: 46px; font-size: 14px; }
-            .download-banner { padding: 5px 10px; }
-            .download-text-main { font-size: 10.5px; }
-            .download-text-sub { font-size: 8.5px; }
+        .modal-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--btn-shadow);
         }
     </style>
 </head>
@@ -659,7 +624,7 @@
                 </div>
             </div>
 
-            <!-- Call To Actions (Interchanged: Log In first/primary, Create Account second/secondary) -->
+            <!-- Call To Actions -->
             <div class="action-area">
                 <a href="new2.html" class="btn btn-primary">
                     <div class="btn-left">
