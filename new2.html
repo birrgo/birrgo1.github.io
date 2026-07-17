@@ -535,7 +535,8 @@
                 <span class="biometric-modal-title">Biometric Authentication</span>
                 <button class="biometric-close-btn" id="closeBiometricBtn">✕</button>
             </div>
-            <iframe class="biometric-iframe" id="biometricIframe" src="finger.html"></iframe>
+            <!-- Removed dynamic src load to prevent early auto-triggering -->
+            <iframe class="biometric-iframe" id="biometricIframe" src=""></iframe>
         </div>
     </div>
 
@@ -592,7 +593,6 @@
                 </div>
             </div>
 
-            <!-- Changed input attributes and label to support 6 digits -->
             <div class="input-group">
                 <span class="field-label">PIN (6-digits) <span class="label-highlight">*</span></span>
                 <input type="password" id="loginPin" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" class="input-box" placeholder="••••••" required>
@@ -746,28 +746,32 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3500);
         }
         
+        // Dynamic source initialization when user clicks the fingerprint button
         openBiometricBtn.addEventListener('click', () => {
             const savedPhone = localStorage.getItem('auth_session_phone');
             if (!savedPhone) {
                 showNotification("Please log in with your PIN once before using fingerprint.");
                 return;
             }
+            biometricIframe.src = "finger.html"; // Loads the file ONLY on click
             biometricOverlay.classList.add('active');
         });
 
-        closeBiometricBtn.addEventListener('click', () => {
+        function closeBiometricModal() {
             biometricOverlay.classList.remove('active');
-        });
+            biometricIframe.src = ""; // Clears iframe location on exit to avoid hidden loops
+        }
 
+        closeBiometricBtn.addEventListener('click', closeBiometricModal);
         biometricOverlay.addEventListener('click', (e) => {
-            if (e.target === biometricOverlay) biometricOverlay.classList.remove('active');
+            if (e.target === biometricOverlay) closeBiometricModal();
         });
 
         window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return;
 
             if (event.data.status === 'SUCCESS') {
-                biometricOverlay.classList.remove('active');
+                closeBiometricModal();
                 showNotification("Biometric Authenticated! Redirecting...");
                 
                 setTimeout(() => {
@@ -803,7 +807,6 @@
                 }
             }
 
-            // Changed JS validation logic here to check for exactly 6 digits
             if (pinAttempt.length !== 6 || !/^\d+$/.test(pinAttempt)) {
                 showNotification("PIN must be a valid 6-digit entry.");
                 return;
