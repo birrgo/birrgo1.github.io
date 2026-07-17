@@ -19,32 +19,29 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-html { 
-    background-color: #f3f4f6; 
-    height: 100dvh; 
+html, body { 
+    background-color: var(--bg-light); 
+    width: 100%;
+    height: 100%; 
+    margin: 0;
+    padding: 0;
 }
 
 body {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 440px; 
-    height: 100dvh;
-    margin: 0 auto; 
-    background-color: var(--bg-light);
-    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.06); 
+    flex-direction: column;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* --- CUSTOM ALERT POPUP MODAL --- */
 .modal-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -168,7 +165,7 @@ body {
 
 .app-view {
     width: 100%;
-    height: 100dvh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -176,6 +173,7 @@ body {
     position: relative;
     z-index: 1;
     background: transparent !important;
+    box-sizing: border-box;
 }
 
 /* --- ALIGNED TO FIT ENTIRELY ON THE RED TOP WAVE --- */
@@ -186,10 +184,9 @@ body {
     align-items: center;
     gap: 8px; 
     margin-bottom: 2vh;
-    margin-top: 18px; /* Tightly fits below the tiny status bar inside the 85px red wave */
+    margin-top: 18px; 
 }
 
-/* Forces any Back Button text or icon inside the header to be white for contrast on the red wave */
 .header-top-area .back-btn,
 .header-top-area a, 
 .header-top-area button {
@@ -523,6 +520,7 @@ body {
     flex-direction: column;
     gap: 12px;
     width: 100%;
+    margin-top: auto;
 }
 
 .btn {
@@ -702,10 +700,6 @@ body {
     font-weight: 600;
     font-size: 13.5px;
 }
-
-/* ==========================================================================
-   ADDED SYSTEM: SCREEN 5 (PENDING VERIFICATION) & DISPUTE ESCALATION MODAL
-   ========================================================================== */
 
 /* --- SCREEN 5: PENDING VERIFICATION & STATUS --- */
 .pending-status-box {

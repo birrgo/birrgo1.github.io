@@ -475,7 +475,7 @@
         let transactionAmount = 0;
         let countdownInterval;
         let orderReferenceId = '';
-        let databaseOrderKey = ''; // Holds firebase reference key for updates
+        let databaseOrderKey = '';
         let isMerchantOnline = true; 
         let isChatListenerAttached = false;
         let dbStatusListenerRef = null;
@@ -501,7 +501,6 @@
         const footerChatLinks = document.getElementById('footer-chat-links');
         const footerNormalLinks = document.getElementById('footer-normal-links');
 
-        // STANDARD KEY MAPPINGS (MAPPED TO NATIVE DATABASE CONFIG KEYS)
         let paymentConfigs = {
             cbe: { name: 'Commercial Bank of Ethiopia', account: '', holder_name: '' },
             boa: { name: 'Bank of Abyssinia', account: '', holder_name: '' }, 
@@ -639,7 +638,6 @@
             } else if (currentStep === 'pay') {
                 primaryBtnText.innerText = "Submit Receipt";
                 
-                // Show Cancel Button on payment step
                 secondaryBtn.innerText = "Cancel Deposit";
                 secondaryBtn.style.display = "block";
                 secondaryBtn.onclick = cancelOrder;
@@ -658,9 +656,6 @@
             }
         }
 
-        // ==========================================
-        // STEP INITIALIZATION: WRITING UNPAID ORDER
-        // ==========================================
         function createUnpaidDatabaseRecord() {
             const globalDepositsRef = ref(db, 'deposits');
             const newOrderRef = push(globalDepositsRef);
@@ -678,7 +673,6 @@
             };
 
             set(newOrderRef, unpaidPayload).then(() => {
-                // Log Unpaid Ticket in user profile
                 const userHistoryRef = ref(db, `users/${userId}/transactions/${databaseOrderKey}`);
                 set(userHistoryRef, {
                     title: `🎟️ Deposit Ticket [${paymentConfigs[selectedMethodId].name}]`,
@@ -703,9 +697,7 @@
                 transactionAmount = amount;
                 orderReferenceId = generateOrderRef(); 
 
-                // Generate and record "Unpaid" database entry immediately when amount is set
                 createUnpaidDatabaseRecord();
-
                 showScreen('guide');
             } else if (currentStep === 'guide') {
                 if (!isMerchantOnline) {
@@ -732,7 +724,7 @@
             document.getElementById('disp-account').innerText = currentGateway.account;
             document.getElementById('disp-amount').innerText = `${transactionAmount.toLocaleString()} Birr`;
 
-            let timeLimit = 5 * 60; // Set countdown timer to exactly 5 minutes
+            let timeLimit = 5 * 60; 
             const timerDisplay = document.getElementById('p2p-timer');
 
             clearInterval(countdownInterval);
@@ -748,7 +740,6 @@
             }, 1000);
         }
 
-        // COMPRESSION SCRIPT: Safely resizes receipt image before writing to database
         receiptFileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
@@ -780,19 +771,13 @@
             }
         });
 
-        // ==========================================
-        // CANCEL ORDER: updates Firebase logs cleanly
-        // ==========================================
         function cancelOrder() {
             clearInterval(countdownInterval);
             if (dbStatusListenerRef) off(dbStatusListenerRef);
 
             if (databaseOrderKey) {
                 const updates = {};
-                // Update active queue status to Cancelled
                 updates[`deposits/${databaseOrderKey}/status`] = 'Cancelled';
-                
-                // Update transaction log in user profile
                 updates[`users/${userId}/transactions/${databaseOrderKey}/status`] = 'cancelled';
                 updates[`users/${userId}/transactions/${databaseOrderKey}/title`] = `❌ Deposit Cancelled [${paymentConfigs[selectedMethodId].name}]`;
 
@@ -809,13 +794,8 @@
             }
         }
 
-        // ==========================================
-        // STEP VERIFICATION: MOVING FROM UNPAID -> PENDING
-        // ==========================================
         function submitDepositReceipt() {
             clearInterval(countdownInterval);
-            
-            // 1. Fetch live EmailJS configurations from database settings
             const emailConfigRef = ref(db, 'settings/email_config');
             
             onValue(emailConfigRef, (snapshot) => {
@@ -825,15 +805,12 @@
                     window.emailjs.init(emailConfig.emailjs_public_key);
                 }
 
-                // If databaseOrderKey is missing (e.g. state was recovered via URL parameters), create reference dynamically
                 if (!databaseOrderKey) {
                     const globalDepositsRef = ref(db, 'deposits');
                     databaseOrderKey = push(globalDepositsRef).key;
                 }
 
                 const updates = {};
-                
-                // Update global deposits queue with receipt & change status to 'Pending'
                 updates[`deposits/${databaseOrderKey}`] = {
                     ref: orderReferenceId,
                     method: paymentConfigs[selectedMethodId].name, 
@@ -845,7 +822,6 @@
                     rejectReason: ''
                 };
 
-                // Update transaction under user profile history to 'pending'
                 updates[`users/${userId}/transactions/${databaseOrderKey}`] = {
                     title: `📥 Deposit Pending [${paymentConfigs[selectedMethodId].name}]`,
                     amount: transactionAmount,
@@ -855,10 +831,8 @@
                     timestamp: new Date().toLocaleString()
                 };
 
-                // 3. Write updates atomic block to Firebase
                 update(ref(db), updates)
                     .then(() => {
-                        // 4. Trigger EmailJS if active configuration settings are present
                         if (emailConfig) {
                             const templateParams = {
                                 name: userId, 
@@ -874,7 +848,7 @@
                                 templateParams
                             )
                             .then(() => {
-                                console.log("Success: Admin has been alerted of pending deposit.");
+                                console.log("Success: Admin has been alerted.");
                                 window.location.href = "usera.html";
                             })
                             .catch((err) => {
@@ -977,13 +951,12 @@
                         }
                     });
 
-                    // JUMP STRAIGHT TO STEP 4 (PAY) IF DEPOSIT.HTML DETECTS URL QUERY PARAMETERS
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('step') === 'pay') {
                         const methodParam = urlParams.get('method');
                         const amountParam = parseFloat(urlParams.get('amount'));
                         const refParam = urlParams.get('ref');
-                        const keyParam = urlParams.get('key'); // Fetch exact Firebase object reference key if provided
+                        const keyParam = urlParams.get('key'); 
 
                         if (methodParam && !isNaN(amountParam) && refParam) {
                             selectedMethodId = methodParam;
