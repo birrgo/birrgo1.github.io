@@ -12,7 +12,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -35,7 +35,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Desktop Background Container */
+        /* Desktop/Tablet Background Layout */
         html {
             background-color: #e5e7eb; 
             width: 100%;
@@ -45,7 +45,7 @@
             align-items: center;
         }
 
-        /* App Frame Structure - Handles Mobile vs Desktop */
+        /* App Frame Structure */
         body {
             display: flex;
             flex-direction: column;
@@ -55,9 +55,20 @@
             height: 100dvh;
             margin: 0 auto; 
             background-color: var(--bg-light);
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.08); 
             position: relative;
             overflow: hidden;
+            box-shadow: none;
+        }
+
+        /* Apply container styling only on Desktop & Tablets */
+        @media (min-width: 480px) {
+            body {
+                height: 85vh;
+                max-height: 850px;
+                min-height: 650px;
+                border-radius: 30px;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            }
         }
 
         /* Decorative Background Waves */
@@ -71,45 +82,51 @@
         
         .bg-wave-top {
             top: 0;
-            height: 15vh;
-            min-height: 110px;
+            height: 10vh;
+            min-height: 75px;
         }
+        
+        /* Frame for the bottom footer */
         .bg-wave-bottom {
             bottom: 0;
-            height: 12vh;
-            min-height: 85px;
+            height: 75px; 
         }
 
-        /* Main Container */
+        /* Main Scrollable Viewport Wrapper */
         .app-view {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: calc(15px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
+            padding: calc(15px + env(safe-area-inset-top)) 20px 0 20px;
             position: relative;
             z-index: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .app-view::-webkit-scrollbar {
+            display: none;
         }
 
-        /* Top Header Area inside Dark Red Wave */
+        /* Top Header Area - Compacted */
         .header-top-area {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center; 
             gap: 12px;
-            margin-bottom: auto;
+            margin-bottom: 10px; 
+            flex-shrink: 0;
         }
 
-        /* Premium Top Download Banner */
+        /* Premium Top Download Banner - Compacted sizing */
         .download-banner {
             width: 100%; 
-            max-width: 380px; 
             background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px;
-            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 6px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -124,25 +141,31 @@
         }
 
         .apk-icon-box {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: #ffffff;
             color: var(--primary-burgundy);
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .apk-icon-box svg {
+            width: 14px;
+            height: 14px;
         }
 
         .download-text-main {
-            font-size: 13px;
+            font-size: 11.5px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: -0.01em;
         }
 
         .download-text-sub {
-            font-size: 10px;
+            font-size: 9px;
             color: rgba(255, 255, 255, 0.85);
             margin-top: 1px;
         }
@@ -151,15 +174,16 @@
             background: #ffffff;
             color: var(--primary-burgundy);
             text-decoration: none;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 5px 11px;
+            border-radius: 6px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s ease;
             cursor: pointer;
             border: none;
             outline: none;
+            flex-shrink: 0;
         }
 
         .download-action-btn:active {
@@ -171,7 +195,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 10px;
+            margin-top: 10px; 
         }
 
         .logo-image {
@@ -180,19 +204,19 @@
             object-fit: contain;
         }
 
-        /* Middle Content Grid Wrapper */
+        /* Middle Content Layout containing Logo, Welcomes, Features, and main Action Buttons */
         .main-body-content {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; 
             flex-grow: 1;
-            margin: 20px 0;
+            margin: 5px 0 0 0; 
         }
 
         /* Welcome Text */
         .welcome-content {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 12px; 
         }
 
         .welcome-content h1 {
@@ -206,7 +230,7 @@
             color: var(--primary-burgundy);
         }
 
-        /* Feature Cards Grid layout */
+        /* Responsive Feature Cards Grid */
         .features-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -222,7 +246,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 14px 6px; 
+            padding: 14px 8px; 
             text-align: center;
             border: 1px solid rgba(0,0,0,0.02);
         }
@@ -235,6 +259,7 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 10px;
+            flex-shrink: 0;
         }
 
         .card-1-icon { background-color: #fceceb; color: #d32f2f; }
@@ -250,9 +275,9 @@
         }
 
         .feature-desc {
-            font-size: 9.5px;
+            font-size: 10px;
             color: var(--text-muted);
-            line-height: 1.3;
+            line-height: 1.35;
             margin-bottom: 10px;
             flex-grow: 1;
             font-weight: 400;
@@ -269,13 +294,36 @@
         .dash-2 { background-color: #1976d2; }
         .dash-3 { background-color: #f57c00; }
 
-        /* Buttons & Footer Container */
+        /* Tablet/Mobile Layout shift when space is too tight */
+        @media (max-width: 375px) {
+            .features-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .feature-card {
+                flex-direction: row;
+                text-align: left;
+                padding: 12px 16px;
+                gap: 14px;
+            }
+            .icon-circle {
+                margin-bottom: 0;
+            }
+            .feature-desc {
+                margin-bottom: 0;
+            }
+            .indicator-dash {
+                display: none;
+            }
+        }
+
+        /* Action buttons container shifted directly under features */
         .action-area {
             display: flex;
             flex-direction: column;
             gap: 12px;
             width: 100%;
-            margin-top: auto;
+            margin-bottom: 15px;
         }
 
         .btn {
@@ -312,6 +360,7 @@
             height: 32px;
             border-radius: 50%;
             background: #ffffff;
+            flex-shrink: 0;
         }
 
         .btn-primary {
@@ -337,44 +386,60 @@
             margin-left: -8px; 
         }
 
-        /* Footer Links inside app viewport */
+        /* Footer links container stays locked at the very bottom over red wave */
+        .footer-area {
+            margin-top: auto;
+            width: 100%;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
         .footer-links {
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 6px;
             font-size: 11px; 
-            color: #ffffff;
-            font-weight: 600; 
-            margin-top: 15px;
-            padding-bottom: 5px;
+            color: #ffffff; 
+            font-weight: 700; 
+            padding-top: 22px; 
+            padding-bottom: calc(12px + env(safe-area-inset-bottom)); 
+            text-align: center;
+        }
+
+        .footer-links span {
+            font-weight: 700; 
         }
 
         .footer-links a {
             color: #ffffff;
             text-decoration: none;
             transition: opacity 0.2s;
-            font-weight: 600;
+            font-weight: 700; 
         }
 
         .footer-links a.highlight {
             color: #ffffff;
             text-decoration: underline;
-            font-weight: 700;
+            font-weight: 800; 
         }
         
         .footer-icon {
             color: var(--primary-burgundy);
-            background: #ffffff;
+            background: #ffffff; 
             padding: 3px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
         
         .divider {
-            color: rgba(255, 255, 255, 0.6); 
+            color: rgba(255, 255, 255, 0.5); 
+            font-weight: 700;
         }
 
         /* Installation Guide Modal Overlay */
@@ -474,52 +539,42 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            flex-shrink: 0;
         }
 
-        .modal-close-btn {
-            background: var(--text-dark);
-            color: #ffffff;
-            border: none;
-            width: 100%;
-            height: 48px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Smart Responsiveness for Ultra-Short Phones */
+        /* Smart Responsiveness for Short Mobile Viewports */
         @media (max-height: 660px) {
             .logo-image { width: 110px; } 
-            .welcome-content { margin-bottom: 12px; }
-            .welcome-content h1 { font-size: 19px; }
+            .brand-section { margin-top: 10px; }
+            .welcome-content { margin-bottom: 10px; }
+            .welcome-content h1 { font-size: 20px; }
             .feature-card { padding: 10px 4px; }
             .icon-circle { width: 32px; height: 32px; margin-bottom: 6px; }
             .feature-title { font-size: 10px; }
-            .feature-desc { font-size: 8.5px; margin-bottom: 4px; }
+            .feature-desc { font-size: 9px; margin-bottom: 4px; }
             .btn { height: 46px; font-size: 14px; }
-            .download-banner { padding: 6px 12px; }
-            .download-text-main { font-size: 11px; }
-            .download-text-sub { font-size: 9px; }
+            .download-banner { padding: 5px 10px; }
+            .download-text-main { font-size: 10.5px; }
+            .download-text-sub { font-size: 8.5px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Art Top -->
-    <svg class="bg-wave bg-wave-top" viewBox="0 0 375 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0H375V110C375 110 280 230 0 150V0Z" fill="url(#paint0_linear)"/>
+    <!-- Flat Top Background Wave -->
+    <svg class="bg-wave bg-wave-top" viewBox="0 0 375 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0H375V60C250 85 125 85 0 60V0Z" fill="url(#paint0_linear)"/>
         <defs>
-            <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="200" gradientUnits="userSpaceOnUse">
+            <linearGradient id="paint0_linear" x1="187.5" y1="0" x2="187.5" y2="100" gradientUnits="userSpaceOnUse">
                 <stop stop-color="#9A0019"/>
                 <stop offset="1" stop-color="#700010"/>
             </linearGradient>
         </defs>
     </svg>
 
-    <!-- Background Art Bottom -->
-    <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 150" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M375 150H0V60C0 60 120 -20 375 40V150Z" fill="#9A0019"/>
+    <!-- Flat Bottom Background Wave -->
+    <svg class="bg-wave bg-wave-bottom" viewBox="0 0 375 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 40C125 28 250 28 375 40V100H0V40Z" fill="#9A0019"/>
     </svg>
 
     <div class="app-view">
@@ -548,7 +603,7 @@
             </div>
         </div>
 
-        <!-- Body -->
+        <!-- Body Content -->
         <div class="main-body-content">
             <div class="welcome-content">
                 <h1>Welcome to <span>BirrGo!</span></h1>
@@ -562,8 +617,10 @@
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
                     </div>
-                    <div class="feature-title">Send & Receive</div>
-                    <div class="feature-desc">Send and receive money instantly, anytime.</div>
+                    <div>
+                        <div class="feature-title">Send & Receive</div>
+                        <div class="feature-desc">Send and receive money instantly, anytime.</div>
+                    </div>
                     <div class="indicator-dash dash-1"></div>
                 </div>
 
@@ -575,8 +632,10 @@
                             <path d="M12 11V9a2 2 0 1 1 4 0"></path>
                         </svg>
                     </div>
-                    <div class="feature-title">Secure & Safe</div>
-                    <div class="feature-desc">Bank-level security to protect your money.</div>
+                    <div>
+                        <div class="feature-title">Secure & Safe</div>
+                        <div class="feature-desc">Bank-level security to protect your money.</div>
+                    </div>
                     <div class="indicator-dash dash-2"></div>
                 </div>
 
@@ -592,43 +651,48 @@
                             <line x1="18" y1="17" x2="18" y2="7"></line>
                         </svg>
                     </div>
-                    <div class="feature-title">Save & Grow</div>
-                    <div class="feature-desc">Save your money and grow your future.</div>
+                    <div>
+                        <div class="feature-title">Save & Grow</div>
+                        <div class="feature-desc">Save your money and grow your future.</div>
+                    </div>
                     <div class="indicator-dash dash-3"></div>
                 </div>
             </div>
+
+            <!-- Call To Actions (Interchanged: Log In first/primary, Create Account second/secondary) -->
+            <div class="action-area">
+                <a href="new2.html" class="btn btn-primary">
+                    <div class="btn-left">
+                        <div class="btn-icon-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <span>Log In</span>
+                    </div>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+
+                <a href="register.html" id="createAccountBtn" class="btn btn-secondary">
+                    <div class="btn-left">
+                        <div class="btn-icon-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="8.5" cy="7" r="4"></circle>
+                                <line x1="20" y1="8" x2="20" y2="14"></line>
+                                <line x1="23" y1="11" x2="17" y2="11"></line>
+                            </svg>
+                        </div>
+                        <span>Create Account</span>
+                    </div>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+            </div>
         </div>
 
-        <!-- Call To Actions -->
-        <div class="action-area">
-            <a href="register.html" id="createAccountBtn" class="btn btn-primary">
-                <div class="btn-left">
-                    <div class="btn-icon-wrapper">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="8.5" cy="7" r="4"></circle>
-                            <line x1="20" y1="8" x2="20" y2="14"></line>
-                            <line x1="23" y1="11" x2="17" y2="11"></line>
-                        </svg>
-                    </div>
-                    <span>Create Account</span>
-                </div>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-            
-            <a href="new2.html" class="btn btn-secondary">
-                <div class="btn-left">
-                    <div class="btn-icon-wrapper">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                    </div>
-                    <span>Log In</span>
-                </div>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-            
+        <!-- Footer Area (Resting securely on the bottom red curve) -->
+        <div class="footer-area">
             <div class="footer-links">
                 <div class="footer-icon">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
